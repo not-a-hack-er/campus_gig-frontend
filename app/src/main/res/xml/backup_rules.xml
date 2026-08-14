@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Full backup rules for Android 6.0-11 (API 23-30).
+  See https://developer.android.com/guide/topics/data/autobackup
+
+  SECURITY: Exclude the session SharedPreferences so JWT tokens
+  cannot be restored to another device from a backup.
+-->
+<full-backup-content>
+    <!-- Exclude auth session prefs — tokens must NOT be backed up -->
+    <exclude domain="sharedpref" path="campus_gig_prefs.xml"/>
+</full-backup-content>
