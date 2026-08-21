@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val app = application as CampusGigApplication
-        val startDestination = if (app.authRepository.isLoggedIn()) Routes.HOME else Routes.LOGIN
+        val isLoggedIn = app.authRepository.isLoggedIn()
 
         setContent {
             // ── Theme ─────────────────────────────────────────────────────────
@@ -57,9 +57,10 @@ class MainActivity : ComponentActivity() {
                     }
 
                     AppNavGraph(
-                        navController = navController,
-                        startDestination = startDestination,
-                        themeViewModel = themeViewModel
+                        navController    = navController,
+                        startDestination = Routes.SPLASH,
+                        isLoggedIn       = isLoggedIn,
+                        themeViewModel   = themeViewModel
                     )
                 }
             }
