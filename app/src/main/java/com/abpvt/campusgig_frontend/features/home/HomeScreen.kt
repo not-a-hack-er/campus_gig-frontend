@@ -98,6 +98,7 @@ import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
+import com.abpvt.campusgig_frontend.ui.components.VLockLogoIcon
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
@@ -303,18 +304,10 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Logo mark
-                        Box(
-                            modifier = Modifier
-                                .size(28.dp)
-                                .background(
-                                    Brush.linearGradient(colors = listOf(GradientIndigoStart, GradientIndigoEnd)),
-                                    RoundedCornerShape(8.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) { Text("⚡", fontSize = 14.sp) }
+                        // Official CampusVault V-Lock Logo Mark
+                        VLockLogoIcon(size = 30.dp)
 
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(10.dp))
                         Text(
                             "CampusVault",
                             style = MaterialTheme.typography.titleMedium.copy(
