@@ -171,14 +171,15 @@ private data class FeaturedCard(
     val category: String,
     val title: String,
     val budget: String,
-    val poster: String
+    val poster: String,
+    val gigId: String? = null
 )
 
 private val featuredCards = listOf(
-    FeaturedCard("Coding",      "Build a Full-Stack E-Commerce Platform",   "Rs 8,000 - 12,000", "Rohan M."),
-    FeaturedCard("Design",      "Brand Identity for a Tech Startup",         "Rs 5,000 - 7,000",  "Priya K."),
-    FeaturedCard("Writing",     "SEO Blog Articles - 10 Posts",              "Rs 3,000 - 4,000",  "Arjun S."),
-    FeaturedCard("Photography", "Product Photography for D2C Brand",         "Rs 2,500 - 4,000",  "Neha R."),
+    FeaturedCard("Coding",      "Build a Full-Stack E-Commerce Platform",   "₹8,000 - 12,000", "Rohan M."),
+    FeaturedCard("Design",      "Brand Identity for a Tech Startup",         "₹5,000 - 7,000",  "Priya K."),
+    FeaturedCard("Writing",     "SEO Blog Articles - 10 Posts",              "₹3,000 - 4,000",  "Arjun S."),
+    FeaturedCard("Photography", "Product Photography for D2C Brand",         "₹2,500 - 4,000",  "Neha R."),
 )
 
 // Community cards (static - real communities shown on Communities screen)
@@ -268,7 +269,23 @@ fun HomeScreen(
     }
 
     var selectedCategory by remember { mutableStateOf("All") }
-    val pagerState = rememberPagerState(pageCount = { featuredCards.size })
+    val liveGigs = (gigsState as? Resource.Success<List<Gig>>)?.data
+    val activeFeaturedCards = remember(liveGigs) {
+        if (!liveGigs.isNullOrEmpty()) {
+            liveGigs.take(5).map { gig ->
+                FeaturedCard(
+                    category = gig.category.ifBlank { "General" },
+                    title = gig.title,
+                    budget = gig.formattedBudget(),
+                    poster = gig.employer?.name ?: "Campus Member",
+                    gigId = gig.id
+                )
+            }
+        } else {
+            featuredCards
+        }
+    }
+    val pagerState = rememberPagerState(pageCount = { activeFeaturedCards.size })
 
     // ── Staggered entry animation state ──────────────────────────────────────
     val sectionCount = 7
@@ -498,9 +515,16 @@ fun HomeScreen(
                             contentPadding = PaddingValues(start = 20.dp, end = 48.dp),
                             pageSpacing = 12.dp
                         ) { page ->
+                            val card = activeFeaturedCards.getOrNull(page) ?: featuredCards[0]
                             FeaturedGigCard(
-                                card = featuredCards[page],
-                                onClick = { navController.navigate(Routes.GIG_LIST) },
+                                card = card,
+                                onClick = {
+                                    if (card.gigId != null) {
+                                        navController.navigate(Routes.gigDetail(card.gigId))
+                                    } else {
+                                        navController.navigate(Routes.GIG_LIST)
+                                    }
+                                },
                                 isDark = isDarkTheme
                             )
                         }
@@ -512,7 +536,7 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            repeat(featuredCards.size) { index ->
+                            repeat(activeFeaturedCards.size) { index ->
                                 val isActive = pagerState.currentPage == index
                                 Box(
                                     modifier = Modifier
