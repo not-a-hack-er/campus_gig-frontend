@@ -22,6 +22,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -39,21 +41,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.BackgroundDark
+import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
 import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo40
 import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo80
 import com.abpvt.campusgig_frontend.ui.theme.CampusTeal40
 import com.abpvt.campusgig_frontend.ui.theme.CampusTeal80
+import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
+import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
+import com.abpvt.campusgig_frontend.ui.theme.Violet500
 import com.abpvt.campusgig_frontend.ui.theme.GradientEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientStart
@@ -201,51 +219,142 @@ fun SplashScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Logo Badge with spring scale-in
+            // ── V-Lock Logo Badge ─────────────────────────────────────────
+            // Brand mark: geometric V with keyhole negative space at base vertex.
+            // Built entirely in Compose Canvas — no external asset needed.
             Box(
                 modifier = Modifier
                     .scale(logoScale.value)
                     .alpha(logoAlpha.value)
-                    .size(96.dp)
+                    .size(104.dp)
+                    // Deep navy brand background
                     .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(GradientStart, GradientMid, GradientEnd)
-                        ),
-                        shape = RoundedCornerShape(28.dp)
+                        color = BackgroundBase,
+                        shape = RoundedCornerShape(26.dp)
                     )
+                    // Subtle glass border
                     .border(
-                        width = 1.5.dp,
+                        width = 1.dp,
                         brush = Brush.linearGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = 0.30f),
-                                Color.White.copy(alpha = 0.05f)
+                                Color.White.copy(alpha = 0.18f),
+                                Color.White.copy(alpha = 0.04f)
                             )
                         ),
-                        shape = RoundedCornerShape(28.dp)
+                        shape = RoundedCornerShape(26.dp)
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "🎓",
-                    fontSize = 46.sp
+                // Subtle indigo ambient glow behind the mark
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .background(
+                            brush = Brush.radialGradient(
+                                colors = listOf(
+                                    GradientIndigoStart.copy(alpha = 0.28f),
+                                    Color.Transparent
+                                )
+                            )
+                        )
                 )
+                // The V-Lock mark drawn on Canvas
+                Canvas(modifier = Modifier.size(56.dp)) {
+                    val w = size.width
+                    val h = size.height
+
+                    // ── Gradient brush for the V arms ────────────────────
+                    val vGradient = Brush.linearGradient(
+                        colors = listOf(GradientIndigoStart, GradientIndigoMid, Violet500),
+                        start = Offset(0f, 0f),
+                        end   = Offset(w, h)
+                    )
+
+                    // ── V shape as a filled Path ─────────────────────────
+                    // The V occupies the full canvas width with a vertex at
+                    // ~80% of the height to leave room for the keyhole below.
+                    val armThickness = w * 0.22f
+                    val vertexY     = h * 0.80f   // where the two arms meet
+                    val topInset    = 0f           // arms start at canvas top
+
+                    val vPath = Path().apply {
+                        // Left arm — outer edge (top-left to vertex)
+                        moveTo(0f, topInset)
+                        lineTo(armThickness, topInset)
+                        // Left arm — inner edge meets at vertex center-bottom
+                        lineTo(w * 0.5f, vertexY)
+                        // Right arm — inner edge from vertex
+                        lineTo(w - armThickness, topInset)
+                        lineTo(w, topInset)
+                        // Right arm — outer edge back to vertex
+                        lineTo(w * 0.5f, vertexY + armThickness * 0.5f)
+                        close()
+                    }
+
+                    // ── Keyhole as a subtractive path ────────────────────
+                    // Circle + rectangular slot centered at the V vertex
+                    val khRadius = w * 0.085f
+                    val khCx     = w * 0.5f
+                    val khCy     = vertexY - khRadius * 0.4f
+                    val slotW    = khRadius * 0.7f
+                    val slotH    = khRadius * 1.6f
+
+                    val keyholePath = Path().apply {
+                        // Circle
+                        addOval(
+                            Rect(
+                                center = Offset(khCx, khCy),
+                                radius = khRadius
+                            )
+                        )
+                        // Rectangular slot below the circle
+                        addRect(
+                            Rect(
+                                offset = Offset(khCx - slotW / 2f, khCy + khRadius * 0.55f),
+                                size   = Size(slotW, slotH)
+                            )
+                        )
+                    }
+
+                    // ── Final mark = V minus keyhole ──────────────────────
+                    val markPath = Path().apply {
+                        op(vPath, keyholePath, PathOperation.Difference)
+                    }
+
+                    drawPath(
+                        path  = markPath,
+                        brush = vGradient
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Brand name with gradient brush text + slide-up entrance
+            // Brand wordmark: "Campus" white · "Vault" indigo gradient
+            // Typography: heavy weight, tight tracking (-0.5sp) — brand spec
             Text(
-                text = "CampusVault",
+                text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color      = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) { append("Campus") }
+                    withStyle(
+                        SpanStyle(
+                            brush      = Brush.horizontalGradient(
+                                colors = listOf(GradientIndigoStart, Violet500)
+                            ),
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    ) { append("Vault") }
+                },
                 modifier = Modifier
                     .alpha(titleAlpha.value)
                     .offset(y = titleOffset.value.dp),
                 style = TextStyle(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(CampusIndigo80, CampusTeal80)
-                    ),
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = (-1).sp
+                    fontSize      = 34.sp,
+                    letterSpacing = (-0.5).sp
                 )
             )
 
