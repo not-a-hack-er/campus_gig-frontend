@@ -284,7 +284,7 @@ private fun ProfileContent(
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        "🎓 ${user.college.ifBlank { "CampusGig Member" }}",
+                        "🎓 ${user.college.ifBlank { "CampusVault Member" }}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = GradientTealEnd
                     )

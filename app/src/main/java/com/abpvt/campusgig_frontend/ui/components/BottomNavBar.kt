@@ -110,14 +110,15 @@ fun CampusGigBottomBar(
         label = "FabScale"
     )
 
-    Surface(
-        color = Color.Transparent,
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp)
+            // Extra top padding creates the visual space the FAB needs above the bar
+            .padding(top = 22.dp, bottom = 10.dp)
     ) {
-        // Transparent glass backdrop with 32dp corners
+        // Glass bar surface — raised above the FAB anchor point, no clip on children
         Surface(
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
             shape = RoundedCornerShape(32.dp),
@@ -151,53 +152,9 @@ fun CampusGigBottomBar(
                     )
                 }
 
-                // ── Central Create Gig FAB ────────────────────────────────────
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .weight(1f)
-                        // Lift it 14dp above the bar for the classic "raised FAB" look
-                        .offset(y = (-14).dp)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .scale(fabScale)
-                            // Multi-layer shadow for depth (outer glow + drop shadow)
-                            .shadow(
-                                elevation = 12.dp,
-                                shape = CircleShape,
-                                ambientColor = GradientIndigoStart.copy(alpha = 0.4f),
-                                spotColor = GradientIndigoStart.copy(alpha = 0.6f)
-                            )
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(
-                                        GradientIndigoStart,
-                                        GradientIndigoMid,
-                                        Violet500
-                                    )
-                                )
-                            )
-                            .clickable(
-                                interactionSource = fabInteractionSource,
-                                indication = null
-                            ) {
-                                navController.navigate(Routes.CREATE_GIG) {
-                                    launchSingleTop = true
-                                }
-                            }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Create Gig",
-                            tint = Color.White,
-                            modifier = Modifier.size(26.dp)
-                        )
-                    }
-                }
+                // ── Central spacer for FAB slot ──────────────────────────
+                // Empty weight to reserve horizontal space for the FAB
+                Spacer(modifier = Modifier.weight(1f))
 
                 // ── Right nav items ────────────────────────────────────────────
                 rightItems.forEach { item ->
@@ -209,6 +166,55 @@ fun CampusGigBottomBar(
                         modifier = Modifier.weight(1f)
                     )
                 }
+            }
+        }
+
+        // ── Central Create Gig FAB ───────────────────────────────
+        // Sits in the Box (above the Surface), perfectly centered at the top
+        // edge of the bar. offset(y = -26dp) lifts it above. No clipping applies.
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                // Pull the FAB upward above the bar's top edge
+                .offset(y = (-26).dp)
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .scale(fabScale)
+                    .shadow(
+                        elevation = 14.dp,
+                        shape = CircleShape,
+                        ambientColor = GradientIndigoStart.copy(alpha = 0.5f),
+                        spotColor = GradientIndigoStart.copy(alpha = 0.7f)
+                    )
+                    .size(54.dp)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                GradientIndigoStart,
+                                GradientIndigoMid,
+                                Violet500
+                            )
+                        )
+                    )
+                    .clickable(
+                        interactionSource = fabInteractionSource,
+                        indication = null
+                    ) {
+                        navController.navigate(Routes.CREATE_GIG) {
+                            launchSingleTop = true
+                        }
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Create Gig",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
             }
         }
     }

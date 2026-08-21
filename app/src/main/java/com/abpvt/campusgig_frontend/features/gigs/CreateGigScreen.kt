@@ -1186,7 +1186,7 @@ private fun Step4Review(
         }
         Spacer(Modifier.width(10.dp))
         Text(
-            "I confirm this gig is genuine and follows CampusGig community guidelines",
+            "I confirm this gig is genuine and follows CampusVault community guidelines",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, lineHeight = 19.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

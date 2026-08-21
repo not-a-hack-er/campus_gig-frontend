@@ -1,5 +1,5 @@
 /**
- * HomeScreen.kt — v3.0 — The CampusGig Dashboard (Redesigned)
+ * HomeScreen.kt — v3.0 — The CampusVault Dashboard (Redesigned)
  *
  * Premium design spec implementation:
  *  - Sticky top bar with blur-behind effect
@@ -316,7 +316,7 @@ fun HomeScreen(
 
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "CampusGig",
+                            "CampusVault",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                             ),
