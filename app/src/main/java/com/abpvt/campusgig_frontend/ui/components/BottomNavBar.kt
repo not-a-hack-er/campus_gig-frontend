@@ -62,8 +62,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo40
 import com.abpvt.campusgig_frontend.ui.theme.CampusTeal40
-import com.abpvt.campusgig_frontend.ui.theme.SurfaceDark
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondaryDark
 
 data class NavItem(
     val label: String,
@@ -97,14 +95,14 @@ fun CampusGigBottomBar(
     ) {
         // Transparent glass backdrop with 32dp corners
         Surface(
-            color = SurfaceDark.copy(alpha = 0.82f),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
             shape = RoundedCornerShape(32.dp),
             border = BorderStroke(
                 width = 1.dp,
                 brush = Brush.linearGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.12f),
-                        Color.White.copy(alpha = 0.02f)
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                     )
                 )
             ),
@@ -124,8 +122,8 @@ fun CampusGigBottomBar(
                         (item.route == Routes.COMMUNITY_LIST && currentRoute?.startsWith("community_") == true) ||
                         (item.route == Routes.CHAT_LIST && currentRoute?.startsWith("chat") == true)
 
-                    val activeColor = CampusIndigo40
-                    val inactiveColor = TextSecondaryDark
+                    val activeColor = MaterialTheme.colorScheme.primary
+                    val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
 
                     // Spring animation for icon scale
                     val iconScale by animateFloatAsState(

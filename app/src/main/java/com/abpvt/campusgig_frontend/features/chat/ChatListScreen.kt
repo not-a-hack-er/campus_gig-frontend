@@ -68,18 +68,10 @@ import com.abpvt.campusgig_frontend.data.model.ConversationItem
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
 import androidx.compose.material3.Icon
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 @Composable
 fun ChatListScreen(
@@ -101,7 +93,7 @@ fun ChatListScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -116,21 +108,21 @@ fun ChatListScreen(
                 Text(
                     text = "Messages",
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Box(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Surface3)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                         .clickable { /* compose new */ },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Create,
                         contentDescription = "New chat",
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -143,24 +135,24 @@ fun ChatListScreen(
                     .padding(horizontal = 20.dp)
                     .height(44.dp)
                     .clip(RoundedCornerShape(22.dp))
-                    .background(Surface3)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(22.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(22.dp))
                     .padding(horizontal = 14.dp),
                 contentAlignment = Alignment.CenterStart
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = TextTertiary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     BasicTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(fontSize = 14.sp, color = TextPrimary),
-                        cursorBrush = SolidColor(Indigo400),
+                        textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         singleLine = true,
                         decorationBox = { inner ->
                             Box {
-                                if (searchQuery.isEmpty()) Text("Search conversations...", style = TextStyle(fontSize = 14.sp, color = TextTertiary))
+                                if (searchQuery.isEmpty()) Text("Search conversations...", style = TextStyle(fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)))
                                 inner()
                             }
                         }
@@ -173,7 +165,7 @@ fun ChatListScreen(
             when (val state = conversationsState) {
                 is Resource.Loading -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(28.dp))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
                     }
                 }
 
@@ -182,9 +174,9 @@ fun ChatListScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("⚠️", fontSize = 40.sp)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Couldn't load messages", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                            Text("Couldn't load messages", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Retry", color = Indigo400, modifier = Modifier.clickable { viewModel.loadConversations() }, style = MaterialTheme.typography.bodyMedium)
+                            Text("Retry", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable { viewModel.loadConversations() }, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
@@ -200,9 +192,9 @@ fun ChatListScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
                                 Text("💬", fontSize = 56.sp)
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text("No conversations yet", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                                Text("No conversations yet", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("Browse gigs and apply to start chatting with posters", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                                Text("Browse gigs and apply to start chatting with posters", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Box(
                                     modifier = Modifier
@@ -223,7 +215,7 @@ fun ChatListScreen(
                                 Text(
                                     "Active Now",
                                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = TextTertiary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.padding(horizontal = 20.dp)
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -244,7 +236,7 @@ fun ChatListScreen(
                                                         .size(14.dp)
                                                         .clip(CircleShape)
                                                         .background(SemanticSuccess)
-                                                        .border(2.dp, Surface1, CircleShape)
+                                                        .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
                                                         .align(Alignment.BottomEnd)
                                                 )
                                             }
@@ -252,7 +244,7 @@ fun ChatListScreen(
                                             Text(
                                                 text = user.name.split(" ").firstOrNull() ?: user.name,
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = TextSecondary,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 maxLines = 1
                                             )
                                         }
@@ -294,7 +286,7 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
             .clickable { onClick() }
     ) {
         Row(
@@ -312,7 +304,7 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
                             .size(12.dp)
                             .clip(CircleShape)
                             .background(SemanticSuccess)
-                            .border(1.5.dp, Surface1, CircleShape)
+                            .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
                             .align(Alignment.BottomEnd)
                     )
                 }
@@ -325,14 +317,14 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
                 Text(
                     text = user.name,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = item.lastMessage.ifBlank { "Tap to start chatting" },
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -341,13 +333,13 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
                         "Re: ${user.college.ifBlank { "Campus Gig" }}",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -355,7 +347,7 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
             Spacer(modifier = Modifier.width(8.dp))
 
             Column(horizontalAlignment = Alignment.End) {
-                Text(timeLabel, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text(timeLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
         }
     }

@@ -2,6 +2,7 @@
  * ChatViewModel.kt — Manages chat state combining REST history + Socket.IO real-time (v3.0)
  */
 package com.abpvt.campusgig_frontend.features.chat
+import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

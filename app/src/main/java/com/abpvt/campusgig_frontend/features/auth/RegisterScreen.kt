@@ -88,24 +88,14 @@ import com.abpvt.campusgig_frontend.core.utils.AuthViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Constants
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticInfo
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 import kotlinx.coroutines.launch
 
@@ -195,7 +185,7 @@ fun RegisterScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Ambient glow
         Box(
@@ -222,8 +212,8 @@ fun RegisterScreen(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface3)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                     .clickable {
                         if (currentStep > 1) currentStep-- else navController.popBackStack()
                     },
@@ -232,7 +222,7 @@ fun RegisterScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = TextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -276,13 +266,13 @@ fun RegisterScreen(
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = (-0.2).sp
                                     ),
-                                    color = TextPrimary
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Join 10,000+ students already earning",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                             }
 
@@ -440,14 +430,14 @@ fun RegisterScreen(
                                 Text(
                                     text = "Already have an account? ",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                                 Text(
                                     text = "Sign in",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
-                                    color = Indigo400,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable { navController.popBackStack() }
                                 )
                             }
@@ -466,13 +456,13 @@ fun RegisterScreen(
                                         fontWeight = FontWeight.Bold,
                                         letterSpacing = (-0.2).sp
                                     ),
-                                    color = TextPrimary
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Helps you find gigs that match your skills",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                             }
 
@@ -485,7 +475,7 @@ fun RegisterScreen(
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Medium
                                     ),
-                                    color = TextSecondary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(bottom = 4.dp)
                                 )
                                 Box(
@@ -493,8 +483,8 @@ fun RegisterScreen(
                                         .fillMaxWidth()
                                         .height(56.dp)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(Surface3)
-                                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                                         .clickable { showCollegePicker = true }
                                         .padding(horizontal = 16.dp),
                                     contentAlignment = Alignment.CenterStart
@@ -506,7 +496,7 @@ fun RegisterScreen(
                                         Icon(
                                             imageVector = Icons.Default.School,
                                             contentDescription = null,
-                                            tint = if (college.isNotBlank()) Indigo400 else TextTertiary,
+                                            tint = if (college.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                             modifier = Modifier.size(20.dp)
                                         )
                                         Spacer(modifier = Modifier.width(12.dp))
@@ -514,7 +504,7 @@ fun RegisterScreen(
                                             text = college.ifBlank { "Select your college" },
                                             style = androidx.compose.ui.text.TextStyle(
                                                 fontSize = 16.sp,
-                                                color = if (college.isNotBlank()) TextPrimary else TextTertiary
+                                                color = if (college.isNotBlank()) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                             )
                                         )
                                     }
@@ -540,7 +530,7 @@ fun RegisterScreen(
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Medium
                                     ),
-                                    color = TextSecondary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
                                 Row(
@@ -558,12 +548,12 @@ fun RegisterScreen(
                                                             GradientIndigoEnd.copy(alpha = 0.2f)
                                                         )
                                                     ) else Brush.linearGradient(
-                                                        colors = listOf(Surface3, Surface3)
+                                                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
                                                     )
                                                 )
                                                 .border(
                                                     1.dp,
-                                                    if (isSelected) Indigo400.copy(alpha = 0.6f) else BorderSubtle,
+                                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outline,
                                                     RoundedCornerShape(8.dp)
                                                 )
                                                 .clickable { selectedYear = year }
@@ -575,7 +565,7 @@ fun RegisterScreen(
                                                 style = MaterialTheme.typography.bodySmall.copy(
                                                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                                                 ),
-                                                color = if (isSelected) TextPrimary else TextTertiary
+                                                color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                             )
                                         }
                                     }
@@ -589,7 +579,7 @@ fun RegisterScreen(
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Medium
                                     ),
-                                    color = TextSecondary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
                                 // Skill chips
@@ -609,7 +599,7 @@ fun RegisterScreen(
                                                     .border(
                                                         1.dp,
                                                         Brush.linearGradient(
-                                                            colors = listOf(Indigo400.copy(alpha = 0.5f), Violet400.copy(alpha = 0.5f))
+                                                            colors = listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), Violet400.copy(alpha = 0.5f))
                                                         ),
                                                         RoundedCornerShape(8.dp)
                                                     )
@@ -624,12 +614,12 @@ fun RegisterScreen(
                                                         style = MaterialTheme.typography.labelMedium.copy(
                                                             fontWeight = FontWeight.Medium
                                                         ),
-                                                        color = Indigo400
+                                                        color = MaterialTheme.colorScheme.primary
                                                     )
                                                     Icon(
                                                         imageVector = Icons.Default.Close,
                                                         contentDescription = "Remove $skill",
-                                                        tint = TextTertiary,
+                                                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                                         modifier = Modifier
                                                             .size(14.dp)
                                                             .clickable { skills.remove(skill) }
@@ -662,7 +652,7 @@ fun RegisterScreen(
                                 Text(
                                     text = "Press Done on keyboard to add each skill",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = TextTertiary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
@@ -676,10 +666,10 @@ fun RegisterScreen(
                                     modifier = Modifier
                                         .size(20.dp)
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(if (agreedToTerms) Indigo400 else Surface3)
+                                        .background(if (agreedToTerms) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant)
                                         .border(
                                             1.dp,
-                                            if (agreedToTerms) Indigo400 else BorderSubtle,
+                                            if (agreedToTerms) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                                             RoundedCornerShape(4.dp)
                                         )
                                         .clickable { agreedToTerms = !agreedToTerms },
@@ -693,7 +683,7 @@ fun RegisterScreen(
                                 Text(
                                     text = "I agree to the Terms of Service and Privacy Policy",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = TextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 
@@ -745,7 +735,7 @@ fun RegisterScreen(
                                             )
                                         else
                                             Brush.linearGradient(
-                                                colors = listOf(Surface3, Surface3)
+                                                colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
                                             )
                                     )
                                     .clickable(enabled = !isLoading) {
@@ -797,14 +787,14 @@ fun RegisterScreen(
                                 Text(
                                     text = "Already have an account? ",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                                 Text(
                                     text = "Sign in",
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
-                                    color = Indigo400,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.clickable { navController.popBackStack() }
                                 )
                             }
@@ -822,7 +812,7 @@ fun RegisterScreen(
         ModalBottomSheet(
             onDismissRequest = { showCollegePicker = false },
             sheetState = bottomSheetState,
-            containerColor = Surface3,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
             tonalElevation = 0.dp
         ) {
             Column(
@@ -835,7 +825,7 @@ fun RegisterScreen(
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -863,7 +853,7 @@ fun RegisterScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (college == c) Indigo400.copy(alpha = 0.12f) else Color.Transparent)
+                                .background(if (college == c) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else Color.Transparent)
                                 .clickable {
                                     college = c
                                     collegeSearch = ""
@@ -875,7 +865,7 @@ fun RegisterScreen(
                             Text(
                                 text = c,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = if (college == c) Indigo400 else TextPrimary
+                                color = if (college == c) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -914,11 +904,11 @@ private fun StepProgressIndicator(
                                 colors = listOf(GradientIndigoStart, GradientIndigoEnd)
                             )
                         else
-                            Brush.linearGradient(colors = listOf(Surface3, Surface3))
+                            Brush.linearGradient(colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                     )
                     .border(
                         1.dp,
-                        if (isActive || isCompleted) Indigo400 else BorderSubtle,
+                        if (isActive || isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -926,7 +916,7 @@ private fun StepProgressIndicator(
                 Text(
                     text = if (isCompleted) "✓" else stepNumber.toString(),
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                    color = if (isActive || isCompleted) Color.White else TextTertiary,
+                    color = if (isActive || isCompleted) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     fontSize = 11.sp
                 )
             }
@@ -938,7 +928,7 @@ private fun StepProgressIndicator(
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
                 ),
-                color = if (isActive) TextPrimary else TextTertiary,
+                color = if (isActive) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 fontSize = 13.sp
             )
 
@@ -956,7 +946,7 @@ private fun StepProgressIndicator(
                                     colors = listOf(GradientIndigoStart, GradientIndigoEnd)
                                 )
                             else
-                                Brush.horizontalGradient(colors = listOf(BorderSubtle, BorderSubtle))
+                                Brush.horizontalGradient(colors = listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline))
                         )
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -985,7 +975,7 @@ private fun PasswordStrengthIndicator(
                         .weight(1f)
                         .height(3.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(if (filled) color else BorderSubtle)
+                        .background(if (filled) color else MaterialTheme.colorScheme.outline)
                 )
             }
         }

@@ -45,10 +45,11 @@ data class User(
     val skills: List<String> = emptyList(), // e.g. ["Kotlin", "Android", "Figma"]
     val profilePicture: String = "",   // URL to profile photo (can be empty)
 
-    // Portfolio links — displayed on profile as clickable URLs
+    // Portfolio & Resume links — displayed on profile as clickable URLs
     val portfolioLinks: List<String> = emptyList(), // Personal websites, Behance, etc.
     val githubProfile: String = "",    // GitHub username or full URL
     val linkedinProfile: String = "",  // LinkedIn URL
+    val resumeUrl: String = "",        // URL / link to resume (PDF, Google Drive, etc.)
 
     // Reputation system — built up over time through completed gigs + reviews
     val rating: Double = 0.0,          // Average rating (0.0 – 5.0)

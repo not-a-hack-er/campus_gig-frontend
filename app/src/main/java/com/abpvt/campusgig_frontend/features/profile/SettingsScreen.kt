@@ -33,10 +33,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Link
@@ -76,23 +76,17 @@ import com.abpvt.campusgig_frontend.core.utils.ProfileViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModel
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
+    themeViewModel: ThemeViewModel? = null,
     viewModel: ProfileViewModel = viewModel(
         factory = ProfileViewModelFactory(
             (LocalContext.current.applicationContext as CampusGigApplication).userRepository
@@ -102,31 +96,31 @@ fun SettingsScreen(
     val profileState by viewModel.profile.collectAsState()
     val user = (profileState as? Resource.Success<User>)?.data
 
-    var darkMode by remember { mutableStateOf(true) }
+    val isDarkTheme by (themeViewModel?.isDarkTheme ?: kotlinx.coroutines.flow.MutableStateFlow(true)).collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text("Sign Out?", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary) },
-            text = { Text("You'll need to sign in again to access your account.", style = MaterialTheme.typography.bodyMedium, color = TextSecondary) },
+            title = { Text("Sign Out?", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurface) },
+            text = { Text("You'll need to sign in again to access your account.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) },
             confirmButton = {
                 Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(SemanticError).clickable { showLogoutDialog = false; navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } } }.padding(horizontal = 16.dp, vertical = 8.dp)) {
                     Text("Sign Out", style = MaterialTheme.typography.labelLarge, color = Color.White)
                 }
             },
             dismissButton = {
-                Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Surface3).clickable { showLogoutDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                    Text("Cancel", style = MaterialTheme.typography.labelLarge, color = TextSecondary)
+                Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).clickable { showLogoutDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Text("Cancel", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
-            containerColor = Surface2,
+            containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(20.dp)
         )
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(Surface1),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(bottom = 40.dp)
     ) {
         // ── Header ──────────────────────────────────────────────────────────
@@ -134,7 +128,7 @@ fun SettingsScreen(
             Text(
                 "Settings",
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
             )
         }
@@ -164,9 +158,9 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(user?.name ?: "Loading...", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                        Text(user?.email ?: "", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                        Text("View Profile →", style = MaterialTheme.typography.labelSmall, color = Indigo400)
+                        Text(user?.name ?: "Loading...", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                        Text(user?.email ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("View Profile →", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -182,7 +176,7 @@ fun SettingsScreen(
 
         // ── Preferences Section ──────────────────────────────────────────────
         item { SectionHeader2("Preferences") }
-        item { SettingsRowToggle(icon = Icons.Default.DarkMode, label = "Dark Mode", checked = darkMode, onToggle = { darkMode = it }) }
+        item { SettingsRowToggle(icon = Icons.Default.DarkMode, label = "Dark Mode", checked = isDarkTheme, onToggle = { themeViewModel?.toggleTheme() }) }
         item { SettingsRow(icon = Icons.Default.Language, label = "Language", value = "English") {} }
         item { SettingsRow(icon = Icons.Default.Notifications, label = "Notifications") { navController.navigate(Routes.NOTIFICATION_SETTINGS) } }
         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -203,15 +197,15 @@ fun SettingsScreen(
 
         // ── About Section ────────────────────────────────────────────────────
         item { SectionHeader2("About") }
-        item { SettingsRow(icon = Icons.Default.HelpOutline, label = "Help & Support") {} }
+        item { SettingsRow(icon = Icons.AutoMirrored.Filled.HelpOutline, label = "Help & Support") {} }
         item { SettingsRow(icon = Icons.Default.Star, label = "Rate the App") {} }
         item { SettingsRow(icon = Icons.Default.Info, label = "Terms & Privacy") {} }
-        item { SettingsRow(icon = Icons.Default.VerifiedUser, label = "Version 1.0.0", isInteractive = false, valueColor = TextTertiary) {} }
+        item { SettingsRow(icon = Icons.Default.VerifiedUser, label = "Version 1.0.0", isInteractive = false) {} }
         item { Spacer(modifier = Modifier.height(16.dp)) }
 
         // ── Logout ───────────────────────────────────────────────────────────
         item {
-            HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(horizontal = 20.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 20.dp))
             Spacer(modifier = Modifier.height(8.dp))
         }
         item {
@@ -235,7 +229,7 @@ private fun SectionHeader2(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 1.sp),
-        color = TextTertiary,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
     )
 }
@@ -246,10 +240,12 @@ private fun SettingsRow(
     label: String,
     value: String = "",
     isInteractive: Boolean = true,
-    valueColor: Color = TextTertiary,
+    valueColor: Color = Color.Unspecified,
     trailingContent: (@Composable () -> Unit)? = null,
     onClick: () -> Unit = {}
 ) {
+    val actualValueColor = if (valueColor == Color.Unspecified) MaterialTheme.colorScheme.onSurfaceVariant else valueColor
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -257,20 +253,20 @@ private fun SettingsRow(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = label, tint = TextSecondary, modifier = Modifier.size(20.dp))
+        Icon(icon, contentDescription = label, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(14.dp))
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, modifier = Modifier.weight(1f))
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
         if (trailingContent != null) {
             trailingContent()
         } else if (value.isNotBlank()) {
-            Text(value, style = MaterialTheme.typography.bodySmall, color = valueColor)
+            Text(value, style = MaterialTheme.typography.bodySmall, color = actualValueColor)
             Spacer(modifier = Modifier.width(6.dp))
-            if (isInteractive) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextTertiary, modifier = Modifier.size(16.dp))
+            if (isInteractive) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
         } else if (isInteractive) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextTertiary, modifier = Modifier.size(16.dp))
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
         }
     }
-    HorizontalDivider(modifier = Modifier.padding(start = 54.dp), color = BorderSubtle.copy(0.5f))
+    HorizontalDivider(modifier = Modifier.padding(start = 54.dp), color = MaterialTheme.colorScheme.outline.copy(0.5f))
 }
 
 @Composable
@@ -279,13 +275,17 @@ private fun SettingsRowToggle(icon: ImageVector, label: String, checked: Boolean
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = label, tint = TextSecondary, modifier = Modifier.size(20.dp))
+        Icon(icon, contentDescription = label, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(14.dp))
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, modifier = Modifier.weight(1f))
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
         Switch(
             checked = checked, onCheckedChange = onToggle,
-            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Indigo400, uncheckedTrackColor = Surface3)
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = Color.White,
+                checkedTrackColor = MaterialTheme.colorScheme.primary,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
         )
     }
-    HorizontalDivider(modifier = Modifier.padding(start = 54.dp), color = BorderSubtle.copy(0.5f))
+    HorizontalDivider(modifier = Modifier.padding(start = 54.dp), color = MaterialTheme.colorScheme.outline.copy(0.5f))
 }

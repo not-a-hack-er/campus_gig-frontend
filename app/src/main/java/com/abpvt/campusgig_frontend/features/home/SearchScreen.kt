@@ -75,17 +75,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -121,7 +112,7 @@ fun SearchScreen(navController: NavController) {
 
     val isTyping = query.isNotBlank()
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -129,7 +120,7 @@ fun SearchScreen(navController: NavController) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Surface1)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -137,14 +128,14 @@ fun SearchScreen(navController: NavController) {
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -157,8 +148,8 @@ fun SearchScreen(navController: NavController) {
                         .weight(1f)
                         .height(44.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Surface3)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                         .padding(horizontal = 12.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
@@ -166,7 +157,7 @@ fun SearchScreen(navController: NavController) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = null,
-                            tint = if (query.isNotBlank()) Indigo400 else TextTertiary,
+                            tint = if (query.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -176,13 +167,13 @@ fun SearchScreen(navController: NavController) {
                             modifier = Modifier
                                 .weight(1f)
                                 .focusRequester(focusRequester),
-                            textStyle = TextStyle(fontSize = 15.sp, color = TextPrimary),
+                            textStyle = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onBackground),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                            cursorBrush = SolidColor(Indigo400),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                             decorationBox = { inner ->
                                 Box {
-                                    if (query.isEmpty()) Text("Search gigs, people, communities...", style = TextStyle(fontSize = 15.sp, color = TextTertiary))
+                                    if (query.isEmpty()) Text("Search gigs, people, communities...", style = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)))
                                     inner()
                                 }
                             }
@@ -191,7 +182,7 @@ fun SearchScreen(navController: NavController) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Clear",
-                                tint = TextTertiary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier
                                     .size(16.dp)
                                     .clickable { query = "" }
@@ -207,15 +198,15 @@ fun SearchScreen(navController: NavController) {
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (showFilters) Indigo400.copy(alpha = 0.2f) else Surface3)
-                        .border(1.dp, if (showFilters) Indigo400.copy(alpha = 0.5f) else BorderSubtle, RoundedCornerShape(10.dp))
+                        .background(if (showFilters) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, if (showFilters) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                         .clickable { showFilters = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Tune,
                         contentDescription = "Filters",
-                        tint = if (showFilters) Indigo400 else TextSecondary,
+                        tint = if (showFilters) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -224,7 +215,7 @@ fun SearchScreen(navController: NavController) {
                 Text(
                     text = "Cancel",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable { navController.popBackStack() }
                 )
             }
@@ -234,7 +225,7 @@ fun SearchScreen(navController: NavController) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Surface1)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 16.dp)
                 ) {
                     tabs.forEachIndexed { index, tab ->
@@ -250,7 +241,7 @@ fun SearchScreen(navController: NavController) {
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal
                                 ),
-                                color = if (isActive) Indigo400 else TextTertiary
+                                color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Box(
@@ -284,8 +275,8 @@ fun SearchScreen(navController: NavController) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Recent Searches", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                            Text("Clear", style = MaterialTheme.typography.labelMedium, color = Indigo400,
+                            Text("Recent Searches", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                            Text("Clear", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable { recentSearches.clear() })
                         }
                         Spacer(modifier = Modifier.height(10.dp))
@@ -294,12 +285,12 @@ fun SearchScreen(navController: NavController) {
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(Surface3)
-                                        .border(1.dp, BorderSubtle, RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                         .clickable { query = recent }
                                         .padding(horizontal = 12.dp, vertical = 6.dp)
                                 ) {
-                                    Text(recent, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                                    Text(recent, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
@@ -307,7 +298,7 @@ fun SearchScreen(navController: NavController) {
 
                     // Trending on Campus
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text("Trending on Campus", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                    Text("Trending on Campus", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(12.dp))
                     trendingSearches.forEachIndexed { index, search ->
                         Row(
@@ -328,18 +319,18 @@ fun SearchScreen(navController: NavController) {
                                 Text(
                                     text = "${index + 1}",
                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = Indigo400
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(search, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, modifier = Modifier.weight(1f))
-                            Icon(Icons.Default.Search, contentDescription = null, tint = TextTertiary, modifier = Modifier.size(16.dp))
+                            Text(search, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                            Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                         }
                     }
 
                     // Browse Categories
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text("Browse Categories", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                    Text("Browse Categories", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Spacer(modifier = Modifier.height(12.dp))
                     val rows = categoryGrid.chunked(3)
                     rows.forEach { rowItems ->
@@ -352,8 +343,8 @@ fun SearchScreen(navController: NavController) {
                                     modifier = Modifier
                                         .weight(1f)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(Surface3)
-                                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                                         .clickable { query = label }
                                         .padding(vertical = 16.dp),
                                     contentAlignment = Alignment.Center
@@ -361,7 +352,7 @@ fun SearchScreen(navController: NavController) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(emoji, fontSize = 22.sp)
                                         Spacer(modifier = Modifier.height(4.dp))
-                                        Text(label, style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                                        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     }
                                 }
                             }
@@ -385,18 +376,18 @@ fun SearchScreen(navController: NavController) {
                         Text(
                             text = "Showing results for",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                         Text(
                             text = "\"$query\"",
                             style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Search API will be wired here",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -412,7 +403,7 @@ fun SearchScreen(navController: NavController) {
         ModalBottomSheet(
             onDismissRequest = { showFilters = false },
             sheetState = filterSheetState,
-            containerColor = Surface3
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Column(
                 modifier = Modifier
@@ -421,13 +412,13 @@ fun SearchScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
             ) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Filters", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                    Text("Reset", style = MaterialTheme.typography.bodyMedium, color = Indigo400,
+                    Text("Filters", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                    Text("Reset", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable { selectedLocationFilter = "All"; selectedSortFilter = "Newest" })
                 }
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Text("Location Type", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextSecondary)
+                Text("Location Type", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("All", "Remote", "On Campus", "Hybrid").forEach { loc ->
@@ -435,18 +426,18 @@ fun SearchScreen(navController: NavController) {
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (sel) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(Surface2, Surface2)))
-                                .border(1.dp, if (sel) Color.Transparent else BorderSubtle, RoundedCornerShape(8.dp))
+                                .background(if (sel) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface)))
+                                .border(1.dp, if (sel) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                 .clickable { selectedLocationFilter = loc }
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
-                            Text(loc, style = MaterialTheme.typography.bodySmall, color = if (sel) Color.White else TextSecondary)
+                            Text(loc, style = MaterialTheme.typography.bodySmall, color = if (sel) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Text("Sort By", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextSecondary)
+                Text("Sort By", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(modifier = Modifier.height(10.dp))
                 listOf("Newest", "Budget ↑", "Budget ↓", "Deadline").forEach { sort ->
                     Row(
@@ -460,8 +451,8 @@ fun SearchScreen(navController: NavController) {
                             modifier = Modifier
                                 .size(18.dp)
                                 .clip(RoundedCornerShape(9.dp))
-                                .background(if (selectedSortFilter == sort) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(Surface2, Surface2)))
-                                .border(1.dp, if (selectedSortFilter == sort) Color.Transparent else BorderSubtle, RoundedCornerShape(9.dp))
+                                .background(if (selectedSortFilter == sort) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface)))
+                                .border(1.dp, if (selectedSortFilter == sort) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(9.dp))
                         ) {
                             if (selectedSortFilter == sort) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -470,7 +461,7 @@ fun SearchScreen(navController: NavController) {
                             }
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(sort, style = MaterialTheme.typography.bodyMedium, color = if (selectedSortFilter == sort) TextPrimary else TextSecondary)
+                        Text(sort, style = MaterialTheme.typography.bodyMedium, color = if (selectedSortFilter == sort) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 

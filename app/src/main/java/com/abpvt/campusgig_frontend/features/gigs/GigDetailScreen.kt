@@ -107,26 +107,15 @@ import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
 import com.abpvt.campusgig_frontend.features.home.HomeViewModel
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccessBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet500
 import kotlinx.coroutines.launch
 
@@ -183,10 +172,11 @@ private sealed interface GigDetailAction {
 
 // ─── Modifier Extensions ─────────────────────────────────────────────────────
 
+@Composable
 private fun Modifier.detailCard(radius: Int = 14): Modifier = this
     .clip(RoundedCornerShape(radius.dp))
-    .background(Surface2)
-    .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(radius.dp))
+    .background(MaterialTheme.colorScheme.surface)
+    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(radius.dp))
 
 private fun Modifier.indigoGradientBg(radius: Int = 14): Modifier = this
     .clip(RoundedCornerShape(radius.dp))
@@ -296,7 +286,7 @@ fun GigDetailScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // ── Scrollable content ──────────────────────────────────────────────
         Column(
@@ -329,7 +319,7 @@ fun GigDetailScreen(
                             .fillMaxWidth()
                             .offset(y = (-20).dp)
                             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                            .background(Surface1)
+                            .background(MaterialTheme.colorScheme.background)
                             .padding(horizontal = 20.dp)
                             .padding(top = 20.dp)
                     ) {
@@ -344,7 +334,7 @@ fun GigDetailScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 lineHeight  = 32.sp
                             ),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
 
                         // ── Poster Card ───────────────────────────────────
@@ -442,11 +432,11 @@ fun GigDetailScreen(
                     .size(40.dp)
                     .offset(x = 12.dp, y = 12.dp)
                     .clip(CircleShape)
-                    .background(Surface3.copy(alpha = 0.85f))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f))
                     .clickable { navController.popBackStack() },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TextPrimary, modifier = Modifier.size(20.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = MaterialTheme.colorScheme.onBackground, modifier = Modifier.size(20.dp))
             }
         }
 
@@ -572,7 +562,7 @@ private fun CollapsingHero(
                 }
             }
 
-            // Bottom scrim fade into Surface1
+            // Bottom scrim fade into MaterialTheme.colorScheme.background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -580,7 +570,7 @@ private fun CollapsingHero(
                     .align(Alignment.BottomStart)
                     .graphicsLayer { this.alpha = alpha }
                     .background(
-                        Brush.verticalGradient(listOf(Color.Transparent, Surface1))
+                        Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.background))
                     )
             )
         }
@@ -679,11 +669,11 @@ private fun StatusDeadlineRow(gig: Gig) {
                 verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Default.CalendarToday, null, tint = TextTertiary, modifier = Modifier.size(12.dp))
+                Icon(Icons.Default.CalendarToday, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(12.dp))
                 Text(
                     "Due ${gig.deadline.take(10)}",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -718,7 +708,7 @@ private fun PosterCard(
                         fontWeight = FontWeight.Bold,
                         fontSize   = 15.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 // Verified badge
                 Box(
@@ -736,7 +726,7 @@ private fun PosterCard(
             Text(
                 employer.college,
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
 
             if (employer.reviewCount > 0) {
@@ -748,7 +738,7 @@ private fun PosterCard(
                     repeat(5) { i ->
                         Icon(
                             Icons.Default.Star, null,
-                            tint     = if (i < employer.rating.toInt()) SemanticWarning else Surface4,
+                            tint     = if (i < employer.rating.toInt()) SemanticWarning else MaterialTheme.colorScheme.surfaceContainerHigh,
                             modifier = Modifier.size(11.dp)
                         )
                     }
@@ -756,7 +746,7 @@ private fun PosterCard(
                     Text(
                         "%.1f (${employer.reviewCount})".format(employer.rating),
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -768,7 +758,7 @@ private fun PosterCard(
                 fontWeight = FontWeight.SemiBold,
                 fontSize   = 13.sp
             ),
-            color    = Indigo400,
+            color    = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication        = null,
@@ -788,7 +778,7 @@ private fun BudgetDeadlineCard(gig: Gig) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(
-                Brush.linearGradient(listOf(Indigo500, Violet500))
+                Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, Violet500))
             )
             .padding(1.dp)  // border thickness
     ) {
@@ -796,7 +786,7 @@ private fun BudgetDeadlineCard(gig: Gig) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(13.dp))
-                .background(Surface2)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -809,7 +799,7 @@ private fun BudgetDeadlineCard(gig: Gig) {
                         fontWeight    = FontWeight.Bold,
                         letterSpacing = 1.sp
                     ),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -818,12 +808,12 @@ private fun BudgetDeadlineCard(gig: Gig) {
                         fontWeight = FontWeight.ExtraBold,
                         fontSize   = 26.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     if (gig.duration.isNotBlank()) gig.duration else "Fixed price",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -832,7 +822,7 @@ private fun BudgetDeadlineCard(gig: Gig) {
                 modifier = Modifier
                     .width(1.dp)
                     .height(56.dp)
-                    .background(BorderSubtle)
+                    .background(MaterialTheme.colorScheme.outline)
             )
 
             // Deadline column
@@ -848,7 +838,7 @@ private fun BudgetDeadlineCard(gig: Gig) {
                         fontWeight    = FontWeight.Bold,
                         letterSpacing = 1.sp
                     ),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -857,12 +847,12 @@ private fun BudgetDeadlineCard(gig: Gig) {
                         fontWeight = FontWeight.ExtraBold,
                         fontSize   = 17.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     "Application deadline",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -885,7 +875,7 @@ private fun ExpandableDescription(
             fontSize   = 14.sp,
             lineHeight  = 22.sp
         ),
-        color     = TextSecondary,
+        color     = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines  = if (expanded) Int.MAX_VALUE else 5,
         overflow  = TextOverflow.Ellipsis,
         modifier  = Modifier.animateContentSize(tween(260))
@@ -899,7 +889,7 @@ private fun ExpandableDescription(
                 fontWeight = FontWeight.SemiBold,
                 fontSize   = 13.sp
             ),
-            color    = Indigo400,
+            color    = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication        = null,
@@ -923,19 +913,19 @@ private fun SkillsFlowRow(skills: List<String>) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
                     .background(GlowIndigo)
-                    .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.4f)), RoundedCornerShape(8.dp))
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)), RoundedCornerShape(8.dp))
                     .padding(horizontal = 12.dp, vertical = 7.dp),
                 verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                Icon(Icons.Default.Code, null, tint = Indigo400, modifier = Modifier.size(12.dp))
+                Icon(Icons.Default.Code, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp))
                 Text(
                     skill,
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize   = 12.sp
                     ),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -959,15 +949,15 @@ private fun LocationRow(location: String) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier              = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
             .padding(horizontal = 12.dp, vertical = 9.dp)
     ) {
-        Icon(Icons.Default.LocationOn, null, tint = Indigo400, modifier = Modifier.size(16.dp))
+        Icon(Icons.Default.LocationOn, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
         Text(
             displayText,
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -992,19 +982,19 @@ private fun ApplicationStatRow(count: Int) {
                         .size(24.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .border(BorderStroke(1.5.dp, Surface1), CircleShape)
+                        .border(BorderStroke(1.5.dp, MaterialTheme.colorScheme.background), CircleShape)
                 )
             }
         }
 
-        Icon(Icons.Default.People, null, tint = TextTertiary, modifier = Modifier.size(14.dp))
+        Icon(Icons.Default.People, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
         Text(
             buildString {
                 append(count)
                 append(if (count == 1) " student has applied" else " students have applied")
             },
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -1019,7 +1009,7 @@ private fun SectionLabel(text: String) {
             fontWeight = FontWeight.ExtraBold,
             fontSize   = 15.sp
         ),
-        color = TextPrimary
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 
@@ -1039,7 +1029,7 @@ private fun ApplicantSection(
                     .height(100.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
             }
         }
 
@@ -1069,7 +1059,7 @@ private fun ApplicantSection(
                         Text(
                             "No applications received yet",
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -1108,8 +1098,8 @@ private fun ApplicantCard(
     val (statusColor, statusBg) = when (status) {
         "accepted"   -> SemanticSuccess to SemanticSuccessBg
         "rejected"   -> SemanticError   to SemanticErrorBg
-        "withdrawn"  -> TextTertiary    to Surface3
-        else         -> SemanticWarning to Surface3
+        "withdrawn"  -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)    to MaterialTheme.colorScheme.surfaceVariant
+        else         -> SemanticWarning to MaterialTheme.colorScheme.surfaceVariant
     }
 
     Column(
@@ -1129,12 +1119,12 @@ private fun ApplicantCard(
                         fontWeight = FontWeight.Bold,
                         fontSize   = 14.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     applicant?.college ?: "College",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -1164,7 +1154,7 @@ private fun ApplicantCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(8.dp))
-                .background(Surface3)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(10.dp)
         ) {
             Text(
@@ -1174,7 +1164,7 @@ private fun ApplicantCard(
                     fontWeight    = FontWeight.Bold,
                     letterSpacing = 1.sp
                 ),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -1183,7 +1173,7 @@ private fun ApplicantCard(
                     fontSize   = 13.sp,
                     lineHeight  = 19.sp
                 ),
-                color   = TextSecondary,
+                color   = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1213,7 +1203,7 @@ private fun ApplicantCard(
                 Text(
                     "bid",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -1271,7 +1261,7 @@ private fun ApplicantCard(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(GlowIndigo)
-                            .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.35f)), RoundedCornerShape(8.dp))
+                            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)), RoundedCornerShape(8.dp))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication        = null,
@@ -1282,7 +1272,7 @@ private fun ApplicantCard(
                         Text(
                             "Chat →",
                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = Indigo400
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -1302,7 +1292,7 @@ private fun StickyActionBar(
     val (ctaLabel, ctaEnabled, ctaColors) = when {
         gig.status == "completed"   -> Triple("Gig Completed ✓", false, listOf(Color(0xFF14B8A6), Color(0xFF14B8A6)))
         gig.status == "in_progress" -> Triple("Work in Progress", false, listOf(SemanticWarning, SemanticWarning))
-        !gig.isOpen()               -> Triple("Applications Closed", false, listOf(Surface4, Surface4))
+        !gig.isOpen()               -> Triple("Applications Closed", false, listOf(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.surfaceContainerHigh))
         else                        -> Triple("Apply Now →", true, listOf(GradientIndigoStart, GradientIndigoEnd))
     }
 
@@ -1310,7 +1300,7 @@ private fun StickyActionBar(
         modifier = modifier
             .fillMaxWidth()
             .background(Color(0xF50F1117))
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(horizontal = 20.dp, vertical = 14.dp)
     ) {
         Row(
@@ -1328,12 +1318,12 @@ private fun StickyActionBar(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize   = 22.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     if (gig.duration.isNotBlank()) gig.duration else "Fixed price",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -1384,7 +1374,7 @@ private fun ApplyBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState       = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor   = Surface2,
+        containerColor   = MaterialTheme.colorScheme.surface,
         shape            = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
         Column(
@@ -1399,7 +1389,7 @@ private fun ApplyBottomSheet(
                     .size(40.dp, 4.dp)
                     .align(Alignment.CenterHorizontally)
                     .clip(RoundedCornerShape(2.dp))
-                    .background(BorderDefault)
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
 
             Spacer(Modifier.height(20.dp))
@@ -1410,12 +1400,12 @@ private fun ApplyBottomSheet(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 18.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 gig.title,
                 style    = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                color    = TextTertiary,
+                color    = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1427,12 +1417,12 @@ private fun ApplyBottomSheet(
                 value         = proposal,
                 onValueChange = onProposalChanged,
                 label         = {
-                    Text("Your Proposal *", color = TextTertiary, style = MaterialTheme.typography.labelMedium)
+                    Text("Your Proposal *", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.labelMedium)
                 },
                 placeholder   = {
                     Text(
                         "Explain why you're the perfect fit, your approach, and relevant experience…",
-                        color = TextTertiary.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.5f),
                         style = MaterialTheme.typography.bodySmall
                     )
                 },
@@ -1443,14 +1433,14 @@ private fun ApplyBottomSheet(
                 isError       = proposalError.isNotBlank(),
                 shape         = RoundedCornerShape(14.dp),
                 colors        = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor    = TextPrimary,
-                    unfocusedTextColor  = TextPrimary,
-                    focusedContainerColor   = Surface3,
-                    unfocusedContainerColor = Surface3,
-                    focusedBorderColor      = Indigo500,
-                    unfocusedBorderColor    = BorderSubtle,
+                    focusedTextColor    = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor  = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor   = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedBorderColor      = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor    = MaterialTheme.colorScheme.outline,
                     errorBorderColor        = SemanticError,
-                    cursorColor             = Indigo500
+                    cursorColor             = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -1470,20 +1460,20 @@ private fun ApplyBottomSheet(
                 value         = expectedBudget,
                 onValueChange = onBudgetChanged,
                 label         = {
-                    Text("Your Expected Budget (₹)", color = TextTertiary, style = MaterialTheme.typography.labelMedium)
+                    Text("Your Expected Budget (₹)", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.labelMedium)
                 },
                 modifier      = Modifier.fillMaxWidth(),
                 singleLine    = true,
                 shape         = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors        = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor    = TextPrimary,
-                    unfocusedTextColor  = TextPrimary,
-                    focusedContainerColor   = Surface3,
-                    unfocusedContainerColor = Surface3,
-                    focusedBorderColor      = Indigo500,
-                    unfocusedBorderColor    = BorderSubtle,
-                    cursorColor             = Indigo500
+                    focusedTextColor    = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor  = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor   = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedBorderColor      = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor    = MaterialTheme.colorScheme.outline,
+                    cursorColor             = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -1492,7 +1482,7 @@ private fun ApplyBottomSheet(
             Text(
                 "Poster's budget: ${gig.formattedBudget()}",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
 
             Spacer(Modifier.height(22.dp))
@@ -1549,14 +1539,14 @@ private fun DetailLoadingState() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CircularProgressIndicator(
-                color       = Indigo400,
+                color       = MaterialTheme.colorScheme.primary,
                 modifier    = Modifier.size(32.dp),
                 strokeWidth = 2.5.dp
             )
             Text(
                 "Loading gig details…",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
@@ -1586,7 +1576,7 @@ private fun DetailErrorState(message: String, onRetry: () -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(GlowIndigo)
-                    .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication        = null,
@@ -1597,7 +1587,7 @@ private fun DetailErrorState(message: String, onRetry: () -> Unit) {
                 Text(
                     "Retry",
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

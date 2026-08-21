@@ -1,4 +1,5 @@
 package com.abpvt.campusgig_frontend.features.applications
+import androidx.compose.material3.MaterialTheme
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -27,7 +28,12 @@ class ApplicationViewModel(private val api: ApiService) : ViewModel() {
     private val _actionError = MutableStateFlow<String?>(null)
     val actionError: StateFlow<String?> = _actionError
 
+    /** Last success message from withdrawal */
+    private val _withdrawSuccess = MutableStateFlow<String?>(null)
+    val withdrawSuccess: StateFlow<String?> = _withdrawSuccess
+
     fun clearActionError() { _actionError.value = null }
+    fun clearWithdrawSuccess() { _withdrawSuccess.value = null }
 
     init {
         loadMyApplications()
@@ -69,17 +75,27 @@ class ApplicationViewModel(private val api: ApiService) : ViewModel() {
         }
     }
 
-    fun withdrawApplication(applicationId: String) {
+    fun withdrawApplication(applicationId: String, onComplete: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
+            _actionInProgress.value = true
+            _actionError.value = null
             try {
                 val response = api.updateApplicationStatus(applicationId, mapOf("status" to "withdrawn"))
                 if (response.isSuccessful) {
+                    _withdrawSuccess.value = "Application withdrawn successfully"
                     loadMyApplications()
+                    onComplete(true)
                 } else {
-                    _applications.value = response.toResourceError()
+                    val err = response.toResourceError()
+                    _actionError.value = err.message
+                    onComplete(false)
                 }
             } catch (e: Exception) {
-                _applications.value = Resource.Error(e.localizedMessage ?: "Error")
+                val msg = e.localizedMessage ?: "Error withdrawing application"
+                _actionError.value = msg
+                onComplete(false)
+            } finally {
+                _actionInProgress.value = false
             }
         }
     }

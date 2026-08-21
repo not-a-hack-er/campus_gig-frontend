@@ -13,9 +13,11 @@
  * (not sequentially) so the screen loads as fast as possible.
  */
 package com.abpvt.campusgig_frontend.features.home
+import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.data.model.User
@@ -28,7 +30,8 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val gigRepository: GigRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val api: ApiService
 ) : ViewModel() {
 
     // ── State Flows ───────────────────────────────────────────────────────────
@@ -41,6 +44,10 @@ class HomeViewModel(
     /** Featured/recent gigs shown on the home feed */
     private val _featuredGigs = MutableStateFlow<Resource<List<Gig>>>(Resource.Loading)
     val featuredGigs: StateFlow<Resource<List<Gig>>> = _featuredGigs.asStateFlow()
+
+    /** Unread notification count for the bell badge */
+    private val _unreadCount = MutableStateFlow(0)
+    val unreadCount: StateFlow<Int> = _unreadCount.asStateFlow()
 
     init {
         // Load all data when the ViewModel is first created
@@ -68,6 +75,16 @@ class HomeViewModel(
             }
             // Fetch first page of gigs with default sorting (newest first from backend)
             _featuredGigs.value = gigRepository.getGigs(page = 1)
+        }
+
+        // Launch unread notifications count fetch
+        viewModelScope.launch {
+            try {
+                val res = api.getUnreadNotificationCount()
+                if (res.isSuccessful) {
+                    _unreadCount.value = res.body()?.data?.unreadCount ?: 0
+                }
+            } catch (_: Exception) { }
         }
     }
 

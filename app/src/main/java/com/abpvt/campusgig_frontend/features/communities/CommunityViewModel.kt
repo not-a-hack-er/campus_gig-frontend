@@ -1,4 +1,5 @@
 package com.abpvt.campusgig_frontend.features.communities
+import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

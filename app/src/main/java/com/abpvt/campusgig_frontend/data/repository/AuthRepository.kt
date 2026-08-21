@@ -96,6 +96,52 @@ class AuthRepository(
         }
     }
 
+    suspend fun forgotPassword(email: String): Resource<String> {
+        return try {
+            val response = api.forgotPassword(mapOf("email" to email.trim()))
+            if (response.isSuccessful) {
+                val message = response.body()?.message ?: "OTP sent successfully"
+                Resource.Success(message)
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
+    suspend fun verifyOtp(email: String, otp: String): Resource<String> {
+        return try {
+            val response = api.verifyOtp(mapOf("email" to email.trim(), "otp" to otp.trim()))
+            if (response.isSuccessful) {
+                val resetToken = response.body()?.data?.resetToken
+                if (!resetToken.isNullOrBlank()) {
+                    Resource.Success(resetToken)
+                } else {
+                    Resource.Error("Invalid OTP response from server")
+                }
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
+    suspend fun resetPassword(resetToken: String, newPassword: String): Resource<String> {
+        return try {
+            val response = api.resetPassword(mapOf("resetToken" to resetToken, "newPassword" to newPassword))
+            if (response.isSuccessful) {
+                val message = response.body()?.message ?: "Password reset successfully"
+                Resource.Success(message)
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
     fun logout() {
         prefs.edit().clear().apply()
     }

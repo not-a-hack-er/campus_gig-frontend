@@ -45,7 +45,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -69,7 +71,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.compose.runtime.mutableStateOf
@@ -97,31 +99,29 @@ import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightCoding
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightDesign
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightWriting
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightTutoring
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightPhoto
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightVideo
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightMarketing
+import com.abpvt.campusgig_frontend.ui.theme.GradientLightOther
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
+import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModel
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 import kotlinx.coroutines.delay
 import java.util.Calendar
 
 // ─── Color Palette Helpers ────────────────────────────────────────────────────
 private object CategoryColors {
+    // Dark-mode card gradients (deep, rich)
     val coding      = listOf(Color(0xFF312E81), Color(0xFF4338CA))
     val design      = listOf(Color(0xFF831843), Color(0xFFBE185D))
     val writing     = listOf(Color(0xFF134E4A), Color(0xFF0D9488))
@@ -131,23 +131,36 @@ private object CategoryColors {
     val marketing   = listOf(Color(0xFF4C1D95), Color(0xFF7C3AED))
     val other       = listOf(Color(0xFF1E1B4B), Color(0xFF3730A3))
 
-    fun forCategory(cat: String) = when (cat.lowercase()) {
-        "coding" -> coding; "design" -> design; "writing" -> writing
-        "tutoring" -> tutoring; "photography" -> photography
-        "video" -> video; "marketing" -> marketing; else -> other
+    fun forCategory(cat: String, isDark: Boolean = true) = when (cat.lowercase()) {
+        "coding"      -> if (isDark) coding      else GradientLightCoding
+        "design"      -> if (isDark) design      else GradientLightDesign
+        "writing"     -> if (isDark) writing     else GradientLightWriting
+        "tutoring"    -> if (isDark) tutoring    else GradientLightTutoring
+        "photography" -> if (isDark) photography else GradientLightPhoto
+        "video"       -> if (isDark) video       else GradientLightVideo
+        "marketing"   -> if (isDark) marketing   else GradientLightMarketing
+        else          -> if (isDark) other       else GradientLightOther
     }
 
-    // Icon container bg and icon color per category
+    // Icon container bg + icon color — Duolingo-inspired 8 distinct rich colors
     data class IconStyle(val bg: Color, val icon: Color)
-    fun iconStyle(cat: String) = when (cat.lowercase()) {
-        "coding"      -> IconStyle(Color(0x336366F1), Color(0xFF818CF8))
-        "design"      -> IconStyle(Color(0x33EC4899), Color(0xFFF472B6))
-        "writing"     -> IconStyle(Color(0x3314B8A6), Color(0xFF2DD4BF))
-        "tutoring"    -> IconStyle(Color(0x33F59E0B), Color(0xFFFCD34D))
-        "photography" -> IconStyle(Color(0x33EF4444), Color(0xFFF87171))
-        "video"       -> IconStyle(Color(0x333B82F6), Color(0xFF60A5FA))
-        "marketing"   -> IconStyle(Color(0x33A855F7), Color(0xFFC084FC))
-        else          -> IconStyle(Color(0x33647483), Color(0xFF94A3B8))
+    fun iconStyle(cat: String, isDark: Boolean = true) = when (cat.lowercase()) {
+        "coding"      -> if (isDark) IconStyle(Color(0x336366F1), Color(0xFF818CF8))
+                         else        IconStyle(Color(0xFFEEF2FF), Color(0xFF4F46E5))  // Electric Indigo
+        "design"      -> if (isDark) IconStyle(Color(0x33EC4899), Color(0xFFF472B6))
+                         else        IconStyle(Color(0xFFFFF0F3), Color(0xFFE23744))  // Zomato Coral
+        "writing"     -> if (isDark) IconStyle(Color(0x3314B8A6), Color(0xFF2DD4BF))
+                         else        IconStyle(Color(0xFFD1FAE5), Color(0xFF059669))  // Forest Emerald
+        "tutoring"    -> if (isDark) IconStyle(Color(0x33F59E0B), Color(0xFFFCD34D))
+                         else        IconStyle(Color(0xFFFFFBEB), Color(0xFFD97706))  // Rich Amber
+        "photography" -> if (isDark) IconStyle(Color(0x33EF4444), Color(0xFFF87171))
+                         else        IconStyle(Color(0xFFFDF4FF), Color(0xFF9333EA))  // Grape Purple
+        "video"       -> if (isDark) IconStyle(Color(0x333B82F6), Color(0xFF60A5FA))
+                         else        IconStyle(Color(0xFFE0F2FE), Color(0xFF0284C7))  // Sky Blue
+        "marketing"   -> if (isDark) IconStyle(Color(0x33A855F7), Color(0xFFC084FC)  )
+                         else        IconStyle(Color(0xFFFFF7ED), Color(0xFFEA580C))  // Swiggy Orange
+        else          -> if (isDark) IconStyle(Color(0x33647483), Color(0xFF94A3B8))
+                         else        IconStyle(Color(0xFFF5F3FF), Color(0xFF7C3AED))  // Violet
     }
 }
 
@@ -191,10 +204,12 @@ private val categoryList = listOf("All", "Coding", "Design", "Writing", "Tutorin
 @Composable
 fun HomeScreen(
     navController: NavController,
+    themeViewModel: ThemeViewModel? = null,
     viewModel: HomeViewModel = viewModel(
         factory = HomeViewModelFactory(
             (LocalContext.current.applicationContext as CampusGigApplication).gigRepository,
-            (LocalContext.current.applicationContext as CampusGigApplication).userRepository
+            (LocalContext.current.applicationContext as CampusGigApplication).userRepository,
+            (LocalContext.current.applicationContext as CampusGigApplication).apiService
         )
     )
 ) {
@@ -207,6 +222,10 @@ fun HomeScreen(
     val profileState by viewModel.currentUser.collectAsState()
     val gigsState    by viewModel.featuredGigs.collectAsState()
     val appsState    by appViewModel.applications.collectAsState()
+    val unreadCount  by viewModel.unreadCount.collectAsState()
+
+    // Observe current theme for adaptive color choices
+    val isDarkTheme  by (themeViewModel?.isDarkTheme ?: kotlinx.coroutines.flow.MutableStateFlow(true)).collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -263,7 +282,7 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -275,8 +294,8 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Surface1)
-                        .border(width = 1.dp, color = BorderSubtle, shape = RoundedCornerShape(0.dp))
+                        .background(MaterialTheme.colorScheme.background)
+                        .border(width = 1.dp, color = MaterialTheme.colorScheme.outline, shape = RoundedCornerShape(0.dp))
                         .padding(horizontal = 20.dp, vertical = 14.dp)
                         .zIndex(10f)
                 ) {
@@ -301,23 +320,35 @@ fun HomeScreen(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                             ),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.weight(1f))
 
                         // Search icon
                         IconButton(onClick = { navController.navigate(Routes.SEARCH) }) {
-                            Icon(Icons.Default.Search, "Search", tint = TextSecondary, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Default.Search, "Search", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
                         }
 
-                        // Bell with badge
+                        // Theme toggle ☀️/🌙
+                        IconButton(onClick = { themeViewModel?.toggleTheme() }) {
+                            Icon(
+                                imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                                contentDescription = if (isDarkTheme) "Switch to Light Mode" else "Switch to Dark Mode",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+
+                        // Bell with badge (only show if there are unread notifications)
                         BadgedBox(
                             badge = {
-                                Badge(containerColor = SemanticError, modifier = Modifier.size(8.dp))
+                                if (unreadCount > 0) {
+                                    Badge(containerColor = SemanticError, modifier = Modifier.size(8.dp))
+                                }
                             }
                         ) {
                             IconButton(onClick = { navController.navigate(Routes.NOTIFICATIONS) }) {
-                                Icon(Icons.Default.Notifications, "Notifications", tint = TextSecondary, modifier = Modifier.size(22.dp))
+                                Icon(Icons.Default.Notifications, "Notifications", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
                             }
                         }
                     }
@@ -335,13 +366,13 @@ fun HomeScreen(
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 22.sp
                             ),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
                             "3 new gigs match your skills",
                             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
                         Spacer(Modifier.height(20.dp))
@@ -393,22 +424,22 @@ fun HomeScreen(
                             .padding(horizontal = 20.dp)
                             .height(52.dp)
                             .clip(RoundedCornerShape(26.dp))
-                            .background(Surface3)
-                            .border(1.dp, BorderSubtle, RoundedCornerShape(26.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(26.dp))
                             .clickable { navController.navigate(Routes.SEARCH) }
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Search, null, tint = TextTertiary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(10.dp))
                             Text(
                                 "Search gigs, people, communities...",
                                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
-                                color = TextTertiary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.weight(1f)
                             )
-                            Icon(Icons.Default.Tune, null, tint = TextTertiary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Tune, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                         }
                     }
                     Spacer(Modifier.height(16.dp))
@@ -429,11 +460,12 @@ fun HomeScreen(
                                     .height(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(
-                                        if (isSelected) Color(0x266366F1) else Surface3
+                                        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                                        else MaterialTheme.colorScheme.surfaceVariant
                                     )
                                     .border(
                                         1.dp,
-                                        if (isSelected) Indigo500 else BorderSubtle,
+                                        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                                         RoundedCornerShape(8.dp)
                                     )
                                     .clickable { selectedCategory = category }
@@ -445,7 +477,7 @@ fun HomeScreen(
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         fontWeight = FontWeight.Medium, fontSize = 13.sp
                                     ),
-                                    color = if (isSelected) TextPrimary else TextSecondary
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -464,7 +496,7 @@ fun HomeScreen(
                                 fontWeight = FontWeight.Medium, fontSize = 12.sp,
                                 letterSpacing = 0.8.sp
                             ),
-                            color = TextTertiary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 20.dp, bottom = 8.dp)
                         )
 
@@ -475,7 +507,8 @@ fun HomeScreen(
                         ) { page ->
                             FeaturedGigCard(
                                 card = featuredCards[page],
-                                onClick = { navController.navigate(Routes.GIG_LIST) }
+                                onClick = { navController.navigate(Routes.GIG_LIST) },
+                                isDark = isDarkTheme
                             )
                         }
 
@@ -497,7 +530,7 @@ fun HomeScreen(
                                             if (isActive)
                                                 Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
                                             else
-                                                Brush.linearGradient(listOf(BorderDefault, BorderDefault))
+                                                Brush.linearGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline))
                                         )
                                 )
                             }
@@ -522,12 +555,12 @@ fun HomeScreen(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                             ),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             "See all →",
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.clickable { navController.navigate(Routes.GIG_LIST) }
                         )
                     }
@@ -542,7 +575,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth().height(120.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(28.dp))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
                     }
                 }
                 is Resource.Success<List<Gig>> -> {
@@ -561,10 +594,10 @@ fun HomeScreen(
                                     .padding(horizontal = 20.dp)
                                     .height(80.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(Surface3),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("No gigs in this category yet", color = TextTertiary, style = MaterialTheme.typography.bodyMedium)
+                                Text("No gigs in this category yet", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     } else {
@@ -572,7 +605,8 @@ fun HomeScreen(
                             RecommendedGigCard(
                                 gig = gig,
                                 onClick = { navController.navigate(Routes.gigDetail(gig.id)) },
-                                modifier = Modifier.padding(horizontal = 20.dp)
+                                modifier = Modifier.padding(horizontal = 20.dp),
+                                isDark = isDarkTheme
                             )
                             Spacer(Modifier.height(12.dp))
                         }
@@ -585,11 +619,11 @@ fun HomeScreen(
                                         .fillMaxWidth()
                                         .padding(horizontal = 20.dp),
                                     shape = RoundedCornerShape(12.dp),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                                 ) {
                                     Text(
                                         "See more recommendations",
-                                        color = Indigo400,
+                                        color = MaterialTheme.colorScheme.primary,
                                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
                                     )
                                 }
@@ -601,7 +635,7 @@ fun HomeScreen(
                 is Resource.Error -> item {
                     Text(
                         "Couldn't load gigs",
-                        color = TextTertiary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 20.dp)
                     )
@@ -613,7 +647,7 @@ fun HomeScreen(
             item {
                 SectionWrapper(visible = sectionVisible[5].value) {
                     Spacer(Modifier.height(24.dp))
-                    HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(horizontal = 20.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 20.dp))
                     Spacer(Modifier.height(20.dp))
                     Row(
                         modifier = Modifier
@@ -631,7 +665,7 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                                 ),
-                                color = TextPrimary
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                             Box(
                                 modifier = Modifier
@@ -664,7 +698,7 @@ fun HomeScreen(
                                     colors = listOf(Color(0xFF1E1B4B), Color(0xFF2E2A72), Color(0xFF4C1D95))
                                 )
                             )
-                            .border(1.dp, Indigo500.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
+                            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
                             .padding(16.dp)
                     ) {
                         Column {
@@ -729,7 +763,7 @@ fun HomeScreen(
             item {
                 SectionWrapper(visible = sectionVisible[6].value) {
                     Spacer(Modifier.height(24.dp))
-                    HorizontalDivider(color = BorderSubtle, modifier = Modifier.padding(horizontal = 20.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline, modifier = Modifier.padding(horizontal = 20.dp))
                     Spacer(Modifier.height(20.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
@@ -741,12 +775,12 @@ fun HomeScreen(
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                             ),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             "View all →",
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.clickable { navController.navigate(Routes.MY_APPLICATIONS) }
                         )
                     }
@@ -756,7 +790,7 @@ fun HomeScreen(
                     when (val appsResource = appsState) {
                         is Resource.Loading -> {
                             Box(Modifier.fillMaxWidth().height(60.dp), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(20.dp))
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                             }
                         }
                         is Resource.Success -> {
@@ -769,13 +803,13 @@ fun HomeScreen(
                                         .fillMaxWidth()
                                         .padding(horizontal = 20.dp)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(Surface3)
-                                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                                         .padding(16.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("No active applications. Start applying! 🚀",
-                                        style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             } else {
                                 activeApps.forEach { app ->
@@ -795,7 +829,7 @@ fun HomeScreen(
                         }
                         is Resource.Error -> {
                             Text("Couldn't load applications",
-                                style = MaterialTheme.typography.bodySmall, color = TextTertiary,
+                                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 20.dp))
                         }
                         null -> {}
@@ -840,22 +874,22 @@ private fun QuickStatCard(
         modifier = modifier
             .height(64.dp)
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface3)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             .padding(horizontal = 8.dp, vertical = 10.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Icon(icon, null, tint = iconColor, modifier = Modifier.size(16.dp))
-            Text(value, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 18.sp), color = TextPrimary)
-            Text(label, style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), color = TextTertiary, maxLines = 1)
+            Text(value, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 18.sp), color = MaterialTheme.colorScheme.onBackground)
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
         }
     }
 }
 
 // ─── Featured Gig Card ────────────────────────────────────────────────────────
 @Composable
-private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit) {
-    val gradientColors = CategoryColors.forCategory(card.category)
+private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boolean = true) {
+    val gradientColors = CategoryColors.forCategory(card.category, isDark)
 
     Box(
         modifier = Modifier
@@ -956,9 +990,9 @@ private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit) {
 
 // ─── Recommended Gig Card ─────────────────────────────────────────────────────
 @Composable
-fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val catKey   = gig.category.lowercase()
-    val iconStyle = CategoryColors.iconStyle(catKey)
+fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modifier, isDark: Boolean = true) {
+    val catKey    = gig.category.lowercase()
+    val iconStyle = CategoryColors.iconStyle(catKey, isDark)
     var isSaved by remember { mutableStateOf(false) }
 
     val relativeTime = remember(gig.createdAt) {
@@ -979,8 +1013,8 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Surface2)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(14.dp)
     ) {
@@ -1003,15 +1037,15 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
                 Text(
                     gig.category.replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium, fontSize = 12.sp),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.weight(1f))
-                Text(relativeTime, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = TextTertiary)
+                Text(relativeTime, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(8.dp))
                 Icon(
                     if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     "Save",
-                    tint = if (isSaved) SemanticWarning else TextTertiary,
+                    tint = if (isSaved) SemanticWarning else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier
                         .size(18.dp)
                         .clickable { isSaved = !isSaved }
@@ -1023,7 +1057,7 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
             Text(
                 gig.title,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 22.sp),
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -1036,22 +1070,22 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(Surface3)
-                                .border(1.dp, BorderSubtle, RoundedCornerShape(6.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(6.dp))
                                 .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
-                            Text(skill, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontSize = 11.sp), color = TextTertiary)
+                            Text(skill, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontSize = 11.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     if (gig.skills.size > 3) {
-                        Text("+${gig.skills.size - 3} more", style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), color = TextTertiary)
+                        Text("+${gig.skills.size - 3} more", style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
 
             // DIVIDER
             Spacer(Modifier.height(10.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BorderSubtle))
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline))
             Spacer(Modifier.height(10.dp))
 
             // ROW 4: Poster info + budget chip + applied count
@@ -1077,7 +1111,7 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
                 Text(
                     "by ${gig.employer?.name?.split(" ")?.firstOrNull() ?: "Anonymous"}",
                     style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(Modifier.weight(1f))
@@ -1086,7 +1120,7 @@ fun RecommendedGigCard(gig: Gig, onClick: () -> Unit, modifier: Modifier = Modif
                 Text(
                     "${gig.applicationsCount} applied",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.width(8.dp))
 
@@ -1211,8 +1245,8 @@ private fun RealApplicationCard(app: Application, onOpenChat: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(Surface2)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
     ) {
         Row {
             Box(
@@ -1234,7 +1268,7 @@ private fun RealApplicationCard(app: Application, onOpenChat: () -> Unit) {
                     Text(
                         gigTitle,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 14.sp),
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
@@ -1258,7 +1292,7 @@ private fun RealApplicationCard(app: Application, onOpenChat: () -> Unit) {
                 Text(
                     "Applied $appliedAgo",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 if (statusStr == "accepted") {

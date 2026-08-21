@@ -1,12 +1,9 @@
 /**
  * GigCard.kt — Reusable card composable for displaying a single gig.
  *
- * Redesigned from a senior product designer perspective (inspired by Stripe & Airbnb):
- * - Layered, high-trust client header displaying verified client badge and trust rating score.
- * - Glowing match percentage badge in the top right to drive conversion and student motivation.
- * - Dynamic bookmark save button with state tracking.
- * - Stronger hierarchy with bold typography and prominent green budget highlight.
- * - Clean metadata footer tracking applicant counts and relative posted times.
+ * Redesigned for full light/dark mode support using MaterialTheme.colorScheme.
+ * In light mode: crisp white card on soft lavender background.
+ * In dark mode: original dark Surface card.
  */
 package com.abpvt.campusgig_frontend.ui.components
 
@@ -54,13 +51,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.abpvt.campusgig_frontend.data.model.Gig
-import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo40
-import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo60
-import com.abpvt.campusgig_frontend.ui.theme.CampusTeal40
+import com.abpvt.campusgig_frontend.ui.theme.Emerald500
+import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.StatusAccepted
 import com.abpvt.campusgig_frontend.ui.theme.StatusInProgress
-import com.abpvt.campusgig_frontend.ui.theme.SurfaceDark
-import com.abpvt.campusgig_frontend.ui.theme.SurfaceVariantDark
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
@@ -74,7 +68,6 @@ fun GigCard(
 ) {
     var isSaved by remember { mutableStateOf(false) }
 
-    // Motivating personalized match percentage based on the gig details
     val matchPercentage = remember(gig.id) {
         val hash = gig.title.hashCode().absoluteValue
         85 + (hash % 14)
@@ -84,41 +77,34 @@ fun GigCard(
         getRelativeTime(gig.createdAt)
     }
 
-    val ratingText = remember(gig.employer?.rating) {
-        val rating = gig.employer?.rating ?: 0.0
-        if (rating > 0.0) "%.1f".format(rating) else "4.8" // Clean fallback
-    }
+    val employerRating = gig.employer?.rating ?: 0.0
+    val employerReviewCount = gig.employer?.reviewCount ?: 0
+
+    val cardBg    = MaterialTheme.colorScheme.surface
+    val textMain  = MaterialTheme.colorScheme.onSurface
+    val textMuted = MaterialTheme.colorScheme.onSurfaceVariant
+    val borderCol = MaterialTheme.colorScheme.outline
+    val primary   = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(
-            width = 1.dp,
-            brush = Brush.linearGradient(
-                colors = listOf(
-                    Color.White.copy(alpha = 0.08f),
-                    Color.White.copy(alpha = 0.02f)
-                )
-            )
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = SurfaceDark.copy(alpha = 0.65f)
-        ),
+        border = BorderStroke(1.dp, borderCol),
+        colors = CardDefaults.cardColors(containerColor = cardBg),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(18.dp)
         ) {
-            // ── Header: Client info & Match Percentage & Save Button ──────
+            // ── Header: Client info + Match Badge + Bookmark ──────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Client Avatar
                 AvatarInitials(
                     name = gig.employer?.name ?: "Unknown",
                     size = 36
@@ -132,41 +118,46 @@ fun GigCard(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
                             ),
-                            color = Color.White,
+                            color = textMain,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        // Verification Tag
+                        Spacer(modifier = Modifier.width(5.dp))
+                        // Verified dot
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
-                                .background(CampusTeal40.copy(alpha = 0.2f), CircleShape)
-                                .border(1.5.dp, CampusTeal40, CircleShape),
+                                .background(Emerald500.copy(alpha = 0.15f), CircleShape)
+                                .border(1.5.dp, Emerald500, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("✓", fontSize = 8.sp, color = CampusTeal40, fontWeight = FontWeight.Bold)
+                            Text("✓", fontSize = 7.sp, color = Emerald500, fontWeight = FontWeight.Bold)
                         }
                     }
-                    // Rating
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 2.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Rating",
-                            tint = Color(0xFFF59E0B),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
+                    // Rating / Client status
+                    if (employerRating > 0.0) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 2.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = "Rating",
+                                tint = Color(0xFFF59E0B),
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = "%.1f (%d)".format(employerRating, employerReviewCount),
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                color = Color(0xFFF59E0B)
+                            )
+                        }
+                    } else {
                         Text(
-                            text = "$ratingText Trust Score",
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
-                            ),
-                            color = Color(0xFFF59E0B)
+                            text = "New Client",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            color = textMuted
                         )
                     }
                 }
@@ -174,8 +165,8 @@ fun GigCard(
                 // Match Badge
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = CampusIndigo40.copy(alpha = 0.15f),
-                    border = BorderStroke(1.dp, CampusIndigo40.copy(alpha = 0.3f)),
+                    color = primary.copy(alpha = 0.1f),
+                    border = BorderStroke(1.dp, primary.copy(alpha = 0.3f)),
                     modifier = Modifier.padding(horizontal = 6.dp)
                 ) {
                     Text(
@@ -185,11 +176,11 @@ fun GigCard(
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         ),
-                        color = CampusIndigo40
+                        color = primary
                     )
                 }
 
-                // Bookmark Save Button
+                // Bookmark
                 IconButton(
                     onClick = { isSaved = !isSaved },
                     modifier = Modifier.size(28.dp)
@@ -197,7 +188,7 @@ fun GigCard(
                     Icon(
                         imageVector = if (isSaved) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                         contentDescription = "Save Gig",
-                        tint = if (isSaved) CampusIndigo40 else Color.White.copy(alpha = 0.4f),
+                        tint = if (isSaved) primary else textMuted,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -205,103 +196,89 @@ fun GigCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // ── Gig Title ─────────────────────────────────────────────
+            // ── Gig Title ─────────────────────────────────────────────────
             Text(
                 text = gig.title,
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp
+                    fontSize = 17.sp,
+                    lineHeight = 23.sp
                 ),
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = textMain,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // ── Budget & Category Tags ───────────────────────────
+            // ── Budget + Category Tag ─────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Budget Section (Success Emerald Green)
+                // Budget — Emerald green gradient
                 Text(
                     text = "₹${gig.budget.toInt()}",
                     style = TextStyle(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(Color(0xFF10B981), Color(0xFF34D399))
+                            colors = listOf(Color(0xFF059669), Color(0xFF10B981))
                         ),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                 )
-
-                // Category Tag
                 CategoryChip(label = gig.category)
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // ── Required Skills ──────────────────────────────────────────
+            // ── Skills ────────────────────────────────────────────────────
             if (gig.skills.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    gig.skills.take(3).forEach { skill ->
-                        SkillChip(label = skill)
-                    }
-                    if (gig.skills.size > 3) {
-                        SkillChip(label = "+${gig.skills.size - 3}")
-                    }
+                    gig.skills.take(3).forEach { skill -> SkillChip(label = skill) }
+                    if (gig.skills.size > 3) SkillChip(label = "+${gig.skills.size - 3}")
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Divider Line
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Divider
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Color.White.copy(alpha = 0.05f))
+                    .background(borderCol)
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // ── Footer Metadata: Applicants & Posted Time ──────
+            // ── Footer: Applicants + Time ──────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Applicants Count
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.People,
                         contentDescription = "Applicants",
-                        tint = Color.White.copy(alpha = 0.4f),
-                        modifier = Modifier.size(14.dp)
+                        tint = textMuted,
+                        modifier = Modifier.size(13.dp)
                     )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
                         text = "${gig.applicationsCount} applicants",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Medium
-                        ),
-                        color = Color.White.copy(alpha = 0.5f)
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = textMuted
                     )
                 }
-
-                // Posted Time
                 Text(
                     text = relativeTime,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 11.sp
-                    ),
-                    color = Color.White.copy(alpha = 0.4f)
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                    color = textMuted
                 )
             }
         }
@@ -311,11 +288,12 @@ fun GigCard(
 // ─── CategoryChip ─────────────────────────────────────────────────────────────
 @Composable
 fun CategoryChip(label: String, modifier: Modifier = Modifier) {
+    val primary = MaterialTheme.colorScheme.primary
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(50.dp),
-        color = CampusIndigo40.copy(alpha = 0.1f),
-        border = BorderStroke(1.dp, CampusIndigo40.copy(alpha = 0.3f))
+        color = primary.copy(alpha = 0.1f),
+        border = BorderStroke(1.dp, primary.copy(alpha = 0.3f))
     ) {
         Text(
             text = label,
@@ -324,7 +302,7 @@ fun CategoryChip(label: String, modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.3.sp
             ),
-            color = CampusIndigo60,
+            color = primary,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
         )
     }
@@ -336,14 +314,12 @@ fun SkillChip(label: String, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(6.dp),
-        color = SurfaceVariantDark.copy(alpha = 0.5f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.04f))
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 10.sp
-            ),
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
@@ -354,16 +330,15 @@ fun SkillChip(label: String, modifier: Modifier = Modifier) {
 @Composable
 fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val (bgColor, textColor, label) = when (status.lowercase()) {
-        "open"        -> Triple(StatusAccepted.copy(alpha = 0.08f), StatusAccepted,  "Open")
-        "closed"      -> Triple(StatusClosed.copy(alpha = 0.08f),   StatusClosed,    "Closed")
-        "in_progress" -> Triple(StatusInProgress.copy(alpha = 0.08f), StatusInProgress, "In Progress")
-        "pending"     -> Triple(StatusPending.copy(alpha = 0.08f),  StatusPending,   "Pending")
-        "accepted"    -> Triple(StatusAccepted.copy(alpha = 0.08f), StatusAccepted,  "Accepted")
-        "rejected"    -> Triple(StatusClosed.copy(alpha = 0.08f),   StatusClosed,    "Rejected")
-        "completed"   -> Triple(StatusCompleted.copy(alpha = 0.08f), StatusCompleted, "Completed")
-        else          -> Triple(SurfaceVariantDark, MaterialTheme.colorScheme.onSurfaceVariant, status)
+        "open"        -> Triple(StatusAccepted.copy(alpha = 0.10f),    StatusAccepted,   "Open")
+        "closed"      -> Triple(StatusClosed.copy(alpha = 0.10f),      StatusClosed,     "Closed")
+        "in_progress" -> Triple(StatusInProgress.copy(alpha = 0.10f),  StatusInProgress, "In Progress")
+        "pending"     -> Triple(StatusPending.copy(alpha = 0.10f),     StatusPending,    "Pending")
+        "accepted"    -> Triple(StatusAccepted.copy(alpha = 0.10f),    StatusAccepted,   "Accepted")
+        "rejected"    -> Triple(StatusClosed.copy(alpha = 0.10f),      StatusClosed,     "Rejected")
+        "completed"   -> Triple(StatusCompleted.copy(alpha = 0.10f),   StatusCompleted,  "Completed")
+        else          -> Triple(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant, status)
     }
-
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(50.dp),
@@ -374,19 +349,11 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
-            // Glowing Indicator Dot
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .background(textColor, shape = CircleShape)
-            )
+            Box(modifier = Modifier.size(6.dp).background(textColor, CircleShape))
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
-                ),
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
                 color = textColor
             )
         }
@@ -400,16 +367,17 @@ fun AvatarInitials(
     size: Int = 40,
     modifier: Modifier = Modifier
 ) {
-    val colors = listOf(CampusIndigo40, CampusTeal40, Color(0xFF8E24AA), Color(0xFFE53935), Color(0xFF43A047))
-    val colorIndex = (name.firstOrNull()?.code ?: 0) % colors.size
-    val avatarColor = colors[colorIndex]
+    val avatarColors = listOf(
+        Color(0xFF4F46E5), Color(0xFF059669), Color(0xFF9333EA),
+        Color(0xFFE23744), Color(0xFF0284C7), Color(0xFFEA580C)
+    )
+    val avatarColor = avatarColors[(name.firstOrNull()?.code ?: 0) % avatarColors.size]
 
     Box(
         modifier = modifier
             .size(size.dp)
             .clip(CircleShape)
-            .background(avatarColor.copy(alpha = 0.85f))
-            .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape),
+            .background(avatarColor),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -423,7 +391,7 @@ fun AvatarInitials(
     }
 }
 
-// ─── Date Parser ───
+// ─── Date Parser ───────────────────────────────────────────────────────────────
 fun getRelativeTime(isoString: String): String {
     if (isoString.isBlank()) return "Recently"
     return try {
@@ -432,16 +400,13 @@ fun getRelativeTime(isoString: String): String {
         }
         val date = sdf.parse(isoString) ?: return "Recently"
         val diff = System.currentTimeMillis() - date.time
-        val seconds = diff / 1000
-        val minutes = seconds / 60
-        val hours = minutes / 60
-        val days = hours / 24
-
+        val seconds = diff / 1000; val minutes = seconds / 60
+        val hours = minutes / 60;  val days = hours / 24
         when {
             seconds < 60 -> "Just now"
             minutes < 60 -> "${minutes}m ago"
-            hours < 24 -> "${hours}h ago"
-            else -> "${days}d ago"
+            hours   < 24 -> "${hours}h ago"
+            else         -> "${days}d ago"
         }
     } catch (e: Exception) {
         try {
@@ -450,24 +415,20 @@ fun getRelativeTime(isoString: String): String {
             }
             val date = sdf2.parse(isoString) ?: return "Recently"
             val diff = System.currentTimeMillis() - date.time
-            val seconds = diff / 1000
-            val minutes = seconds / 60
-            val hours = minutes / 60
-            val days = hours / 24
+            val seconds = diff / 1000; val minutes = seconds / 60
+            val hours = minutes / 60;  val days = hours / 24
             when {
                 seconds < 60 -> "Just now"
                 minutes < 60 -> "${minutes}m ago"
-                hours < 24 -> "${hours}h ago"
-                else -> "${days}d ago"
+                hours   < 24 -> "${hours}h ago"
+                else         -> "${days}d ago"
             }
-        } catch (ex: Exception) {
-            "Recently"
-        }
+        } catch (ex: Exception) { "Recently" }
     }
 }
 
-private val StatusPending     get() = com.abpvt.campusgig_frontend.ui.theme.StatusPending
-private val StatusAccepted    get() = com.abpvt.campusgig_frontend.ui.theme.StatusAccepted
-private val StatusClosed      get() = com.abpvt.campusgig_frontend.ui.theme.StatusRejected
-private val StatusInProgress  get() = com.abpvt.campusgig_frontend.ui.theme.StatusInProgress
-private val StatusCompleted   get() = com.abpvt.campusgig_frontend.ui.theme.StatusCompleted
+private val StatusPending    get() = com.abpvt.campusgig_frontend.ui.theme.StatusPending
+private val StatusAccepted   get() = com.abpvt.campusgig_frontend.ui.theme.StatusAccepted
+private val StatusClosed     get() = com.abpvt.campusgig_frontend.ui.theme.StatusRejected
+private val StatusInProgress get() = com.abpvt.campusgig_frontend.ui.theme.StatusInProgress
+private val StatusCompleted  get() = com.abpvt.campusgig_frontend.ui.theme.StatusCompleted

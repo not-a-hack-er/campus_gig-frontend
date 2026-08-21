@@ -1,4 +1,5 @@
 package com.abpvt.campusgig_frontend.ui.components
+import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing

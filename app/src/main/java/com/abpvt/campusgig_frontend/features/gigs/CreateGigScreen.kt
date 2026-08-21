@@ -100,27 +100,16 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.GigViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Gig
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccessBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarningBg
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 // ─── Domain Data ──────────────────────────────────────────────────────────────
 
@@ -241,10 +230,11 @@ private fun validateStep(step: Int, s: GigFormState): String = when (step) {
 
 // ─── Modifier Extensions ──────────────────────────────────────────────────────
 
+@Composable
 private fun Modifier.formCard(radius: Int = 12): Modifier = this
     .clip(RoundedCornerShape(radius.dp))
-    .background(Surface2)
-    .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(radius.dp))
+    .background(MaterialTheme.colorScheme.surface)
+    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(radius.dp))
 
 private fun Modifier.indigoGradient(radius: Int = 14): Modifier = this
     .clip(RoundedCornerShape(radius.dp))
@@ -256,16 +246,16 @@ private fun Modifier.indigoGradient(radius: Int = 14): Modifier = this
 
 @Composable
 private fun gigFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor       = TextPrimary,
-    unfocusedTextColor     = TextPrimary,
-    focusedContainerColor  = Surface3,
-    unfocusedContainerColor = Surface2,
-    focusedBorderColor     = Indigo500,
-    unfocusedBorderColor   = BorderSubtle,
+    focusedTextColor       = MaterialTheme.colorScheme.onBackground,
+    unfocusedTextColor     = MaterialTheme.colorScheme.onBackground,
+    focusedContainerColor  = MaterialTheme.colorScheme.surfaceVariant,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    focusedBorderColor     = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor   = MaterialTheme.colorScheme.outline,
     errorBorderColor       = SemanticError,
-    cursorColor            = Indigo500,
-    focusedLabelColor      = Indigo400,
-    unfocusedLabelColor    = TextTertiary
+    cursorColor            = MaterialTheme.colorScheme.primary,
+    focusedLabelColor      = MaterialTheme.colorScheme.primary,
+    unfocusedLabelColor    = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
 )
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
@@ -344,7 +334,7 @@ fun CreateGigScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // ── Top Bar ──────────────────────────────────────────────────────────
         WizardTopBar(
@@ -420,8 +410,8 @@ private fun WizardTopBar(step: Int, onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(start = 4.dp, end = 20.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -429,7 +419,7 @@ private fun WizardTopBar(step: Int, onBack: () -> Unit) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 "Back",
-                tint     = TextSecondary,
+                tint     = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -440,12 +430,12 @@ private fun WizardTopBar(step: Int, onBack: () -> Unit) {
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 18.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 "Step ${step + 1} of ${STEP_LABELS.size} — ${STEP_LABELS[step]}",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
@@ -467,9 +457,9 @@ private fun StepProgressBar(
         ) {
             labels.forEachIndexed { index, _ ->
                 val bg = when {
-                    index < currentStep  -> Indigo500
-                    index == currentStep -> Indigo500  // active segment gets gradient via Brush
-                    else                 -> BorderDefault
+                    index < currentStep  -> MaterialTheme.colorScheme.primary
+                    index == currentStep -> MaterialTheme.colorScheme.primary  // active segment gets gradient via Brush
+                    else                 -> MaterialTheme.colorScheme.outlineVariant
                 }
                 Box(
                     modifier = Modifier
@@ -502,9 +492,9 @@ private fun StepProgressBar(
                             fontWeight = if (index == currentStep) FontWeight.Bold else FontWeight.Normal
                         ),
                         color = when {
-                            index < currentStep  -> Indigo400
-                            index == currentStep -> TextPrimary
-                            else                 -> TextTertiary
+                            index < currentStep  -> MaterialTheme.colorScheme.primary
+                            index == currentStep -> MaterialTheme.colorScheme.onBackground
+                            else                 -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         }
                     )
                 }
@@ -565,7 +555,7 @@ private fun Step1Basics(
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                 fontSize   = 12.sp
                             ),
-                            color = if (isSelected) Color.White else TextSecondary
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     // Selection checkmark
@@ -600,7 +590,7 @@ private fun Step1Basics(
         placeholder   = {
             Text(
                 "e.g. Need a React developer for my startup dashboard",
-                color = TextTertiary.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.55f),
                 style = MaterialTheme.typography.bodySmall
             )
         },
@@ -612,7 +602,7 @@ private fun Step1Basics(
         supportingText  = {
             Text(
                 "${form.title.length} / 100",
-                color = if (form.title.length >= 10) TextTertiary else SemanticWarning,
+                color = if (form.title.length >= 10) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) else SemanticWarning,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
             )
         },
@@ -630,7 +620,7 @@ private fun Step1Basics(
         placeholder   = {
             Text(
                 "Describe exactly what you need, key requirements, and what success looks like…",
-                color = TextTertiary.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.55f),
                 style = MaterialTheme.typography.bodySmall
             )
         },
@@ -642,7 +632,7 @@ private fun Step1Basics(
         supportingText = {
             Text(
                 "${form.description.length} / 2000",
-                color = TextTertiary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp)
             )
         },
@@ -699,7 +689,7 @@ private fun Step2Details(
             placeholder   = {
                 Text(
                     "e.g. Kotlin, Figma, React",
-                    color = TextTertiary.copy(alpha = 0.55f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.55f),
                     style = MaterialTheme.typography.bodySmall
                 )
             },
@@ -748,7 +738,7 @@ private fun Step2Details(
                     modifier = Modifier
                         .clip(RoundedCornerShape(7.dp))
                         .background(GlowIndigo)
-                        .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.35f)), RoundedCornerShape(7.dp))
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)), RoundedCornerShape(7.dp))
                         .padding(start = 10.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
                     verticalAlignment     = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
@@ -759,20 +749,20 @@ private fun Step2Details(
                             fontSize   = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         ),
-                        color = Indigo400
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Box(
                         modifier = Modifier
                             .size(16.dp)
                             .clip(CircleShape)
-                            .background(Indigo500.copy(alpha = 0.2f))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication        = null
                             ) { onAction(GigFormAction.RemoveSkill(skill)) },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Close, "Remove", tint = Indigo400, modifier = Modifier.size(9.dp))
+                        Icon(Icons.Default.Close, "Remove", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(9.dp))
                     }
                 }
             }
@@ -790,7 +780,7 @@ private fun Step2Details(
         placeholder   = {
             Text(
                 "YYYY-MM-DD  (e.g. 2026-09-15)",
-                color = TextTertiary.copy(alpha = 0.55f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.55f),
                 style = MaterialTheme.typography.bodySmall
             )
         },
@@ -812,7 +802,7 @@ private fun Step2Details(
         LOCATION_OPTIONS.forEach { (type, emoji, desc) ->
             val isSelected = form.location == type
             val borderColor by animateColorAsState(
-                targetValue   = if (isSelected) Indigo500 else BorderSubtle,
+                targetValue   = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                 animationSpec = tween(140),
                 label         = "loc_border_$type"
             )
@@ -821,7 +811,7 @@ private fun Step2Details(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(if (isSelected) GlowIndigo else Surface3)
+                    .background(if (isSelected) GlowIndigo else MaterialTheme.colorScheme.surfaceVariant)
                     .border(BorderStroke(if (isSelected) 1.5.dp else 1.dp, borderColor), RoundedCornerShape(12.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -841,12 +831,12 @@ private fun Step2Details(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             fontSize   = 11.sp
                         ),
-                        color = if (isSelected) TextPrimary else TextSecondary
+                        color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         desc,
                         style   = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                        color   = TextTertiary,
+                        color   = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         maxLines = 1
                     )
                 }
@@ -872,7 +862,7 @@ private fun Step3Budget(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(30.dp))
-            .background(Surface3)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(4.dp)
     ) {
         listOf("Fixed Price", "Hourly Rate").forEach { type ->
@@ -897,7 +887,7 @@ private fun Step3Budget(
                 Text(
                     type,
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = if (isSel) Color.White else TextSecondary
+                    color = if (isSel) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -917,7 +907,7 @@ private fun Step3Budget(
                 fontWeight    = FontWeight.SemiBold,
                 letterSpacing = 0.8.sp
             ),
-            color = TextTertiary
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
         Spacer(Modifier.height(12.dp))
         Row(
@@ -930,7 +920,7 @@ private fun Step3Budget(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 28.sp
                 ),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
             Spacer(Modifier.width(2.dp))
             // Transparent field — only the bottom border shows
@@ -948,7 +938,7 @@ private fun Step3Budget(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize   = 44.sp
                             ),
-                            color = BorderDefault
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
                     },
                     singleLine      = true,
@@ -956,14 +946,14 @@ private fun Step3Budget(
                     textStyle = MaterialTheme.typography.displayMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize   = 44.sp,
-                        color      = TextPrimary
+                        color      = MaterialTheme.colorScheme.onBackground
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor   = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
                         focusedBorderColor      = Color.Transparent,
                         unfocusedBorderColor    = Color.Transparent,
-                        cursorColor             = Indigo500
+                        cursorColor             = MaterialTheme.colorScheme.primary
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -975,7 +965,7 @@ private fun Step3Budget(
                         .height(2.dp)
                         .clip(RoundedCornerShape(1.dp))
                         .background(
-                            if (form.budgetAmount.isNotBlank()) Indigo500 else BorderDefault
+                            if (form.budgetAmount.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant
                         )
                 )
             }
@@ -983,7 +973,7 @@ private fun Step3Budget(
                 Text(
                     "/hr",
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -999,7 +989,7 @@ private fun Step3Budget(
             fontWeight    = FontWeight.Bold,
             letterSpacing = 1.sp
         ),
-        color = TextTertiary
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
     Spacer(Modifier.height(8.dp))
     Row(
@@ -1011,9 +1001,9 @@ private fun Step3Budget(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (isActive) GlowIndigo else Surface3)
+                    .background(if (isActive) GlowIndigo else MaterialTheme.colorScheme.surfaceVariant)
                     .border(
-                        BorderStroke(1.dp, if (isActive) Indigo500 else BorderSubtle),
+                        BorderStroke(1.dp, if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
                         RoundedCornerShape(8.dp)
                     )
                     .clickable(
@@ -1028,7 +1018,7 @@ private fun Step3Budget(
                         fontSize   = 11.sp,
                         fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
                     ),
-                    color = if (isActive) Indigo400 else TextSecondary
+                    color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -1042,8 +1032,8 @@ private fun Step3Budget(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(10.dp))
             .padding(horizontal = 14.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment     = Alignment.Top
@@ -1056,7 +1046,7 @@ private fun Step3Budget(
                     fontWeight = FontWeight.Bold,
                     fontSize   = 12.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 rateInfo,
@@ -1089,7 +1079,7 @@ private fun Step4Review(
             fontWeight    = FontWeight.Bold,
             letterSpacing = 1.sp
         ),
-        color = TextTertiary
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
     Spacer(Modifier.height(10.dp))
 
@@ -1141,12 +1131,12 @@ private fun Step4Review(
                             fontWeight    = FontWeight.Bold,
                             letterSpacing = 0.5.sp
                         ),
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                     Text(
                         value,
                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                        color = if (ok) TextSecondary else SemanticError
+                        color = if (ok) MaterialTheme.colorScheme.onSurfaceVariant else SemanticError
                     )
                 }
             }
@@ -1156,7 +1146,7 @@ private fun Step4Review(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(BorderSubtle)
+                        .background(MaterialTheme.colorScheme.outline)
                 )
             }
         }
@@ -1169,8 +1159,8 @@ private fun Step4Review(
         modifier          = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(10.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication        = null
@@ -1183,9 +1173,9 @@ private fun Step4Review(
             modifier = Modifier
                 .size(20.dp)
                 .clip(RoundedCornerShape(5.dp))
-                .background(if (form.termsAccepted) Indigo500 else Surface4)
+                .background(if (form.termsAccepted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh)
                 .border(
-                    BorderStroke(1.5.dp, if (form.termsAccepted) Indigo400 else BorderDefault),
+                    BorderStroke(1.5.dp, if (form.termsAccepted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
                     RoundedCornerShape(5.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -1198,7 +1188,7 @@ private fun Step4Review(
         Text(
             "I confirm this gig is genuine and follows CampusGig community guidelines",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, lineHeight = 19.sp),
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 
@@ -1236,7 +1226,7 @@ private fun Step4Review(
                 if (form.termsAccepted)
                     Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoMid, GradientIndigoEnd))
                 else
-                    Brush.linearGradient(listOf(Surface4, Surface4))
+                    Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.surfaceContainerHigh))
             )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
@@ -1260,13 +1250,13 @@ private fun Step4Review(
             ) {
                 Icon(
                     Icons.Default.RocketLaunch, null,
-                    tint     = if (form.termsAccepted) Color.White else TextTertiary,
+                    tint     = if (form.termsAccepted) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.size(18.dp)
                 )
                 Text(
                     "Post Gig",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = if (form.termsAccepted) Color.White else TextTertiary
+                    color = if (form.termsAccepted) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -1284,8 +1274,8 @@ private fun WizardBottomNav(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -1305,7 +1295,7 @@ private fun WizardBottomNav(
                 Text(
                     "Back",
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -1363,13 +1353,13 @@ private fun StepHeading(title: String, subtitle: String) {
             fontWeight = FontWeight.ExtraBold,
             fontSize   = 22.sp
         ),
-        color = TextPrimary
+        color = MaterialTheme.colorScheme.onBackground
     )
     Spacer(Modifier.height(4.dp))
     Text(
         subtitle,
         style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-        color = TextTertiary
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
     Spacer(Modifier.height(22.dp))
 }
@@ -1383,6 +1373,6 @@ private fun FormLabel(text: String) {
             fontSize      = 12.sp,
             letterSpacing = 0.4.sp
         ),
-        color = TextSecondary
+        color = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }

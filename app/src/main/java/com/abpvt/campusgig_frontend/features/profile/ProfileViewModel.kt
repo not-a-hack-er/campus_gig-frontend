@@ -7,6 +7,7 @@
  * 3. logout()        — Clear stored token via AuthRepository
  */
 package com.abpvt.campusgig_frontend.features.profile
+import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

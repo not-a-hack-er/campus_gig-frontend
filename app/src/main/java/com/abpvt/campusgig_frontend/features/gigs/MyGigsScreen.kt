@@ -15,7 +15,7 @@
  *    application count pill with indigo glow, budget right-aligned.
  *  - In-Progress footer: avatar chip + "Open Chat →" teal button.
  *  - Completed footer: "Request Review" + "Re-post →" inline links.
- *  - 3-dot dropdown: Surface3 container, icon-prefixed items with semantic colors.
+ *  - 3-dot dropdown: MaterialTheme.colorScheme.surfaceVariant container, icon-prefixed items with semantic colors.
  *  - Empty state: centered emoji + contextual message per tab.
  *  - Loading/Error: full-bleed centred states with retry CTA.
  */
@@ -91,27 +91,16 @@ import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.features.home.HomeViewModel
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccessBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarningBg
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 // ─── Domain Constants ─────────────────────────────────────────────────────────
 
@@ -136,11 +125,12 @@ private sealed interface MyGigsAction {
 
 // ─── Modifier Extensions ─────────────────────────────────────────────────────
 
+@Composable
 private fun Modifier.gigManagementCard(): Modifier = this
     .fillMaxWidth()
     .clip(RoundedCornerShape(16.dp))
-    .background(Surface2)
-    .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(16.dp))
+    .background(MaterialTheme.colorScheme.surface)
+    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(16.dp))
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -208,7 +198,7 @@ fun MyGigsScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         when (val state = myGigsState) {
 
@@ -328,8 +318,8 @@ private fun MyGigsTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(start = 4.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -337,7 +327,7 @@ private fun MyGigsTopBar(
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 "Back",
-                tint     = TextSecondary,
+                tint     = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -349,13 +339,13 @@ private fun MyGigsTopBar(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 19.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 if (totalGigs == 0) "No gigs posted yet"
                 else "$totalGigs gig${if (totalGigs == 1) "" else "s"} posted",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
 
@@ -405,7 +395,7 @@ private fun GigStatsRow(
     totalBudget: Double
 ) {
     val stats = listOf(
-        StatItem(Icons.Default.Work,        Indigo400,      GlowIndigo,          "Posted",    totalPosted.toString()),
+        StatItem(Icons.Default.Work,        MaterialTheme.colorScheme.primary,      GlowIndigo,          "Posted",    totalPosted.toString()),
         StatItem(Icons.Default.Edit,        SemanticWarning, SemanticWarningBg,  "Active",    activeNow.toString()),
         StatItem(Icons.Default.CheckCircle, SemanticSuccess, SemanticSuccessBg,  "Completed", completed.toString()),
         StatItem(Icons.Default.Star,        Color(0xFFF59E0B), Color(0x1AF59E0B),"Budget",    "₹${totalBudget.toInt()}")
@@ -420,8 +410,8 @@ private fun GigStatsRow(
                 modifier = Modifier
                     .width(108.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface2)
-                    .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
                     .padding(horizontal = 12.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -445,7 +435,7 @@ private fun GigStatsRow(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize   = 20.sp
                     ),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     stat.label,
@@ -454,7 +444,7 @@ private fun GigStatsRow(
                         fontWeight    = FontWeight.SemiBold,
                         letterSpacing = 0.5.sp
                     ),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -473,8 +463,8 @@ private fun GigTabStrip(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
     ) {
         Row(
             modifier = Modifier
@@ -505,14 +495,14 @@ private fun GigTabStrip(
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 fontSize   = 11.sp
                             ),
-                            color = if (isSelected) TextPrimary else TextTertiary
+                            color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                         // Count badge
                         if (counts[index] > 0) {
                             Box(
                                 modifier = Modifier
                                     .clip(CircleShape)
-                                    .background(if (isSelected) Indigo500 else Surface4)
+                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh)
                                     .padding(horizontal = 5.dp, vertical = 1.dp)
                             ) {
                                 Text(
@@ -521,7 +511,7 @@ private fun GigTabStrip(
                                         fontSize   = 9.sp,
                                         fontWeight = FontWeight.Bold
                                     ),
-                                    color = if (isSelected) Color.White else TextTertiary
+                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                             }
                         }
@@ -569,8 +559,8 @@ private fun ManagementGigCard(
         "open"                -> Triple(SemanticSuccess, "Active",      SemanticSuccessBg)
         "in_progress"         -> Triple(SemanticWarning, "In Progress", SemanticWarningBg)
         "completed"           -> Triple(Color(0xFF14B8A6), "Completed", Color(0x1A14B8A6))
-        "cancelled", "closed" -> Triple(TextTertiary,    "Cancelled",  Surface4)
-        else                  -> Triple(TextTertiary,    gig.status,   Surface4)
+        "cancelled", "closed" -> Triple(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),    "Cancelled",  MaterialTheme.colorScheme.surfaceContainerHigh)
+        else                  -> Triple(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),    gig.status,   MaterialTheme.colorScheme.surfaceContainerHigh)
     }
 
     val timeAgo = remember(gig.createdAt) { relativeTime(gig.createdAt) }
@@ -584,7 +574,7 @@ private fun ManagementGigCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Surface3)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 14.dp, vertical = 8.dp),
             verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -600,7 +590,7 @@ private fun ManagementGigCard(
                         fontSize   = 11.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Row(
@@ -610,7 +600,7 @@ private fun ManagementGigCard(
                 Text(
                     timeAgo,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 // Status dot + label
                 Row(
@@ -655,7 +645,7 @@ private fun ManagementGigCard(
                         fontSize   = 15.sp,
                         lineHeight  = 22.sp
                     ),
-                    color    = TextPrimary,
+                    color    = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
@@ -673,7 +663,7 @@ private fun ManagementGigCard(
                         modifier = Modifier
                             .size(30.dp)
                             .clip(CircleShape)
-                            .background(Surface3)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication        = null
@@ -682,7 +672,7 @@ private fun ManagementGigCard(
                     ) {
                         Icon(
                             Icons.Default.MoreVert, "Options",
-                            tint     = TextTertiary,
+                            tint     = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -690,11 +680,11 @@ private fun ManagementGigCard(
                     DropdownMenu(
                         expanded         = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
-                        containerColor   = Surface3
+                        containerColor   = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Edit", style = MaterialTheme.typography.bodySmall, color = TextPrimary) },
-                            leadingIcon = { Icon(Icons.Default.Edit, null, tint = TextSecondary, modifier = Modifier.size(15.dp)) },
+                            text = { Text("Edit", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground) },
+                            leadingIcon = { Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(15.dp)) },
                             onClick = { menuExpanded = false; onEdit() }
                         )
                         DropdownMenuItem(
@@ -724,7 +714,7 @@ private fun ManagementGigCard(
                     modifier = Modifier
                         .clip(RoundedCornerShape(7.dp))
                         .background(GlowIndigo)
-                        .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.3f)), RoundedCornerShape(7.dp))
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)), RoundedCornerShape(7.dp))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication        = null,
@@ -734,14 +724,14 @@ private fun ManagementGigCard(
                     verticalAlignment     = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    Icon(Icons.Default.People, null, tint = Indigo400, modifier = Modifier.size(12.dp))
+                    Icon(Icons.Default.People, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp))
                     Text(
                         "${gig.applicationsCount} application${if (gig.applicationsCount != 1) "s" else ""}",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize   = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         ),
-                        color = Indigo400
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -763,7 +753,7 @@ private fun ManagementGigCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(BorderSubtle)
+                        .background(MaterialTheme.colorScheme.outline)
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(
@@ -779,7 +769,7 @@ private fun ManagementGigCard(
                             modifier = Modifier
                                 .size(26.dp)
                                 .clip(CircleShape)
-                                .background(Indigo500),
+                                .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
                         ) {
                             Text("W", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.ExtraBold, fontSize = 10.sp), color = Color.White)
@@ -787,7 +777,7 @@ private fun ManagementGigCard(
                         Text(
                             "Working with Candidate",
                             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Box(
@@ -818,7 +808,7 @@ private fun ManagementGigCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(BorderSubtle)
+                        .background(MaterialTheme.colorScheme.outline)
                 )
                 Spacer(Modifier.height(10.dp))
                 Row(
@@ -839,7 +829,7 @@ private fun ManagementGigCard(
                     Text(
                         "Re-post →",
                         style    = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                        color    = Indigo400,
+                        color    = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication        = null,
@@ -880,7 +870,7 @@ private fun GigsEmptyState(tabLabel: String) {
                     fontSize   = 14.sp,
                     lineHeight  = 21.sp
                 ),
-                color     = TextTertiary,
+                color     = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }
@@ -897,14 +887,14 @@ private fun GigsLoadingState() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             CircularProgressIndicator(
-                color       = Indigo400,
+                color       = MaterialTheme.colorScheme.primary,
                 modifier    = Modifier.size(32.dp),
                 strokeWidth = 2.5.dp
             )
             Text(
                 "Loading your gigs…",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
@@ -929,7 +919,7 @@ private fun GigsErrorState(message: String, onRetry: () -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(GlowIndigo)
-                    .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication        = null,
@@ -940,7 +930,7 @@ private fun GigsErrorState(message: String, onRetry: () -> Unit) {
                 Text(
                     "Retry",
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

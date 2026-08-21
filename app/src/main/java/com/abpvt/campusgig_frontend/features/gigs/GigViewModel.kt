@@ -16,6 +16,7 @@
  * (avoids loading all gigs and filtering locally).
  */
 package com.abpvt.campusgig_frontend.features.gigs
+import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

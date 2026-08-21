@@ -8,13 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.abpvt.campusgig_frontend.core.network.AuthInterceptor
 import com.abpvt.campusgig_frontend.features.chat.SocketManager
 import com.abpvt.campusgig_frontend.navigation.AppNavGraph
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.Campusgig_frontendTheme
+import com.abpvt.campusgig_frontend.ui.theme.CampusGigTheme
+import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModel
+import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +30,13 @@ class MainActivity : ComponentActivity() {
         val startDestination = if (app.authRepository.isLoggedIn()) Routes.HOME else Routes.LOGIN
 
         setContent {
-            Campusgig_frontendTheme {
+            // ── Theme ─────────────────────────────────────────────────────────
+            val themeViewModel: ThemeViewModel = viewModel(
+                factory = ThemeViewModelFactory(applicationContext)
+            )
+            val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+
+            CampusGigTheme(darkTheme = isDarkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -47,7 +58,8 @@ class MainActivity : ComponentActivity() {
 
                     AppNavGraph(
                         navController = navController,
-                        startDestination = startDestination
+                        startDestination = startDestination,
+                        themeViewModel = themeViewModel
                     )
                 }
             }

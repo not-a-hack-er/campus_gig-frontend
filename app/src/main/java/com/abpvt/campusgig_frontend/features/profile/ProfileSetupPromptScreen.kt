@@ -55,17 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -85,10 +77,10 @@ fun ProfileSetupPromptScreen(navController: NavController) {
     val progress = completedCount / 4f
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary,
-        focusedContainerColor = Surface3, unfocusedContainerColor = Surface2,
-        focusedBorderColor = Indigo400, unfocusedBorderColor = BorderSubtle,
-        cursorColor = Indigo400, focusedPlaceholderColor = TextTertiary, unfocusedPlaceholderColor = TextTertiary
+        focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+        cursorColor = MaterialTheme.colorScheme.primary, focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
 
     Box(
@@ -101,24 +93,24 @@ fun ProfileSetupPromptScreen(navController: NavController) {
 
             // Progress bar
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("${(progress * 100).toInt()}% Complete", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold), color = Indigo400)
-                Text("$completedCount of 4 steps", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text("${(progress * 100).toInt()}% Complete", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.primary)
+                Text("$completedCount of 4 steps", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                color = Indigo400,
-                trackColor = Surface2,
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surface,
                 strokeCap = StrokeCap.Round
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             // Title
-            Text("Let's make your profile shine ✨", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold), color = TextPrimary)
+            Text("Let's make your profile shine ✨", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold), color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("A complete profile gets 3× more gig responses", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            Text("A complete profile gets 3× more gig responses", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -140,12 +132,12 @@ fun ProfileSetupPromptScreen(navController: NavController) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         skills.forEach { skill ->
-                            Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Indigo400.copy(0.1f)).border(1.dp, Indigo400.copy(0.3f), RoundedCornerShape(8.dp)).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)) {
+                            Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primary.copy(0.1f)).border(1.dp, MaterialTheme.colorScheme.primary.copy(0.3f), RoundedCornerShape(8.dp)).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(skill, style = MaterialTheme.typography.bodySmall, color = Indigo400)
+                                    Text(skill, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Box(modifier = Modifier.size(14.dp).clickable { skills.remove(skill) }, contentAlignment = Alignment.Center) {
-                                        androidx.compose.material3.Icon(Icons.Default.Close, contentDescription = null, tint = Indigo400, modifier = Modifier.size(12.dp))
+                                        androidx.compose.material3.Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp))
                                     }
                                 }
                             }
@@ -157,7 +149,7 @@ fun ProfileSetupPromptScreen(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors,
                         trailingIcon = {
                             if (skillInput.isNotBlank()) {
-                                Box(modifier = Modifier.clip(CircleShape).background(Indigo400).clickable { skills.add(skillInput.trim()); skillInput = "" }.padding(4.dp)) {
+                                Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable { skills.add(skillInput.trim()); skillInput = "" }.padding(4.dp)) {
                                     androidx.compose.material3.Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
                                 }
                             }
@@ -178,12 +170,12 @@ fun ProfileSetupPromptScreen(navController: NavController) {
             ) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     Box(
-                        modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(12.dp)).background(Surface3).border(1.dp, BorderSubtle, RoundedCornerShape(12.dp)),
+                        modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("📷", fontSize = 24.sp)
-                            Text("Tap to choose a photo", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                            Text("Tap to choose a photo", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
@@ -230,7 +222,7 @@ fun ProfileSetupPromptScreen(navController: NavController) {
                 Text(
                     "I'll do this later",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextTertiary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.clickable { navController.navigate(Routes.HOME) { popUpTo(Routes.PROFILE_SETUP) { inclusive = true } } }
                 )
             }
@@ -253,10 +245,10 @@ private fun ChecklistItem(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(if (isDone) SemanticSuccess.copy(0.06f) else Surface2)
+            .background(if (isDone) SemanticSuccess.copy(0.06f) else MaterialTheme.colorScheme.surface)
             .border(
                 1.dp,
-                if (isDone) SemanticSuccess.copy(0.3f) else if (isExpanded) Indigo400.copy(0.4f) else BorderSubtle,
+                if (isDone) SemanticSuccess.copy(0.3f) else if (isExpanded) MaterialTheme.colorScheme.primary.copy(0.4f) else MaterialTheme.colorScheme.outline,
                 RoundedCornerShape(14.dp)
             )
             .padding(16.dp)
@@ -271,22 +263,22 @@ private fun ChecklistItem(
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .background(if (isDone) SemanticSuccess else Surface3)
-                        .border(1.dp, if (isDone) SemanticSuccess else BorderSubtle, CircleShape),
+                        .background(if (isDone) SemanticSuccess else MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, if (isDone) SemanticSuccess else MaterialTheme.colorScheme.outline, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     if (isDone) {
                         androidx.compose.material3.Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                     } else {
-                        Text("${index + 1}", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = TextTertiary)
+                        Text("${index + 1}", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(label, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = if (isDone) SemanticSuccess else TextPrimary)
+                    Text(label, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = if (isDone) SemanticSuccess else MaterialTheme.colorScheme.onBackground)
                 }
-                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(if (isDone) SemanticSuccess.copy(0.1f) else Surface3).padding(horizontal = 8.dp, vertical = 3.dp)) {
-                    Text(timeEst, style = MaterialTheme.typography.labelSmall, color = if (isDone) SemanticSuccess else TextTertiary)
+                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(if (isDone) SemanticSuccess.copy(0.1f) else MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 8.dp, vertical = 3.dp)) {
+                    Text(timeEst, style = MaterialTheme.typography.labelSmall, color = if (isDone) SemanticSuccess else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
 

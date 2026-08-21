@@ -45,12 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
 
 @Composable
 fun CommunityListScreen(navController: NavController) {
@@ -69,7 +63,7 @@ fun CommunityListScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         // Decorative background gradient sphere
@@ -81,7 +75,7 @@ fun CommunityListScreen(navController: NavController) {
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            Indigo500.copy(alpha = 0.08f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
                             Color.Transparent
                         )
                     )
@@ -100,7 +94,7 @@ fun CommunityListScreen(navController: NavController) {
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
-                    .background(Surface2)
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(
                         width = 1.5.dp,
                         brush = Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)),
@@ -111,7 +105,7 @@ fun CommunityListScreen(navController: NavController) {
                 Icon(
                     imageVector = Icons.Default.Groups,
                     contentDescription = null,
-                    tint = Indigo400,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
             }
@@ -125,7 +119,7 @@ fun CommunityListScreen(navController: NavController) {
                     .background(GradientIndigoStart.copy(alpha = 0.15f))
                     .border(
                         width = 1.dp,
-                        color = Indigo400.copy(alpha = 0.3f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(99.dp)
                     )
                     .padding(horizontal = 14.dp, vertical = 6.dp)
@@ -136,7 +130,7 @@ fun CommunityListScreen(navController: NavController) {
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.5.sp
                     ),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -148,7 +142,7 @@ fun CommunityListScreen(navController: NavController) {
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 ),
-                color = TextPrimary,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -160,7 +154,7 @@ fun CommunityListScreen(navController: NavController) {
                     fontSize = 14.sp,
                     lineHeight = 20.sp
                 ),
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 

@@ -10,8 +10,11 @@ import com.abpvt.campusgig_frontend.data.model.Review
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.data.model.request.LoginRequest
 import com.abpvt.campusgig_frontend.data.model.request.RegisterRequest
+import com.abpvt.campusgig_frontend.data.model.response.ApiResponse
 import com.abpvt.campusgig_frontend.data.model.response.AuthResponse
 import com.abpvt.campusgig_frontend.data.model.response.MessageResponse
+import com.abpvt.campusgig_frontend.data.model.response.UnreadCountResponse
+import com.abpvt.campusgig_frontend.data.model.response.VerifyOtpResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -32,6 +35,15 @@ interface ApiService {
 
     @POST("auth/google")
     suspend fun googleLogin(@Body body: Map<String, String>): Response<AuthResponse>
+
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
+
+    @POST("auth/verify-otp")
+    suspend fun verifyOtp(@Body body: Map<String, String>): Response<ApiResponse<VerifyOtpResponse>>
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
 
     // ─── User / Profile ──────────────────────────────────────────────────────
     @GET("users/me")
@@ -123,10 +135,19 @@ interface ApiService {
     @PUT("notifications/read-all")
     suspend fun markAllNotificationsRead(): Response<MessageResponse>
 
+    @GET("notifications/unread-count")
+    suspend fun getUnreadNotificationCount(): Response<ApiResponse<UnreadCountResponse>>
+
     // ─── Reviews ─────────────────────────────────────────────────────────────
     @GET("reviews/user/{userId}")
     suspend fun getReviewsForUser(@Path("userId") userId: String): Response<List<Review>>
 
     @POST("reviews/{userId}")
     suspend fun createReview(@Path("userId") userId: String, @Body body: Review): Response<Review>
+
+    @POST("reviews/{userId}")
+    suspend fun submitReview(
+        @Path("userId") userId: String,
+        @Body body: Map<String, Any?>
+    ): Response<ApiResponse<Review>>
 }

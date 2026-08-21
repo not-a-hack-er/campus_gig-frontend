@@ -77,19 +77,11 @@ import com.abpvt.campusgig_frontend.core.utils.CommunityViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Community
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.launch
 
 private fun communityGradient(name: String): List<Color> {
@@ -132,10 +124,10 @@ fun CommunityDetailScreen(
     val isMember by viewModel.isMember.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = communityState) {
             null, is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(28.dp))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
             }
             is Resource.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(state.message, color = MaterialTheme.colorScheme.error)
@@ -197,7 +189,7 @@ fun CommunityDetailScreen(
                                     .offset(x = 20.dp, y = 32.dp)
                                     .size(68.dp)
                                     .clip(CircleShape)
-                                    .background(Surface1)
+                                    .background(MaterialTheme.colorScheme.background)
                                     .padding(3.dp)
                             ) {
                                 Box(
@@ -242,20 +234,20 @@ fun CommunityDetailScreen(
                     item {
                         Spacer(modifier = Modifier.height(40.dp))
                         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                            Text(community.name, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
+                            Text(community.name, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Indigo400.copy(0.12f)).border(1.dp, Indigo400.copy(0.3f), RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp)) {
-                                    Text(community.category.ifBlank { "General" }, style = MaterialTheme.typography.labelSmall, color = Indigo400)
+                                Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.primary.copy(0.12f)).border(1.dp, MaterialTheme.colorScheme.primary.copy(0.3f), RoundedCornerShape(6.dp)).padding(horizontal = 8.dp, vertical = 3.dp)) {
+                                    Text(community.category.ifBlank { "General" }, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                                 }
                                 if (community.isPrivate) {
-                                    Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(Surface3).padding(horizontal = 8.dp, vertical = 3.dp)) {
-                                        Text("🔒 Private", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                    Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 8.dp, vertical = 3.dp)) {
+                                        Text("🔒 Private", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                     }
                                 }
                             }
                             Spacer(modifier = Modifier.height(10.dp))
-                            Text(community.description, style = MaterialTheme.typography.bodyMedium, color = TextSecondary, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                            Text(community.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
                             Spacer(modifier = Modifier.height(14.dp))
 
                             // Stats row
@@ -277,7 +269,7 @@ fun CommunityDetailScreen(
                                                 .size(28.dp)
                                                 .clip(CircleShape)
                                                 .background(Brush.linearGradient(gradColors))
-                                                .border(2.dp, Surface1, CircleShape),
+                                                .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(initial, fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
@@ -285,26 +277,26 @@ fun CommunityDetailScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(96.dp))
-                                Text("and ${community.memberCount - 5} others", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                Text("and ${community.memberCount - 5} others", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                         }
                     }
 
                     // ── Sticky Tab Bar ────────────────────────────────────────
                     stickyHeader {
-                        Column(modifier = Modifier.background(Surface1)) {
+                        Column(modifier = Modifier.background(MaterialTheme.colorScheme.background)) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                                 detailTabs.forEachIndexed { i, tab ->
                                     val isActive = selectedTab == i
                                     Column(modifier = Modifier.clickable { selectedTab = i }, horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(tab, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal), color = if (isActive) Indigo400 else TextTertiary)
+                                        Text(tab, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal), color = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Box(modifier = Modifier.height(2.dp).width(if (isActive) 24.dp else 0.dp).clip(RoundedCornerShape(1.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))))
                                     }
                                 }
                             }
-                            Box(modifier = Modifier.fillMaxWidth().height(0.5.dp).background(BorderSubtle))
+                            Box(modifier = Modifier.fillMaxWidth().height(0.5.dp).background(MaterialTheme.colorScheme.outline))
                         }
                     }
 
@@ -333,21 +325,21 @@ fun CommunityDetailScreen(
                         2 -> { // ABOUT
                             item {
                                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
-                                    Text("About", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                                    Text("About", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text(community.description, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                                    Text(community.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     Spacer(modifier = Modifier.height(16.dp))
-                                    Text("Community Rules", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                                    Text("Community Rules", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                                     Spacer(modifier = Modifier.height(8.dp))
                                     listOf("Be respectful and professional", "No spam or self-promotion without permission", "Keep discussions relevant to the community topic", "Help each other — this is a learning space").forEachIndexed { i, rule ->
                                         Row(modifier = Modifier.padding(vertical = 4.dp)) {
-                                            Text("${i + 1}.", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = Indigo400, modifier = Modifier.width(20.dp))
-                                            Text(rule, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                                            Text("${i + 1}.", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary, modifier = Modifier.width(20.dp))
+                                            Text(rule, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(16.dp))
                                     community.creator?.let { creator ->
-                                        Text("Created by", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                                        Text("Created by", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(Brush.linearGradient(gradColors)), contentAlignment = Alignment.Center) {
@@ -355,12 +347,12 @@ fun CommunityDetailScreen(
                                             }
                                             Spacer(modifier = Modifier.width(10.dp))
                                             Column {
-                                                Text(creator.name, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                                                Text(creator.college, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                                Text(creator.name, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                                                Text(creator.college, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                             }
                                         }
                                     }
-                                    Text("Created ${community.createdAt.take(10)}", style = MaterialTheme.typography.labelSmall, color = TextTertiary, modifier = Modifier.padding(top = 8.dp))
+                                    Text("Created ${community.createdAt.take(10)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.padding(top = 8.dp))
                                 }
                             }
                         }
@@ -393,8 +385,8 @@ fun CommunityDetailScreen(
 @Composable
 private fun CommunityStat(value: String, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Text(value, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
     }
 }
 
@@ -409,26 +401,26 @@ private fun PostCard(post: MockPost, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Surface2)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
             .padding(14.dp)
     ) {
         Column {
             // Author row
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(GradientIndigoStart.copy(0.2f)), contentAlignment = Alignment.Center) {
-                    Text(post.author.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = Indigo400)
+                    Text(post.author.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(post.author, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                    Text(post.time, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                    Text(post.author, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                    Text(post.time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
-                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
             }
             Spacer(modifier = Modifier.height(10.dp))
             // Post text
-            Text(post.text, style = MaterialTheme.typography.bodySmall, color = TextSecondary, maxLines = 5)
+            Text(post.text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 5)
             Spacer(modifier = Modifier.height(12.dp))
             // Engagement row
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -448,20 +440,20 @@ private fun PostCard(post: MockPost, modifier: Modifier = Modifier) {
                     }
                 ) {
                     Box(modifier = Modifier.scale(scale.value)) {
-                        Icon(Icons.Default.ThumbUp, contentDescription = "Like", tint = if (isLiked) Indigo400 else TextTertiary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.ThumbUp, contentDescription = "Like", tint = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("$likeCount", style = MaterialTheme.typography.labelSmall, color = if (isLiked) Indigo400 else TextTertiary)
+                    Text("$likeCount", style = MaterialTheme.typography.labelSmall, color = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ChatBubbleOutline, contentDescription = "Comment", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.ChatBubbleOutline, contentDescription = "Comment", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("${post.comments} Comments", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                    Text("${post.comments} Comments", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Share, contentDescription = "Share", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Share", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                    Text("Share", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
         }
@@ -470,23 +462,23 @@ private fun PostCard(post: MockPost, modifier: Modifier = Modifier) {
 
 @Composable
 private fun MemberRow(name: String, college: String, role: String, modifier: Modifier = Modifier) {
-    val roleColor = when (role) { "Admin" -> Indigo400; "Moderator" -> GradientTealEnd; else -> TextTertiary }
+    val roleColor = when (role) { "Admin" -> MaterialTheme.colorScheme.primary; "Moderator" -> GradientTealEnd; else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) }
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface2)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(GradientIndigoStart.copy(0.15f)), contentAlignment = Alignment.Center) {
-            Text(name.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), color = Indigo400)
+            Text(name.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
         }
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(name, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-            Text(college.ifBlank { "Student" }, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+            Text(name, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+            Text(college.ifBlank { "Student" }, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
         }
         Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(roleColor.copy(0.1f)).padding(horizontal = 8.dp, vertical = 4.dp)) {
             Text(role, style = MaterialTheme.typography.labelSmall, color = roleColor)

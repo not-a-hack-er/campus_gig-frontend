@@ -10,7 +10,7 @@
  * - Collapsible Glassmorphic Gig Context Banner (Gig Title + Budget)
  * - Smart Date Separators ("Today", "Yesterday", "MMM d, yyyy")
  * - Sender bubbles: Indigo-violet gradient with asymmetric radius
- * - Receiver bubbles: Surface3 dark card with subtle border
+ * - Receiver bubbles: MaterialTheme.colorScheme.surfaceVariant dark card with subtle border
  * - Real-time Delivery Receipts (✓ / ✓✓) + dim "sending" state on temp messages
  * - Animated Typing Indicator with peer avatar (3 bouncing dots)
  * - Staggered message entry animations (animateItem)
@@ -100,19 +100,11 @@ import com.abpvt.campusgig_frontend.data.model.Message
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 import java.time.Instant
 import java.time.LocalDate
@@ -161,13 +153,13 @@ fun ChatScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundBase)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // ── Header with ambient indigo glow ───────────────────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Surface1)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // Ambient glow layer behind the header content
             Box(
@@ -177,7 +169,7 @@ fun ChatScreen(
                     .background(
                         Brush.radialGradient(
                             colors = listOf(
-                                Indigo400.copy(alpha = 0.08f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
                                 Color.Transparent
                             ),
                             radius = 500f
@@ -194,7 +186,7 @@ fun ChatScreen(
                         Brush.horizontalGradient(
                             listOf(
                                 Color.Transparent,
-                                Indigo400.copy(alpha = 0.3f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                                 Violet400.copy(alpha = 0.2f),
                                 Color.Transparent
                             )
@@ -212,8 +204,8 @@ fun ChatScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Surface3)
-                        .border(0.5.dp, BorderSubtle, RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                         .clickable {
                             viewModel.cleanup()
                             navController.popBackStack()
@@ -223,7 +215,7 @@ fun ChatScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -246,9 +238,9 @@ fun ChatScreen(
                                 .clip(CircleShape)
                                 .background(
                                     if (isPeerOnline || isPeerTyping) SemanticSuccess
-                                    else Surface3
+                                    else MaterialTheme.colorScheme.surfaceVariant
                                 )
-                                .border(1.5.dp, BackgroundBase, CircleShape)
+                                .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
                                 .align(Alignment.BottomEnd)
                         )
                     }
@@ -267,7 +259,7 @@ fun ChatScreen(
                     Text(
                         text = receiverName,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = when {
@@ -277,9 +269,9 @@ fun ChatScreen(
                         },
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
                         color = when {
-                            isPeerTyping -> Indigo400
+                            isPeerTyping -> MaterialTheme.colorScheme.primary
                             isPeerOnline -> SemanticSuccess
-                            else -> TextTertiary
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         }
                     )
                 }
@@ -290,15 +282,15 @@ fun ChatScreen(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Surface3)
-                            .border(0.5.dp, BorderSubtle, RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                             .clickable { showMenu = true },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More options",
-                            tint = TextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -306,11 +298,11 @@ fun ChatScreen(
                     DropdownMenu(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false },
-                        modifier = Modifier.background(Surface1)
+                        modifier = Modifier.background(MaterialTheme.colorScheme.background)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("View Profile", color = TextPrimary) },
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = Indigo400) },
+                            text = { Text("View Profile", color = MaterialTheme.colorScheme.onBackground) },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                             onClick = {
                                 showMenu = false
                                 navController.navigate(Routes.publicProfile(receiverId))
@@ -318,8 +310,8 @@ fun ChatScreen(
                         )
                         if (!gigTitle.isNullOrBlank()) {
                             DropdownMenuItem(
-                                text = { Text("View Gig", color = TextPrimary) },
-                                leadingIcon = { Icon(Icons.Default.Work, contentDescription = null, tint = Indigo400) },
+                                text = { Text("View Gig", color = MaterialTheme.colorScheme.onBackground) },
+                                leadingIcon = { Icon(Icons.Default.Work, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                                 onClick = {
                                     showMenu = false
                                     showGigBanner = true
@@ -376,7 +368,7 @@ fun ChatScreen(
                             )
                             Text(
                                 text = gigTitle ?: "Gig Details",
-                                style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary),
+                                style = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground),
                                 maxLines = 1
                             )
                         }
@@ -400,7 +392,7 @@ fun ChatScreen(
                     Text(
                         text = "✕",
                         fontSize = 12.sp,
-                        color = TextTertiary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier
                             .clip(CircleShape)
                             .clickable { showGigBanner = false }
@@ -418,7 +410,7 @@ fun ChatScreen(
                     .fillMaxSize()
                     .background(
                         Brush.radialGradient(
-                            colors = listOf(Indigo400.copy(alpha = 0.025f), Color.Transparent),
+                            colors = listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.025f), Color.Transparent),
                             radius = 800f
                         )
                     )
@@ -426,7 +418,7 @@ fun ChatScreen(
 
             when (val state = messagesState) {
                 is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(28.dp), strokeWidth = 2.5.dp)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp), strokeWidth = 2.5.dp)
                 }
                 is Resource.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(state.message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
@@ -457,7 +449,7 @@ fun ChatScreen(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape)
-                                            .background(BackgroundBase),
+                                            .background(MaterialTheme.colorScheme.background),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text("💬", fontSize = 36.sp)
@@ -467,18 +459,18 @@ fun ChatScreen(
                                 Text(
                                     text = "Start chatting with",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                                 Text(
                                     text = receiverName,
                                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                    color = TextPrimary
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     text = "Discuss gig scope, deliverables, and timelines in real-time.",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = TextTertiary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.padding(horizontal = 8.dp)
                                 )
                             }
@@ -528,7 +520,7 @@ fun ChatScreen(
                 .height(16.dp)
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color.Transparent, BackgroundBase.copy(alpha = 0.6f))
+                        listOf(Color.Transparent, MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
                     )
                 )
         )
@@ -601,19 +593,19 @@ private fun MessageBubble(message: Message, isMyMessage: Boolean, isSending: Boo
                     if (isSending) {
                         Text(
                             text = "Sending…",
-                            style = TextStyle(fontSize = 10.sp, color = TextTertiary.copy(alpha = 0.6f))
+                            style = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.6f))
                         )
                     } else {
                         Text(
                             text = "$formattedTime  ",
-                            style = TextStyle(fontSize = 10.sp, color = TextTertiary)
+                            style = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         )
                         val isRead = message.isRead
                         Text(
                             text = if (isRead) "✓✓" else "✓",
                             style = TextStyle(
                                 fontSize = 10.sp,
-                                color = if (isRead) SemanticSuccess else TextTertiary,
+                                color = if (isRead) SemanticSuccess else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -629,24 +621,24 @@ private fun MessageBubble(message: Message, isMyMessage: Boolean, isSending: Boo
                                 bottomStart = 4.dp, bottomEnd = 18.dp
                             )
                         )
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .border(
                             width = 0.8.dp,
-                            color = BorderSubtle,
+                            color = MaterialTheme.colorScheme.outline,
                             shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp)
                         )
                         .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     Text(
                         text = message.content,
-                        style = TextStyle(fontSize = 14.5.sp, color = TextPrimary, lineHeight = 20.sp)
+                        style = TextStyle(fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onBackground, lineHeight = 20.sp)
                     )
                 }
                 Spacer(modifier = Modifier.height(2.dp))
                 val formattedTime = formatTime(message.createdAt)
                 Text(
                     text = formattedTime,
-                    style = TextStyle(fontSize = 10.sp, color = TextTertiary)
+                    style = TextStyle(fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 )
             }
         }
@@ -667,20 +659,20 @@ private fun DateSeparator(label: String) {
                 .height(0.5.dp)
                 .background(
                     Brush.horizontalGradient(
-                        listOf(Color.Transparent, BorderSubtle.copy(alpha = 0.5f), Color.Transparent)
+                        listOf(Color.Transparent, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), Color.Transparent)
                     )
                 )
         )
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(999.dp))
-                .background(BackgroundBase)
-                .border(0.5.dp, BorderSubtle, RoundedCornerShape(999.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(999.dp))
                 .padding(horizontal = 14.dp, vertical = 5.dp)
         ) {
             Text(
                 text = label,
-                style = TextStyle(fontSize = 11.sp, color = TextTertiary, fontWeight = FontWeight.Medium)
+                style = TextStyle(fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), fontWeight = FontWeight.Medium)
             )
         }
     }
@@ -695,8 +687,8 @@ private fun TypingIndicatorRow(peerName: String) {
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp))
-                .background(Surface3)
-                .border(0.8.dp, BorderSubtle, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(0.8.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomStart = 4.dp, bottomEnd = 18.dp))
                 .padding(horizontal = 14.dp, vertical = 12.dp)
         ) {
             Row(
@@ -720,7 +712,7 @@ private fun TypingIndicatorRow(peerName: String) {
                             .size(7.dp)
                             .offset(y = offsetY.value.dp)
                             .clip(CircleShape)
-                            .background(Indigo400)
+                            .background(MaterialTheme.colorScheme.primary)
                     )
                 }
             }
@@ -738,7 +730,7 @@ private fun ChatInputBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Row(
@@ -750,14 +742,14 @@ private fun ChatInputBar(
                 modifier = Modifier
                     .size(38.dp)
                     .clip(CircleShape)
-                    .background(Surface3)
-                    .border(0.5.dp, BorderSubtle, CircleShape),
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(0.5.dp, MaterialTheme.colorScheme.outline, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.AttachFile,
                     contentDescription = "Attach File",
-                    tint = TextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -769,13 +761,13 @@ private fun ChatInputBar(
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Surface3)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .border(
                         width = 0.8.dp,
                         brush = if (text.isNotBlank())
                             Brush.horizontalGradient(listOf(GradientIndigoStart.copy(alpha = 0.5f), Violet400.copy(alpha = 0.3f)))
                         else
-                            Brush.horizontalGradient(listOf(BorderSubtle, BorderSubtle)),
+                            Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline)),
                         shape = RoundedCornerShape(20.dp)
                     )
                     .padding(horizontal = 14.dp, vertical = 10.dp)
@@ -785,15 +777,15 @@ private fun ChatInputBar(
                         value = text,
                         onValueChange = onTextChange,
                         modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(fontSize = 14.5.sp, color = TextPrimary),
+                        textStyle = TextStyle(fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onBackground),
                         maxLines = 4,
-                        cursorBrush = SolidColor(Indigo400),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         decorationBox = { inner ->
                             Box {
                                 if (text.isEmpty()) {
                                     Text(
                                         text = "Type a message...",
-                                        style = TextStyle(fontSize = 14.5.sp, color = TextTertiary)
+                                        style = TextStyle(fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                     )
                                 }
                                 inner()
@@ -804,7 +796,7 @@ private fun ChatInputBar(
                         Icon(
                             imageVector = Icons.Default.EmojiEmotions,
                             contentDescription = "Emoji",
-                            tint = TextTertiary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -831,7 +823,7 @@ private fun ChatInputBar(
                         if (text.isNotBlank())
                             Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
                         else
-                            Brush.linearGradient(listOf(Surface3, Surface3))
+                            Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                     )
                     .clickable(
                         enabled = text.isNotBlank(),
@@ -843,7 +835,7 @@ private fun ChatInputBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
                     contentDescription = "Send Message",
-                    tint = if (text.isNotBlank()) Color.White else TextTertiary,
+                    tint = if (text.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.size(18.dp)
                 )
             }

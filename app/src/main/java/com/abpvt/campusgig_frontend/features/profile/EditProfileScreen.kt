@@ -75,23 +75,14 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.ProfileViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.User
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientGoldEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientGoldStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.delay
 
 private val bannerGradients = listOf(
@@ -128,6 +119,7 @@ fun EditProfileScreen(
     var github by remember { mutableStateOf("") }
     var linkedin by remember { mutableStateOf("") }
     var website by remember { mutableStateOf("") }
+    var resumeUrl by remember { mutableStateOf("") }
     var selectedBannerGradient by remember { mutableStateOf(0) }
 
     var showAutoSave by remember { mutableStateOf(false) }
@@ -151,6 +143,7 @@ fun EditProfileScreen(
             github = user.githubProfile
             linkedin = user.linkedinProfile
             website = user.portfolioLinks.firstOrNull() ?: ""
+            resumeUrl = user.resumeUrl
         }
     }
 
@@ -164,13 +157,13 @@ fun EditProfileScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
             // ── Top Bar ───────────────────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Surface1)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -178,14 +171,14 @@ fun EditProfileScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Edit Profile", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary, modifier = Modifier.weight(1f))
+                Text("Edit Profile", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
 
                 // Save button
                 Box(
@@ -209,6 +202,7 @@ fun EditProfileScreen(
                                         skills = skills.toList(),
                                         githubProfile = github.trim(),
                                         linkedinProfile = linkedin.trim(),
+                                        resumeUrl = resumeUrl.trim(),
                                         portfolioLinks = if (website.isNotBlank()) listOf(website.trim()) else current.portfolioLinks
                                     )
                                 )
@@ -273,7 +267,7 @@ fun EditProfileScreen(
                                 .size(72.dp)
                                 .clip(CircleShape)
                                 .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)))
-                                .border(3.dp, Surface1, CircleShape),
+                                .border(3.dp, MaterialTheme.colorScheme.background, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -287,8 +281,8 @@ fun EditProfileScreen(
                                 .size(22.dp)
                                 .align(Alignment.BottomEnd)
                                 .clip(CircleShape)
-                                .background(Indigo400)
-                                .border(1.5.dp, Surface1, CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
                                 .clickable { },
                             contentAlignment = Alignment.Center
                         ) {
@@ -317,17 +311,17 @@ fun EditProfileScreen(
 
                 // ── Collapsible Sections ───────────────────────────────────────
                 val fieldColors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
-                    focusedContainerColor = Surface3,
-                    unfocusedContainerColor = Surface2,
-                    focusedBorderColor = Indigo400,
-                    unfocusedBorderColor = BorderSubtle,
-                    cursorColor = Indigo400,
-                    focusedPlaceholderColor = TextTertiary,
-                    unfocusedPlaceholderColor = TextTertiary,
-                    focusedLabelColor = TextSecondary,
-                    unfocusedLabelColor = TextTertiary
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
 
                 // Basic Info section
@@ -347,7 +341,7 @@ fun EditProfileScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-                HorizontalDivider(color = BorderSubtle)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
                 // Campus section
                 SectionHeader("Campus", campusExpanded) { campusExpanded = !campusExpanded }
@@ -371,19 +365,19 @@ fun EditProfileScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(Surface3, Surface3)))
-                                        .border(1.dp, if (isSelected) Color.Transparent else BorderSubtle, RoundedCornerShape(8.dp))
+                                        .background(if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)))
+                                        .border(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                         .clickable { selectedYear = year }
                                         .padding(horizontal = 16.dp, vertical = 10.dp)
                                 ) {
-                                    Text(year, style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal), color = if (isSelected) Color.White else TextSecondary)
+                                    Text(year, style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal), color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-                HorizontalDivider(color = BorderSubtle)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
                 // Skills section
                 SectionHeader("Skills", skillsExpanded) { skillsExpanded = !skillsExpanded }
@@ -396,13 +390,13 @@ fun EditProfileScreen(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(GradientIndigoStart.copy(alpha = 0.12f))
-                                        .border(1.dp, Indigo400.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                        .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
                                         .padding(start = 10.dp, end = 6.dp, top = 6.dp, bottom = 6.dp)
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(skill, style = MaterialTheme.typography.bodySmall, color = Indigo400)
+                                        Text(skill, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Icon(Icons.Default.Close, contentDescription = "Remove", tint = Indigo400,
+                                        Icon(Icons.Default.Close, contentDescription = "Remove", tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(14.dp).clickable { skills.remove(skill) })
                                     }
                                 }
@@ -419,7 +413,7 @@ fun EditProfileScreen(
                             colors = fieldColors,
                             trailingIcon = {
                                 if (skillInput.isNotBlank()) {
-                                    Box(modifier = Modifier.clip(CircleShape).background(Indigo400).clickable {
+                                    Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable {
                                         if (skillInput.isNotBlank()) { skills.add(skillInput.trim()); skillInput = "" }
                                     }.padding(4.dp), contentAlignment = Alignment.Center) {
                                         Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
@@ -430,7 +424,7 @@ fun EditProfileScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-                HorizontalDivider(color = BorderSubtle)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
                 // Portfolio Links
                 SectionHeader("Portfolio Links", linksExpanded) { linksExpanded = !linksExpanded }
@@ -451,10 +445,15 @@ fun EditProfileScreen(
                         OutlinedTextField(value = website, onValueChange = { website = it },
                             placeholder = { Text("yourwebsite.com") }, singleLine = true,
                             modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        SectionLabel("📄 Resume / CV Link (Google Drive, Notion, PDF)")
+                        OutlinedTextField(value = resumeUrl, onValueChange = { resumeUrl = it },
+                            placeholder = { Text("https://drive.google.com/... or resume link") }, singleLine = true,
+                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
-                HorizontalDivider(color = BorderSubtle)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline)
 
                 Spacer(modifier = Modifier.height(80.dp))
             }
@@ -494,11 +493,11 @@ private fun SectionHeader(title: String, isExpanded: Boolean, onToggle: () -> Un
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(title, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+        Text(title, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
         Icon(
             imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
             contentDescription = null,
-            tint = TextTertiary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             modifier = Modifier.size(20.dp)
         )
     }
@@ -506,5 +505,5 @@ private fun SectionHeader(title: String, isExpanded: Boolean, onToggle: () -> Un
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium), color = TextSecondary, modifier = Modifier.padding(bottom = 6.dp))
+    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
 }

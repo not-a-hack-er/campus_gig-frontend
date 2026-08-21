@@ -61,20 +61,12 @@ import com.abpvt.campusgig_frontend.core.utils.NotificationViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Notification
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 private val filterChips = listOf("All", "Applications", "Messages", "Community", "System")
 
@@ -91,7 +83,7 @@ fun NotificationScreen(
     val notifState by viewModel.notifications.collectAsState()
     var selectedFilter by remember { mutableStateOf("All") }
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             // ── Header ────────────────────────────────────────────────────────
@@ -105,14 +97,14 @@ fun NotificationScreen(
                 Text(
                     "Notifications",
                     style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 val hasUnread = (notifState as? Resource.Success<List<Notification>>)?.data?.any { !it.isRead } == true
                 if (hasUnread) {
                     Text(
                         "Mark all read",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Indigo400,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable { viewModel.markAllAsRead() }
                     )
                 }
@@ -131,9 +123,9 @@ fun NotificationScreen(
                             .clip(RoundedCornerShape(8.dp))
                             .background(
                                 if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
-                                else Brush.linearGradient(listOf(Surface3, Surface3))
+                                else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                             )
-                            .border(1.dp, if (isSelected) Color.Transparent else BorderSubtle, RoundedCornerShape(8.dp))
+                            .border(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                             .clickable { selectedFilter = chip }
                             .padding(horizontal = 12.dp),
                         contentAlignment = Alignment.Center
@@ -141,7 +133,7 @@ fun NotificationScreen(
                         Text(
                             chip,
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal),
-                            color = if (isSelected) Color.White else TextSecondary
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -151,16 +143,16 @@ fun NotificationScreen(
 
             when (val state = notifState) {
                 is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(28.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(28.dp))
                 }
 
                 is Resource.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("⚠️", fontSize = 40.sp)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Couldn't load notifications", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                        Text("Couldn't load notifications", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Retry", color = Indigo400, modifier = Modifier.clickable { viewModel.loadNotifications() }, style = MaterialTheme.typography.bodyMedium)
+                        Text("Retry", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable { viewModel.loadNotifications() }, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
 
@@ -178,9 +170,9 @@ fun NotificationScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("🔔", fontSize = 56.sp)
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text("You're all caught up! 🎉", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                                Text("You're all caught up! 🎉", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("No new notifications", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                                Text("No new notifications", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     } else {
@@ -200,13 +192,13 @@ fun NotificationScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .background(Surface1)
+                                            .background(MaterialTheme.colorScheme.background)
                                             .padding(horizontal = 20.dp, vertical = 8.dp)
                                     ) {
                                         Text(
                                             groupLabel,
                                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                                            color = TextTertiary
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                         )
                                     }
                                 }
@@ -240,23 +232,23 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
     val isUnread = !notification.isRead
 
     val (iconEmoji, iconBg) = when (notification.type) {
-        "new_application"      -> "📝" to Indigo400.copy(alpha = 0.15f)
+        "new_application"      -> "📝" to MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
         "application_accepted" -> "🎉" to SemanticSuccess.copy(alpha = 0.15f)
         "application_rejected" -> "😞" to SemanticError.copy(alpha = 0.15f)
         "new_message"          -> "💬" to GradientTealEnd.copy(alpha = 0.15f)
         "new_review"           -> "⭐" to SemanticWarning.copy(alpha = 0.15f)
         "community_post"       -> "📢" to SemanticWarning.copy(alpha = 0.15f)
-        else                   -> "🔔" to Surface3
+        else                   -> "🔔" to MaterialTheme.colorScheme.surfaceVariant
     }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (isUnread) Surface2 else Surface1)
+            .background(if (isUnread) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background)
             .then(
                 if (isUnread) Modifier.border(
                     width = 0.5.dp,
-                    brush = Brush.horizontalGradient(listOf(Indigo400.copy(alpha = 0.5f), Color.Transparent)),
+                    brush = Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), Color.Transparent)),
                     shape = RoundedCornerShape(0.dp)
                 ) else Modifier
             )
@@ -298,7 +290,7 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = if (isUnread) FontWeight.Bold else FontWeight.SemiBold
                         ),
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                 }
@@ -307,10 +299,10 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal
                     ),
-                    color = if (isUnread) TextSecondary else TextTertiary
+                    color = if (isUnread) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Just now", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text("Just now", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
 
                 // Inline action buttons
                 if (isUnread) {
@@ -327,11 +319,11 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(GradientIndigoStart.copy(alpha = 0.12f))
-                                    .border(1.dp, Indigo400.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
                                     .clickable { onClick() }
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
-                                Text(action, style = MaterialTheme.typography.labelSmall, color = Indigo400)
+                                Text(action, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }

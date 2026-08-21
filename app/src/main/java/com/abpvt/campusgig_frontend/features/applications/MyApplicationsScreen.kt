@@ -65,14 +65,18 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -101,27 +105,18 @@ import com.abpvt.campusgig_frontend.core.utils.ApplicationViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.navigation.Routes
+import com.abpvt.campusgig_frontend.ui.components.LeaveReviewDialog
 import com.abpvt.campusgig_frontend.ui.components.getRelativeTime
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccessBg
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarningBg
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 // ─── Domain Constants ─────────────────────────────────────────────────────────
 
@@ -167,8 +162,28 @@ fun MyApplicationsScreen(
     )
 ) {
     val applicationsState by viewModel.applications.collectAsState()
+    val withdrawSuccess by viewModel.withdrawSuccess.collectAsState()
+    val actionError by viewModel.actionError.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    var appToWithdraw by remember { mutableStateOf<Application?>(null) }
+    var reviewTargetApp by remember { mutableStateOf<Application?>(null) }
 
     LaunchedEffect(Unit) { viewModel.loadMyApplications() }
+
+    LaunchedEffect(withdrawSuccess) {
+        withdrawSuccess?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearWithdrawSuccess()
+        }
+    }
+
+    LaunchedEffect(actionError) {
+        actionError?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearActionError()
+        }
+    }
 
     var ui by remember { mutableStateOf(MyApplicationsUiState()) }
 
@@ -193,8 +208,12 @@ fun MyApplicationsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
         LazyColumn(
             modifier       = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 56.dp)
@@ -236,7 +255,7 @@ fun MyApplicationsScreen(
 
             // ── Content ───────────────────────────────────────────────────────
             when (val state = applicationsState) {
-                null, is Resource.Loading -> {
+                is Resource.Loading -> {
                     items(4, key = { "shimmer_$it" }) {
                         Spacer(Modifier.height(10.dp))
                         ShimmerApplicationCard()
@@ -267,8 +286,8 @@ fun MyApplicationsScreen(
                                 val swipeState = rememberSwipeToDismissBoxState(
                                     confirmValueChange = { value ->
                                         if (value != SwipeToDismissBoxValue.Settled) {
-                                            viewModel.withdrawApplication(application.id)
-                                            true
+                                            appToWithdraw = application
+                                            false
                                         } else false
                                     }
                                 )
@@ -278,7 +297,7 @@ fun MyApplicationsScreen(
                                     backgroundContent = {
                                         val bgColor by animateColorAsState(
                                             targetValue   = if (swipeState.targetValue == SwipeToDismissBoxValue.Settled)
-                                                                Surface2
+                                                                MaterialTheme.colorScheme.surface
                                                             else
                                                                 SemanticError.copy(alpha = 0.18f),
                                             animationSpec = tween(200),
@@ -312,7 +331,9 @@ fun MyApplicationsScreen(
                                             application.gig?.id?.let {
                                                 navController.navigate(Routes.gigDetail(it))
                                             }
-                                        }
+                                        },
+                                        onWithdraw    = { appToWithdraw = application },
+                                        onLeaveReview = { reviewTargetApp = application }
                                     )
                                 }
                             } else {
@@ -327,6 +348,8 @@ fun MyApplicationsScreen(
                                             navController.navigate(Routes.gigDetail(it))
                                         }
                                     },
+                                    onWithdraw    = { appToWithdraw = application },
+                                    onLeaveReview = { reviewTargetApp = application },
                                     modifier      = Modifier.animateItem()
                                 )
                             }
@@ -334,6 +357,64 @@ fun MyApplicationsScreen(
                         item(key = "bottom_pad") { Spacer(Modifier.height(12.dp)) }
                     }
                 }
+            }
+        }
+
+        // ── Withdrawal Confirmation Dialog ─────────────────────────────────────
+        if (appToWithdraw != null) {
+            val target = appToWithdraw!!
+            AlertDialog(
+                onDismissRequest = { appToWithdraw = null },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        "Withdraw Application?",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                text = {
+                    Text(
+                        "Are you sure you want to withdraw your application for \"${target.gig?.title ?: "this gig"}\"? This action will notify the poster and cannot be undone.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val id = target.id
+                            appToWithdraw = null
+                            viewModel.withdrawApplication(id)
+                        }
+                    ) {
+                        Text("Withdraw", color = SemanticError, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { appToWithdraw = null }) {
+                        Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            )
+        }
+
+        // ── Leave Review Dialog ───────────────────────────────────────────────
+        if (reviewTargetApp != null) {
+            val app = reviewTargetApp!!
+            val employer = app.gig?.employer
+            if (employer != null) {
+                LeaveReviewDialog(
+                    gigId = app.gig?.id ?: "",
+                    gigTitle = app.gig?.title ?: "Completed Gig",
+                    targetUserId = employer.id,
+                    targetUserName = employer.name,
+                    onDismiss = { reviewTargetApp = null },
+                    onSubmitSuccess = {
+                        reviewTargetApp = null
+                        viewModel.loadMyApplications()
+                    }
+                )
             }
         }
     }
@@ -360,15 +441,15 @@ private fun AppsTopBar(count: Int, onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(start = 4.dp, end = 20.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBack) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack, "Back",
-                tint     = TextSecondary,
+                tint     = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -379,12 +460,12 @@ private fun AppsTopBar(count: Int, onBack: () -> Unit) {
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 19.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 if (count == 0) "No applications yet" else "$count total applications",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
@@ -460,7 +541,7 @@ private fun AppsFilterTabRow(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             fontSize   = 13.sp
                         ),
-                        color = if (isSelected) TextPrimary else TextTertiary
+                        color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                     Box(
                         modifier = Modifier
@@ -482,7 +563,7 @@ private fun AppsFilterTabRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
-                .background(BorderSubtle)
+                .background(MaterialTheme.colorScheme.outline)
         )
         Spacer(Modifier.height(10.dp))
     }
@@ -492,13 +573,15 @@ private fun AppsFilterTabRow(
 
 @Composable
 private fun ApplicationCard(
-    application:  Application,
-    starRating:   Int,
-    onSetStars:   (Int) -> Unit,
-    onOpenChat:   () -> Unit,
+    application:   Application,
+    starRating:    Int,
+    onSetStars:    (Int) -> Unit,
+    onOpenChat:    () -> Unit,
     onFindSimilar: () -> Unit,
-    onReApply:    () -> Unit,
-    modifier:     Modifier = Modifier
+    onReApply:     () -> Unit,
+    onWithdraw:    () -> Unit,
+    onLeaveReview: () -> Unit,
+    modifier:      Modifier = Modifier
 ) {
     val status = application.status.lowercase()
 
@@ -507,7 +590,7 @@ private fun ApplicationCard(
         "in_progress" -> Color(0xFF3B82F6)      to "In Progress"
         "completed"   -> Color(0xFF14B8A6)      to "Completed ✓"
         "rejected"    -> SemanticError          to "Not Selected"
-        "withdrawn"   -> TextTertiary           to "Withdrawn"
+        "withdrawn"   -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)           to "Withdrawn"
         else          -> SemanticWarning        to "Pending"
     }
 
@@ -517,8 +600,8 @@ private fun ApplicationCard(
         modifier = modifier
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(16.dp))
     ) {
         // Left semantic accent bar
         Box(
@@ -570,7 +653,7 @@ private fun ApplicationCard(
                 Text(
                     relativeTime,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -583,7 +666,7 @@ private fun ApplicationCard(
                     fontSize   = 15.sp,
                     lineHeight  = 22.sp
                 ),
-                color    = TextPrimary,
+                color    = MaterialTheme.colorScheme.onBackground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -595,7 +678,7 @@ private fun ApplicationCard(
                         fontSize   = 11.sp,
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -610,7 +693,7 @@ private fun ApplicationCard(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(CircleShape)
-                        .background(Indigo500),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -625,13 +708,13 @@ private fun ApplicationCard(
                 Text(
                     "by $posterName",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
             // ── Divider ──────────────────────────────────────────────────────
             Spacer(Modifier.height(10.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BorderSubtle))
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline))
             Spacer(Modifier.height(10.dp))
 
             // ── Row 4: Bid + applied date ────────────────────────────────────
@@ -655,13 +738,13 @@ private fun ApplicationCard(
                     Text(
                         "bid",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
                 Text(
                     "Applied $relativeTime",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -674,7 +757,9 @@ private fun ApplicationCard(
                 onSetStars    = onSetStars,
                 onOpenChat    = onOpenChat,
                 onFindSimilar = onFindSimilar,
-                onReApply     = onReApply
+                onReApply     = onReApply,
+                onWithdraw    = onWithdraw,
+                onLeaveReview = onLeaveReview
             )
         }
     }
@@ -684,13 +769,15 @@ private fun ApplicationCard(
 
 @Composable
 private fun ApplicationStatusFooter(
-    status:       String,
-    application:  Application,
-    starRating:   Int,
-    onSetStars:   (Int) -> Unit,
-    onOpenChat:   () -> Unit,
+    status:        String,
+    application:   Application,
+    starRating:    Int,
+    onSetStars:    (Int) -> Unit,
+    onOpenChat:    () -> Unit,
     onFindSimilar: () -> Unit,
-    onReApply:    () -> Unit
+    onReApply:     () -> Unit,
+    onWithdraw:    () -> Unit,
+    onLeaveReview: () -> Unit
 ) {
     when (status) {
         "pending" -> {
@@ -705,20 +792,35 @@ private fun ApplicationStatusFooter(
                 label = "pulse_scale"
             )
             Row(
-                verticalAlignment     = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
+                modifier              = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment     = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .scale(pulseScale)
-                        .clip(CircleShape)
-                        .background(SemanticWarning)
-                )
+                Row(
+                    verticalAlignment     = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .scale(pulseScale)
+                            .clip(CircleShape)
+                            .background(SemanticWarning)
+                    )
+                    Text(
+                        "Under Review…",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                }
                 Text(
-                    "Waiting for employer's response…",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    "Withdraw",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    ),
+                    color = SemanticError,
+                    modifier = Modifier.clickable { onWithdraw() }
                 )
             }
         }
@@ -785,7 +887,7 @@ private fun ApplicationStatusFooter(
                     Text(
                         "~7 days remaining",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
                 LinearProgressIndicator(
@@ -795,44 +897,43 @@ private fun ApplicationStatusFooter(
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp)),
                     color      = Color(0xFF3B82F6),
-                    trackColor = Surface3
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             }
         }
 
         "completed" -> {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(
-                    "Rate your experience",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize   = 11.sp
-                    ),
-                    color = TextTertiary
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                    (1..5).forEach { starIndex ->
-                        Icon(
-                            if (starRating >= starIndex) Icons.Default.Star else Icons.Default.StarBorder,
-                            "Star $starIndex",
-                            tint     = if (starRating >= starIndex) SemanticWarning else Surface4,
-                            modifier = Modifier
-                                .size(22.dp)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication        = null
-                                ) { onSetStars(starIndex) }
-                        )
-                    }
-                    if (starRating > 0) {
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            "Submitted ✓",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = SemanticSuccess
-                        )
-                    }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(10.dp))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication        = null,
+                        onClick           = onLeaveReview
+                    )
+                    .padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(Icons.Default.Star, null, tint = SemanticWarning, modifier = Modifier.size(15.dp))
+                    Text(
+                        "Gig Completed · Review Client",
+                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 }
+                Text(
+                    "Rate ★",
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 11.sp),
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
         }
 
@@ -855,7 +956,7 @@ private fun ApplicationStatusFooter(
                 Text(
                     "Don't worry — keep applying!",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
                 Text(
                     "Find similar →",
@@ -863,7 +964,7 @@ private fun ApplicationStatusFooter(
                         fontWeight = FontWeight.Bold,
                         fontSize   = 11.sp
                     ),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -876,7 +977,7 @@ private fun ApplicationStatusFooter(
                         fontWeight = FontWeight.SemiBold,
                         fontSize   = 12.sp
                     ),
-                    color    = Indigo400,
+                    color    = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication        = null,
@@ -887,7 +988,7 @@ private fun ApplicationStatusFooter(
                 Text(
                     "You withdrew this application",
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }
@@ -910,14 +1011,14 @@ private fun ShimmerApplicationCard() {
         modifier = Modifier
             .padding(horizontal = 20.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(16.dp))
     ) {
         Box(
             modifier = Modifier
                 .width(4.dp)
                 .height(140.dp)
-                .background(Surface4.copy(alpha = alpha))
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha))
         )
         Column(
             modifier = Modifier
@@ -929,18 +1030,18 @@ private fun ShimmerApplicationCard() {
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(modifier = Modifier.width(64.dp).height(14.dp).clip(RoundedCornerShape(7.dp)).background(Surface4.copy(alpha = alpha)))
-                Box(modifier = Modifier.width(48.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(Surface4.copy(alpha = alpha)))
+                Box(modifier = Modifier.width(64.dp).height(14.dp).clip(RoundedCornerShape(7.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
+                Box(modifier = Modifier.width(48.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
             }
-            Box(modifier = Modifier.fillMaxWidth(0.85f).height(18.dp).clip(RoundedCornerShape(6.dp)).background(Surface4.copy(alpha = alpha)))
-            Box(modifier = Modifier.fillMaxWidth(0.45f).height(13.dp).clip(RoundedCornerShape(6.dp)).background(Surface4.copy(alpha = alpha)))
-            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BorderSubtle))
+            Box(modifier = Modifier.fillMaxWidth(0.85f).height(18.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
+            Box(modifier = Modifier.fillMaxWidth(0.45f).height(13.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
+            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline))
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(modifier = Modifier.width(70.dp).height(13.dp).clip(RoundedCornerShape(6.dp)).background(Surface4.copy(alpha = alpha)))
-                Box(modifier = Modifier.width(52.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(Surface4.copy(alpha = alpha)))
+                Box(modifier = Modifier.width(70.dp).height(13.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
+                Box(modifier = Modifier.width(52.dp).height(12.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = alpha)))
             }
         }
     }
@@ -977,7 +1078,7 @@ private fun ApplicationsEmptyState(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize   = 18.sp
             ),
-            color     = TextPrimary,
+            color     = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
 
@@ -987,7 +1088,7 @@ private fun ApplicationsEmptyState(
                 fontSize   = 14.sp,
                 lineHeight  = 21.sp
             ),
-            color     = TextSecondary,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
@@ -1043,7 +1144,7 @@ private fun AppErrorState(message: String, onRetry: () -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .background(GlowIndigo)
-                    .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)), RoundedCornerShape(10.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication        = null,
@@ -1054,7 +1155,7 @@ private fun AppErrorState(message: String, onRetry: () -> Unit) {
                 Text(
                     "Retry",
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = Indigo400
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

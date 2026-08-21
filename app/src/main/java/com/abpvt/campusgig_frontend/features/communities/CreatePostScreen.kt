@@ -59,17 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 @Composable
 fun CreatePostScreen(
@@ -85,7 +76,7 @@ fun CreatePostScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
             .imePadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -94,7 +85,7 @@ fun CreatePostScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Surface1)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -102,7 +93,7 @@ fun CreatePostScreen(
                 Text(
                     "× Cancel",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.clickable { navController.popBackStack() }
                 )
                 Box(
@@ -112,7 +103,7 @@ fun CreatePostScreen(
                             if (isPostEnabled)
                                 Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
                             else
-                                Brush.linearGradient(listOf(Surface3, Surface3))
+                                Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                         )
                         .clickable(enabled = isPostEnabled) { navController.popBackStack() }
                         .padding(horizontal = 18.dp, vertical = 8.dp)
@@ -120,7 +111,7 @@ fun CreatePostScreen(
                     Text(
                         "Post",
                         style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                        color = if (isPostEnabled) Color.White else TextTertiary
+                        color = if (isPostEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -150,7 +141,7 @@ fun CreatePostScreen(
                     Text(
                         "Posting to community",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Indigo400
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -171,8 +162,8 @@ fun CreatePostScreen(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
-                    Text("Akarsh Bajpai", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                    Text("Sharing with community", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                    Text("Akarsh Bajpai", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                    Text("Sharing with community", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
 
@@ -182,7 +173,7 @@ fun CreatePostScreen(
                     Text(
                         "What's on your mind? Share with the community...",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = TextTertiary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -191,17 +182,17 @@ fun CreatePostScreen(
                     onValueChange = { postText = it },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 16.sp,
                         fontFamily = if (isCodeMode) FontFamily.Monospace else FontFamily.Default,
                         lineHeight = 24.sp
                     ),
-                    cursorBrush = SolidColor(Indigo400),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     decorationBox = { innerTextField ->
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .then(if (isCodeMode) Modifier.clip(RoundedCornerShape(8.dp)).background(Surface2) else Modifier)
+                                .then(if (isCodeMode) Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.surface) else Modifier)
                                 .padding(if (isCodeMode) 12.dp else 0.dp)
                         ) { innerTextField() }
                     }
@@ -215,10 +206,10 @@ fun CreatePostScreen(
                             .fillMaxWidth()
                             .height(180.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Surface3)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Box(modifier = Modifier.fillMaxSize().background(Brush.linearGradient(listOf(GradientIndigoStart.copy(0.3f), GradientIndigoEnd.copy(0.2f)))))
-                        Text("📷 Image Preview", modifier = Modifier.align(Alignment.Center), color = TextTertiary, style = MaterialTheme.typography.bodySmall)
+                        Text("📷 Image Preview", modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.bodySmall)
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
@@ -239,20 +230,20 @@ fun CreatePostScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Surface2)
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = 0.dp, bottomEnd = 0.dp))
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Icon(Icons.Default.Image, contentDescription = "Image", tint = TextTertiary, modifier = Modifier.size(22.dp).clickable { hasImage = true })
-                    Icon(Icons.Default.Link, contentDescription = "Link", tint = TextTertiary, modifier = Modifier.size(22.dp))
-                    Icon(Icons.Default.Code, contentDescription = "Code", tint = if (isCodeMode) Indigo400 else TextTertiary, modifier = Modifier.size(22.dp).clickable { isCodeMode = !isCodeMode })
-                    Icon(Icons.Default.FormatBold, contentDescription = "Bold", tint = TextTertiary, modifier = Modifier.size(22.dp))
-                    Icon(Icons.Default.FormatItalic, contentDescription = "Italic", tint = TextTertiary, modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.Image, contentDescription = "Image", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp).clickable { hasImage = true })
+                    Icon(Icons.Default.Link, contentDescription = "Link", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.Code, contentDescription = "Code", tint = if (isCodeMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp).clickable { isCodeMode = !isCodeMode })
+                    Icon(Icons.Default.FormatBold, contentDescription = "Bold", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.FormatItalic, contentDescription = "Italic", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
                 }
-                Text("${postText.length} chars", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text("${postText.length} chars", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
         }
     }

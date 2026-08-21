@@ -64,19 +64,11 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Review
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientGoldEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientGoldStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -125,10 +117,10 @@ fun ReviewsScreen(
 
     val reviewsState by viewModel.reviews.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = reviewsState) {
             is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(32.dp))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
             }
             is Resource.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -136,7 +128,7 @@ fun ReviewsScreen(
                     Spacer(Modifier.height(8.dp))
                     Text(state.message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(16.dp))
-                    Text("Retry", style = MaterialTheme.typography.labelLarge, color = Indigo400,
+                    Text("Retry", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable { viewModel.loadReviews(userId) })
                 }
             }
@@ -177,18 +169,18 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                     modifier = Modifier
                         .size(36.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text("Reviews", style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                    Text("Reviews", style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Text(
                         if (totalReviews == 0) "No reviews yet" else "from $totalReviews verified gigs",
-                        style = MaterialTheme.typography.bodySmall, color = TextTertiary
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -210,8 +202,8 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("⭐", fontSize = 36.sp)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("No reviews yet", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                        Text("Reviews appear after completing gigs", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                        Text("No reviews yet", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                        Text("Reviews appear after completing gigs", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -220,7 +212,7 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                             Text(
                                 "%.1f".format(avgRating),
                                 style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.ExtraBold),
-                                color = TextPrimary,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 textAlign = TextAlign.Center
                             )
                             Row {
@@ -234,11 +226,11 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                                 }
                             }
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("$totalReviews reviews", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                            Text("$totalReviews reviews", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         }
 
                         Spacer(modifier = Modifier.width(16.dp))
-                        Box(modifier = Modifier.size(1.dp, 100.dp).background(BorderSubtle))
+                        Box(modifier = Modifier.size(1.dp, 100.dp).background(MaterialTheme.colorScheme.outline))
                         Spacer(modifier = Modifier.width(16.dp))
 
                         // Right: Distribution bars
@@ -247,14 +239,14 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                                 val count = ratingDistribution[star] ?: 0
                                 val fraction = if (totalReviews > 0) count.toFloat() / totalReviews else 0f
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text("$star★", style = MaterialTheme.typography.labelSmall, color = TextTertiary, modifier = Modifier.width(22.dp))
+                                    Text("$star★", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.width(22.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(8.dp)
                                             .clip(RoundedCornerShape(4.dp))
-                                            .background(Surface3)
+                                            .background(MaterialTheme.colorScheme.surfaceVariant)
                                     ) {
                                         Box(
                                             modifier = Modifier
@@ -265,7 +257,7 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("$count", style = MaterialTheme.typography.labelSmall, color = TextTertiary, modifier = Modifier.width(18.dp))
+                                    Text("$count", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.width(18.dp))
                                 }
                             }
                         }
@@ -290,15 +282,15 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
                                     if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
-                                    else Brush.linearGradient(listOf(Surface3, Surface3))
+                                    else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                                 )
-                                .border(1.dp, if (isSelected) Color.Transparent else BorderSubtle, RoundedCornerShape(8.dp))
+                                .border(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                 .clickable { selectedFilter = index }
                                 .padding(horizontal = 12.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(label, style = MaterialTheme.typography.labelSmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal),
-                                color = if (isSelected) Color.White else TextSecondary)
+                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -321,7 +313,7 @@ private fun ReviewsContent(reviews: List<Review>, navController: NavController) 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("⭐", fontSize = 40.sp)
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text("No ${6 - selectedFilter}★ reviews yet", style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                        Text("No ${6 - selectedFilter}★ reviews yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -336,8 +328,8 @@ private fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Surface2)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
             .padding(14.dp)
     ) {
         Column {
@@ -353,18 +345,18 @@ private fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
                     Text(
                         reviewerName.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                        color = Indigo400
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(reviewerName, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                    Text(reviewerName, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         repeat(5) { i ->
                             Icon(
                                 imageVector = Icons.Default.Star,
                                 contentDescription = null,
-                                tint = if (i < review.rating) SemanticWarning else Surface3,
+                                tint = if (i < review.rating) SemanticWarning else MaterialTheme.colorScheme.surfaceVariant,
                                 modifier = Modifier.size(12.dp)
                             )
                         }
@@ -375,14 +367,14 @@ private fun ReviewCard(review: Review, modifier: Modifier = Modifier) {
                     Text(
                         formatDate(review.createdAt),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
 
             if (review.comment.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(review.comment, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                Text(review.comment, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

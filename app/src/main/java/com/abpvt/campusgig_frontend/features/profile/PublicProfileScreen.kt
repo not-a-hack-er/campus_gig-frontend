@@ -75,22 +75,13 @@ import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -138,11 +129,11 @@ fun PublicProfileScreen(
 
     val userState by viewModel.user.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize().background(BackgroundBase)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = userState) {
             is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp),
                     strokeWidth = 2.5.dp
                 )
@@ -162,12 +153,12 @@ fun PublicProfileScreen(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Surface3)
-                            .border(0.5.dp, BorderSubtle, RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                             .clickable { navController.popBackStack() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary, modifier = Modifier.size(18.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground, modifier = Modifier.size(18.dp))
                     }
                 }
             }
@@ -299,12 +290,12 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Inner padding ring (BackgroundBase spacer)
+                    // Inner padding ring (MaterialTheme.colorScheme.background spacer)
                     Box(
                         modifier = Modifier
                             .size(90.dp)
                             .clip(CircleShape)
-                            .background(BackgroundBase),
+                            .background(MaterialTheme.colorScheme.background),
                         contentAlignment = Alignment.Center
                     ) {
                         // Avatar
@@ -323,17 +314,17 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                 Text(
                     user.name.ifBlank { "Campus User" },
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         user.college.ifBlank { "College" },
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     if (user.branch.isNotBlank()) {
-                        Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                        Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
 
@@ -360,7 +351,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                         Text(
                             text = if (user.skills.isNotEmpty()) "⚡ Freelancer" else "🏢 Employer",
                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = Indigo400
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                     // College badge
@@ -384,7 +375,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                     Text(
                         text = user.bio,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = if (showFullBio) Int.MAX_VALUE else 3,
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Center
@@ -394,7 +385,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                         Text(
                             "Read more",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.clickable { showFullBio = true }
                         )
                     }
@@ -474,22 +465,22 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                             )
                         }
                         Spacer(Modifier.height(2.dp))
-                        Text("Rating", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                        Text("Rating", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                     // Vertical divider
-                    Box(modifier = Modifier.size(1.dp, 40.dp).background(BorderSubtle))
+                    Box(modifier = Modifier.size(1.dp, 40.dp).background(MaterialTheme.colorScheme.outline))
                     // Completed
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             "${user.completedGigsCount}",
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = Indigo400
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(Modifier.height(2.dp))
-                        Text("Completed", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                        Text("Completed", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                     // Vertical divider
-                    Box(modifier = Modifier.size(1.dp, 40.dp).background(BorderSubtle))
+                    Box(modifier = Modifier.size(1.dp, 40.dp).background(MaterialTheme.colorScheme.outline))
                     // Reviews
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
@@ -498,7 +489,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                             color = SemanticSuccess
                         )
                         Spacer(Modifier.height(2.dp))
-                        Text("Reviews", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                        Text("Reviews", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
             }
@@ -530,13 +521,13 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                             Text(
                                 skill,
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                                color = Indigo400
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
                 }
             } else {
-                Text("No skills added yet", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                Text("No skills added yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -559,7 +550,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                     }
                 }
             } else {
-                Text("No portfolio links added", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                Text("No portfolio links added", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -586,7 +577,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                 Text(
                     "See all →",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable { navController.navigate(Routes.reviews(userId)) }
                 )
             }
@@ -603,7 +594,7 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                         Icon(
                             Icons.Default.Star,
                             contentDescription = null,
-                            tint = if (idx < fullStars) SemanticWarning else BorderSubtle,
+                            tint = if (idx < fullStars) SemanticWarning else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -611,14 +602,14 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
                     Text(
                         "${"%.1f".format(user.rating)} out of 5 · ${user.reviewCount} review${if (user.reviewCount == 1) "" else "s"}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             } else {
                 Text(
                     "No reviews yet",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
 
@@ -634,7 +625,7 @@ private fun SectionHeader(title: String) {
     Text(
         title,
         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-        color = TextPrimary
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 
@@ -646,7 +637,7 @@ private fun GradientDivider() {
             .height(0.5.dp)
             .background(
                 Brush.horizontalGradient(
-                    listOf(Color.Transparent, BorderSubtle, Color.Transparent)
+                    listOf(Color.Transparent, MaterialTheme.colorScheme.outline, Color.Transparent)
                 )
             )
     )
@@ -657,10 +648,10 @@ private fun PortfolioChip(emoji: String, label: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface2)
+            .background(MaterialTheme.colorScheme.surface)
             .border(
                 1.dp,
-                Brush.horizontalGradient(listOf(GradientTealStart.copy(0.3f), BorderSubtle)),
+                Brush.horizontalGradient(listOf(GradientTealStart.copy(0.3f), MaterialTheme.colorScheme.outline)),
                 RoundedCornerShape(10.dp)
             )
             .padding(horizontal = 14.dp, vertical = 10.dp)
@@ -668,7 +659,7 @@ private fun PortfolioChip(emoji: String, label: String) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(emoji, fontSize = 14.sp)
             Spacer(Modifier.width(6.dp))
-            Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = TextSecondary)
+            Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

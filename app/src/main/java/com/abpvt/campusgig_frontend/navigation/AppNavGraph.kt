@@ -39,6 +39,7 @@ import com.abpvt.campusgig_frontend.features.gigs.MyGigsScreen
 import com.abpvt.campusgig_frontend.features.gigs.GigApplicationsScreen
 import com.abpvt.campusgig_frontend.features.auth.LoginScreen
 import com.abpvt.campusgig_frontend.features.auth.RegisterScreen
+import com.abpvt.campusgig_frontend.features.auth.ForgotPasswordScreen
 import com.abpvt.campusgig_frontend.features.chat.ChatListScreen
 import com.abpvt.campusgig_frontend.features.chat.ChatScreen
 import com.abpvt.campusgig_frontend.features.communities.CommunityDetailScreen
@@ -62,6 +63,7 @@ import com.abpvt.campusgig_frontend.features.profile.ProfileSetupPromptScreen
 import com.abpvt.campusgig_frontend.features.notifications.NotificationSettingsScreen
 import com.abpvt.campusgig_frontend.features.splash.SplashScreen
 import com.abpvt.campusgig_frontend.ui.components.CampusGigBottomBar
+import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModel
 
 /**
  * AppNavGraph — The root composable that hosts the entire navigation structure.
@@ -73,7 +75,8 @@ import com.abpvt.campusgig_frontend.ui.components.CampusGigBottomBar
 fun AppNavGraph(
     navController: NavHostController,
     startDestination: String,
-    isLoggedIn: Boolean = false
+    isLoggedIn: Boolean = false,
+    themeViewModel: ThemeViewModel? = null
 ) {
     // The routes on which the bottom bar SHOULD appear
     val mainRoutes = setOf(
@@ -123,9 +126,16 @@ fun AppNavGraph(
                 RegisterScreen(navController = navController)
             }
 
+            composable(Routes.FORGOT_PASSWORD) {
+                ForgotPasswordScreen(navController = navController)
+            }
+
             // ── Main Screens (with bottom bar) ────────────────────────────────
             composable(Routes.HOME) {
-                HomeScreen(navController = navController)
+                HomeScreen(
+                    navController = navController,
+                    themeViewModel = themeViewModel
+                )
             }
 
             composable(Routes.GIG_LIST) {
@@ -272,7 +282,10 @@ fun AppNavGraph(
 
             // ── Settings Screens ────────────────────────────────────────────────────
             composable(Routes.SETTINGS) {
-                SettingsScreen(navController = navController)
+                SettingsScreen(
+                    navController = navController,
+                    themeViewModel = themeViewModel
+                )
             }
 
             composable(Routes.NOTIFICATION_SETTINGS) {

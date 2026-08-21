@@ -31,9 +31,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Bedtime
 import androidx.compose.material.icons.filled.BusinessCenter
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -58,16 +58,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 @Composable
 fun NotificationSettingsScreen(navController: NavController) {
@@ -82,7 +74,7 @@ fun NotificationSettingsScreen(navController: NavController) {
     var emailMatchEnabled by remember { mutableStateOf(false) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(Surface1),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(bottom = 40.dp)
     ) {
         // ── Header ───────────────────────────────────────────────────────────
@@ -91,11 +83,11 @@ fun NotificationSettingsScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Surface2).border(1.dp, BorderSubtle, RoundedCornerShape(10.dp)).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp)).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Notifications", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                Text("Notifications", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
             }
         }
 
@@ -110,31 +102,31 @@ fun NotificationSettingsScreen(navController: NavController) {
                         if (pushEnabled)
                             Brush.linearGradient(listOf(GradientIndigoStart.copy(0.1f), GradientIndigoEnd.copy(0.05f)))
                         else
-                            Brush.linearGradient(listOf(Surface2, Surface2))
+                            Brush.linearGradient(listOf(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.surface))
                     )
                     .border(
                         1.5.dp,
                         if (pushEnabled)
                             Brush.linearGradient(listOf(GradientIndigoStart.copy(0.5f), GradientIndigoEnd.copy(0.3f)))
                         else
-                            Brush.linearGradient(listOf(BorderSubtle, BorderSubtle)),
+                            Brush.linearGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline)),
                         RoundedCornerShape(16.dp)
                     )
                     .padding(18.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
-                        modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(if (pushEnabled) GradientIndigoStart.copy(0.15f) else Surface3),
+                        modifier = Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(if (pushEnabled) GradientIndigoStart.copy(0.15f) else MaterialTheme.colorScheme.surfaceVariant),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(if (pushEnabled) Icons.Default.NotificationsActive else Icons.Default.Notifications, contentDescription = null, tint = if (pushEnabled) Indigo400 else TextTertiary, modifier = Modifier.size(22.dp))
+                        Icon(if (pushEnabled) Icons.Default.NotificationsActive else Icons.Default.Notifications, contentDescription = null, tint = if (pushEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
                     }
                     Spacer(modifier = Modifier.width(14.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Push Notifications", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                        Text(if (pushEnabled) "Notifications are active" else "All notifications paused", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        Text("Push Notifications", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                        Text(if (pushEnabled) "Notifications are active" else "All notifications paused", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    Switch(checked = pushEnabled, onCheckedChange = { pushEnabled = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Indigo400, uncheckedTrackColor = Surface3))
+                    Switch(checked = pushEnabled, onCheckedChange = { pushEnabled = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant))
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -152,7 +144,7 @@ fun NotificationSettingsScreen(navController: NavController) {
         item {
             Column {
                 NotifToggleRow(
-                    icon = Icons.Default.Chat, label = "Messages",
+                    icon = Icons.AutoMirrored.Filled.Chat, label = "Messages",
                     desc = "New chat messages",
                     enabled = pushEnabled, checked = messagesEnabled, onToggle = { if (pushEnabled) messagesEnabled = it }
                 )
@@ -186,34 +178,34 @@ fun NotificationSettingsScreen(navController: NavController) {
         item { SectionLabel("Quiet Hours") }
         item {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).clip(RoundedCornerShape(14.dp)).background(Surface2).border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
             ) {
                 Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Bedtime, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Bedtime, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Do Not Disturb", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = TextPrimary)
-                        Text("Mute all notifications during quiet hours", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                        Text("Do Not Disturb", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onBackground)
+                        Text("Mute all notifications during quiet hours", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
-                    Switch(checked = dndEnabled, onCheckedChange = { dndEnabled = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Indigo400, uncheckedTrackColor = Surface3))
+                    Switch(checked = dndEnabled, onCheckedChange = { dndEnabled = it }, colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant))
                 }
 
                 if (dndEnabled) {
-                    HorizontalDivider(color = BorderSubtle)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
                     Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("From", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                            Text("From", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             Spacer(modifier = Modifier.height(4.dp))
-                            Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(GradientIndigoStart.copy(0.1f)).border(1.dp, Indigo400.copy(0.3f), RoundedCornerShape(10.dp)).padding(horizontal = 16.dp, vertical = 8.dp)) {
-                                Text("11:00 PM", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = Indigo400)
+                            Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(GradientIndigoStart.copy(0.1f)).border(1.dp, MaterialTheme.colorScheme.primary.copy(0.3f), RoundedCornerShape(10.dp)).padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                Text("11:00 PM", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.primary)
                             }
                         }
-                        Text("→", style = MaterialTheme.typography.titleMedium, color = TextTertiary)
+                        Text("→", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Until", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                            Text("Until", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             Spacer(modifier = Modifier.height(4.dp))
-                            Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(GradientIndigoStart.copy(0.1f)).border(1.dp, Indigo400.copy(0.3f), RoundedCornerShape(10.dp)).padding(horizontal = 16.dp, vertical = 8.dp)) {
-                                Text("7:00 AM", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = Indigo400)
+                            Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(GradientIndigoStart.copy(0.1f)).border(1.dp, MaterialTheme.colorScheme.primary.copy(0.3f), RoundedCornerShape(10.dp)).padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                Text("7:00 AM", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.primary)
                             }
                         }
                     }
@@ -235,7 +227,7 @@ fun NotificationSettingsScreen(navController: NavController) {
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold), color = TextTertiary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
+    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp))
 }
 
 @Composable
@@ -255,19 +247,19 @@ private fun NotifToggleRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null && !indented) {
-            Icon(icon, contentDescription = null, tint = if (enabled) TextSecondary else TextTertiary.copy(0.5f), modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(0.5f), modifier = Modifier.size(20.dp))
             Spacer(modifier = Modifier.width(12.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = if (enabled) TextPrimary else TextTertiary)
-            Text(desc, style = MaterialTheme.typography.bodySmall, color = if (enabled) TextSecondary else TextTertiary.copy(0.5f))
+            Text(label, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = if (enabled) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            Text(desc, style = MaterialTheme.typography.bodySmall, color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(0.5f))
         }
         Switch(
             checked = checked,
             onCheckedChange = onToggle,
             enabled = enabled,
-            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Indigo400, uncheckedTrackColor = Surface3, disabledUncheckedTrackColor = Surface3.copy(0.5f))
+            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant, disabledUncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant.copy(0.5f))
         )
     }
-    HorizontalDivider(modifier = Modifier.padding(start = if (indented) 52.dp else 54.dp), color = BorderSubtle.copy(0.5f))
+    HorizontalDivider(modifier = Modifier.padding(start = if (indented) 52.dp else 54.dp), color = MaterialTheme.colorScheme.outline.copy(0.5f))
 }

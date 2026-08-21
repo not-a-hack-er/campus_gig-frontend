@@ -31,21 +31,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Message
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HourglassEmpty
-import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,29 +58,25 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.core.utils.ApplicationViewModelFactory
 import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
+import com.abpvt.campusgig_frontend.ui.components.LeaveReviewDialog
 import com.abpvt.campusgig_frontend.ui.components.getRelativeTime
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 // ─── Status Config ─────────────────────────────────────────────────────────────
 private data class StatusConfig(
@@ -131,14 +132,21 @@ private fun statusConfig(status: String) = when (status.lowercase()) {
     )
 }
 
-// ─── Application Detail Screen ────────────────────────────────────────────────
 @Composable
 fun ApplicationDetailScreen(
     navController: NavController,
-    application: Application  // injected; in real app, load by ID from ViewModel
+    application: Application,
+    viewModel: ApplicationViewModel = viewModel(
+        factory = ApplicationViewModelFactory(
+            (LocalContext.current.applicationContext as CampusGigApplication).apiService
+        )
+    )
 ) {
     val config = remember(application.status) { statusConfig(application.status) }
     val relativeTime = remember(application.createdAt) { getRelativeTime(application.createdAt) }
+    val poster = application.gig?.employer
+    var showWithdrawDialog by remember { mutableStateOf(false) }
+    var showReviewDialog by remember { mutableStateOf(false) }
 
     val timelineSteps = buildList {
         add(Triple("Applied", relativeTime, true))
@@ -159,7 +167,7 @@ fun ApplicationDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
         // ── STATUS HERO CARD ───────────────────────────────────────────────────
@@ -208,13 +216,13 @@ fun ApplicationDetailScreen(
                 )
             }
 
-            // Bottom fade into Surface1
+            // Bottom fade into MaterialTheme.colorScheme.background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp)
                     .align(Alignment.BottomStart)
-                    .background(Brush.verticalGradient(listOf(Color.Transparent, Surface1)))
+                    .background(Brush.verticalGradient(listOf(Color.Transparent, MaterialTheme.colorScheme.background)))
             )
         }
 
@@ -227,8 +235,8 @@ fun ApplicationDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Surface2)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
                         .padding(14.dp)
                 ) {
                     Column {
@@ -241,7 +249,7 @@ fun ApplicationDetailScreen(
                                 Text(
                                     gig.title,
                                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
-                                    color = TextPrimary,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -250,9 +258,9 @@ fun ApplicationDetailScreen(
                                     Text(
                                         gig.category,
                                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                                        color = TextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
-                                    Text("•", color = TextTertiary)
+                                    Text("•", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                                     Text(
                                         gig.formattedBudget(),
                                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 13.sp),
@@ -264,19 +272,19 @@ fun ApplicationDetailScreen(
                             Text(
                                 "View Gig →",
                                 style = MaterialTheme.typography.labelMedium.copy(fontSize = 13.sp),
-                                color = Indigo400,
+                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.clickable { navController.navigate(Routes.gigDetail(gig.id)) }
                             )
                         }
 
                         gig.employer?.let { employer ->
                             Spacer(Modifier.height(10.dp))
-                            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(BorderSubtle))
+                            Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline))
                             Spacer(Modifier.height(10.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 AvatarInitials(name = employer.name, size = 28)
                                 Spacer(Modifier.width(8.dp))
-                                Text("Posted by ${employer.name}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = TextTertiary)
+                                Text("Posted by ${employer.name}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                         }
                     }
@@ -286,16 +294,16 @@ fun ApplicationDetailScreen(
             Spacer(Modifier.height(20.dp))
 
             // COVER LETTER / PROPOSAL
-            Text("Your Proposal", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = TextPrimary)
+            Text("Your Proposal", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(8.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface3)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
                     .border(
                         width = 1.dp,
-                        color = BorderSubtle,
+                        color = MaterialTheme.colorScheme.outline,
                         shape = RoundedCornerShape(12.dp)
                     )
             ) {
@@ -306,12 +314,12 @@ fun ApplicationDetailScreen(
                             .width(3.dp)
                             .height(120.dp)
                             .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp))
-                            .background(Indigo500)
+                            .background(MaterialTheme.colorScheme.primary)
                     )
                     Text(
                         application.proposal.ifBlank { "No proposal text provided." },
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp, lineHeight = 22.sp),
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 14.dp)
                     )
                 }
@@ -320,17 +328,17 @@ fun ApplicationDetailScreen(
             Spacer(Modifier.height(20.dp))
 
             // PROPOSAL DETAILS 2-column grid
-            Text("Application Details", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = TextPrimary)
+            Text("Application Details", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DetailCell("YOUR BID", "₹${application.expectedBudget.toInt()}", Modifier.weight(1f), SemanticSuccess)
-                DetailCell("APPLIED", relativeTime, Modifier.weight(1f), Indigo400)
+                DetailCell("APPLIED", relativeTime, Modifier.weight(1f), MaterialTheme.colorScheme.primary)
             }
 
             Spacer(Modifier.height(20.dp))
 
             // APPLICATION TIMELINE
-            Text("Timeline", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = TextPrimary)
+            Text("Timeline", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp), color = MaterialTheme.colorScheme.onBackground)
             Spacer(Modifier.height(12.dp))
 
             timelineSteps.forEachIndexed { index, (stepLabel, stepValue, isDone) ->
@@ -345,7 +353,7 @@ fun ApplicationDetailScreen(
                                     if (isDone)
                                         Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
                                     else
-                                        Brush.linearGradient(listOf(BorderSubtle, BorderSubtle))
+                                        Brush.linearGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline))
                                 )
                         )
                         if (index < timelineSteps.lastIndex) {
@@ -355,17 +363,17 @@ fun ApplicationDetailScreen(
                                     .height(28.dp)
                                     .background(
                                         if (isDone)
-                                            Brush.verticalGradient(listOf(Indigo500, Indigo500.copy(alpha = 0.4f)))
+                                            Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)))
                                         else
-                                            Brush.verticalGradient(listOf(BorderSubtle, BorderSubtle))
+                                            Brush.verticalGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline))
                                     )
                             )
                         }
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(modifier = Modifier.padding(bottom = if (index < timelineSteps.lastIndex) 0.dp else 4.dp)) {
-                        Text(stepLabel, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (isDone) FontWeight.SemiBold else FontWeight.Normal, fontSize = 14.sp), color = if (isDone) TextPrimary else TextTertiary)
-                        Text(stepValue, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = TextTertiary)
+                        Text(stepLabel, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = if (isDone) FontWeight.SemiBold else FontWeight.Normal, fontSize = 14.sp), color = if (isDone) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                        Text(stepValue, style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         Spacer(Modifier.height(14.dp))
                     }
                 }
@@ -374,32 +382,55 @@ fun ApplicationDetailScreen(
             Spacer(Modifier.height(20.dp))
 
             // ── ACTION BUTTONS (status-conditional) ────────────────────────────
+            val poster = application.gig?.employer
             when (application.status.lowercase()) {
                 "pending" -> {
                     ActionButton(
                         text = "Withdraw Application",
                         icon = Icons.Default.Close,
-                        gradient = listOf(Surface3, Surface3),
+                        gradient = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant),
                         textColor = SemanticError,
-                        onClick = { /* TODO: withdraw */ }
+                        onClick = { showWithdrawDialog = true }
                     )
                 }
                 "accepted" -> {
                     ActionButton(
                         text = "Open Chat with Poster →",
-                        icon = Icons.Default.Message,
+                        icon = Icons.AutoMirrored.Filled.Message,
                         gradient = listOf(GradientIndigoStart, GradientIndigoEnd),
                         textColor = Color.White,
-                        onClick = { /* TODO: navigate to chat */ }
+                        onClick = {
+                            if (poster != null) {
+                                navController.navigate(
+                                    Routes.chat(
+                                        receiverId = poster.id,
+                                        receiverName = poster.name,
+                                        gigTitle = application.gig?.title,
+                                        gigBudget = "₹${application.expectedBudget.toInt()}"
+                                    )
+                                )
+                            }
+                        }
                     )
                 }
                 "in_progress" -> {
                     ActionButton(
                         text = "Open Chat →",
-                        icon = Icons.Default.Message,
+                        icon = Icons.AutoMirrored.Filled.Message,
                         gradient = listOf(Color(0xFF1E3A5F), Color(0xFF1D4ED8)),
                         textColor = Color.White,
-                        onClick = { /* TODO: navigate to chat */ }
+                        onClick = {
+                            if (poster != null) {
+                                navController.navigate(
+                                    Routes.chat(
+                                        receiverId = poster.id,
+                                        receiverName = poster.name,
+                                        gigTitle = application.gig?.title,
+                                        gigBudget = "₹${application.expectedBudget.toInt()}"
+                                    )
+                                )
+                            }
+                        }
                     )
                 }
                 "completed" -> {
@@ -408,7 +439,7 @@ fun ApplicationDetailScreen(
                         icon = Icons.Default.Star,
                         gradient = listOf(Color(0xFF134E4A), Color(0xFF0D9488)),
                         textColor = Color.White,
-                        onClick = { /* TODO: navigate to review screen */ }
+                        onClick = { showReviewDialog = true }
                     )
                 }
                 "rejected" -> {
@@ -424,21 +455,75 @@ fun ApplicationDetailScreen(
 
             Spacer(Modifier.height(48.dp))
         }
+
+        // ── Withdrawal Confirmation Dialog ─────────────────────────────────────
+        if (showWithdrawDialog) {
+            AlertDialog(
+                onDismissRequest = { showWithdrawDialog = false },
+                containerColor = MaterialTheme.colorScheme.surface,
+                title = {
+                    Text(
+                        "Withdraw Application?",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                text = {
+                    Text(
+                        "Are you sure you want to withdraw your application for \"${application.gig?.title ?: "this gig"}\"? This cannot be undone.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showWithdrawDialog = false
+                            viewModel.withdrawApplication(application.id) { success ->
+                                if (success) navController.popBackStack()
+                            }
+                        }
+                    ) {
+                        Text("Withdraw", color = SemanticError, style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showWithdrawDialog = false }) {
+                        Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            )
+        }
+
+        // ── Leave Review Dialog ───────────────────────────────────────────────
+        if (showReviewDialog && poster != null) {
+            LeaveReviewDialog(
+                gigId = application.gig?.id ?: "",
+                gigTitle = application.gig?.title ?: "Completed Gig",
+                targetUserId = poster.id,
+                targetUserName = poster.name,
+                onDismiss = { showReviewDialog = false },
+                onSubmitSuccess = {
+                    showReviewDialog = false
+                    navController.popBackStack()
+                }
+            )
+        }
     }
 }
 
 // ─── Detail Cell ──────────────────────────────────────────────────────────────
 @Composable
-private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier, valueColor: Color = TextPrimary) {
+private fun DetailCell(label: String, value: String, modifier: Modifier = Modifier, valueColor: Color = MaterialTheme.colorScheme.onBackground) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface3)
-            .border(1.dp, BorderSubtle, RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
             .padding(12.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, letterSpacing = 0.4.sp), color = TextTertiary)
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, letterSpacing = 0.4.sp), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             Text(value, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 18.sp), color = valueColor)
         }
     }
@@ -460,8 +545,8 @@ private fun ActionButton(
             .clip(RoundedCornerShape(26.dp))
             .background(Brush.linearGradient(gradient))
             .border(
-                width = if (gradient.first() == Surface3) 1.dp else 0.dp,
-                color = BorderSubtle,
+                width = if (gradient.first() == MaterialTheme.colorScheme.surfaceVariant) 1.dp else 0.dp,
+                color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(26.dp)
             )
             .clickable { onClick() },

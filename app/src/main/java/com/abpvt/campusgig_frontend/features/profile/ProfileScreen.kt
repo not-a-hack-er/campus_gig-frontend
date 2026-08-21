@@ -34,8 +34,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -65,22 +65,14 @@ import com.abpvt.campusgig_frontend.core.utils.ProfileViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
@@ -122,7 +114,7 @@ fun ProfileScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         when (val state = profileState) {
             is Resource.Loading -> ProfileLoadingState()
             is Resource.Error -> ProfileErrorState(message = state.message, onLogout = { onAction(ProfileAction.Logout) })
@@ -222,7 +214,7 @@ private fun ProfileContent(
                     .offset(y = 40.dp)
                     .size(86.dp)
                     .clip(CircleShape)
-                    .background(Surface1)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(4.dp)
             ) {
                 Box(
@@ -250,13 +242,13 @@ private fun ProfileContent(
                 Text(
                     text = user.name.ifBlank { "Campus Builder" },
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold, fontSize = 24.sp),
-                    color = TextPrimary
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    Text(user.college.ifBlank { "College Student" }, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                    Text(user.college.ifBlank { "College Student" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (user.branch.isNotBlank()) {
-                        Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                        Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
 
@@ -265,7 +257,7 @@ private fun ProfileContent(
                     Text(
                         text = user.bio,
                         style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp),
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = if (uiState.showFullBio) Int.MAX_VALUE else 3,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -274,7 +266,7 @@ private fun ProfileContent(
                         Text(
                             "Read more",
                             style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
@@ -330,10 +322,10 @@ private fun ProfileContent(
                         label = "Rating",
                         color = SemanticWarning
                     )
-                    Box(modifier = Modifier.size(1.dp, 32.dp).background(BorderSubtle))
+                    Box(modifier = Modifier.size(1.dp, 32.dp).background(MaterialTheme.colorScheme.outline))
                     ReputationStat(value = "${user.completedGigsCount}", label = "Completed", color = SemanticSuccess)
-                    Box(modifier = Modifier.size(1.dp, 32.dp).background(BorderSubtle))
-                    ReputationStat(value = "${user.reviewCount}", label = "Reviews", color = Indigo400)
+                    Box(modifier = Modifier.size(1.dp, 32.dp).background(MaterialTheme.colorScheme.outline))
+                    ReputationStat(value = "${user.reviewCount}", label = "Reviews", color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -347,7 +339,7 @@ private fun ProfileContent(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Skills Section ─────────────────────────────────────────────────
@@ -356,11 +348,11 @@ private fun ProfileContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Skills", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
+                Text("Skills", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
                 Text(
                     "Edit",
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -376,10 +368,10 @@ private fun ProfileContent(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(GradientIndigoStart.copy(alpha = 0.08f))
-                                .border(BorderStroke(1.dp, Indigo400.copy(alpha = 0.3f)), RoundedCornerShape(8.dp))
+                                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            Text(skill, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = Indigo400)
+                            Text(skill, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -388,7 +380,7 @@ private fun ProfileContent(
                     Text(
                         "See all ${user.skills.size} skills",
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = Indigo400,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -396,15 +388,75 @@ private fun ProfileContent(
                     )
                 }
             } else {
-                Text("No skills added yet", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                Text("No skills added yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            }
+
+            // ── Resume / CV Showcase Card ──────────────────────────────────────
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(BorderStroke(1.dp, if (user.resumeUrl.isNotBlank()) SemanticSuccess.copy(alpha = 0.35f) else MaterialTheme.colorScheme.outline), RoundedCornerShape(14.dp))
+                    .padding(14.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (user.resumeUrl.isNotBlank()) SemanticSuccess.copy(alpha = 0.12f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(if (user.resumeUrl.isNotBlank()) "📄" else "📎", fontSize = 18.sp)
+                        }
+                        Column {
+                            Text(
+                                text = if (user.resumeUrl.isNotBlank()) "Resume / CV Attached ✓" else "Missing skills? Add your Resume",
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 14.sp),
+                                color = if (user.resumeUrl.isNotBlank()) SemanticSuccess else MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = if (user.resumeUrl.isNotBlank()) "Employers can view your full verified credentials" else "Attach your CV/resume link so employers see your full experience",
+                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)))
+                            .clickable { navController.navigate(Routes.EDIT_PROFILE) }
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
+                    ) {
+                        Text(
+                            text = if (user.resumeUrl.isNotBlank()) "Edit" else "+ Add",
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                            color = Color.White
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Portfolio Section ──────────────────────────────────────────────
-            Text("Portfolio & Socials", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
+            Text("Portfolio & Socials", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (user.githubProfile.isNotBlank()) {
@@ -417,12 +469,12 @@ private fun ProfileContent(
                     PortfolioLinkChip("🔗 Website") { }
                 }
                 if (user.githubProfile.isBlank() && user.linkedinProfile.isBlank() && user.portfolioLinks.isEmpty()) {
-                    Text("No portfolio links added yet", style = MaterialTheme.typography.bodyMedium, color = TextTertiary)
+                    Text("No portfolio links added yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = BorderSubtle)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             Spacer(modifier = Modifier.height(20.dp))
 
             // ── Reviews Section ────────────────────────────────────────────────
@@ -432,7 +484,7 @@ private fun ProfileContent(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Reviews", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
+                    Text("Reviews", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
                     if (user.reviewCount > 0) {
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("%.1f ★".format(user.rating), style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), color = SemanticWarning)
@@ -441,7 +493,7 @@ private fun ProfileContent(
                 Text(
                     "See all →",
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -454,16 +506,16 @@ private fun ProfileContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Surface2)
-                        .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("⭐", fontSize = 28.sp)
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text("No reviews yet", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = TextSecondary)
-                        Text("Complete gigs to earn your first review", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                        Text("No reviews yet", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Complete gigs to earn your first review", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
             } else {
@@ -471,8 +523,8 @@ private fun ProfileContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Surface2)
-                        .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
@@ -487,7 +539,7 @@ private fun ProfileContent(
                             color = SemanticWarning
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("View all →", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = Indigo400)
+                        Text("View all →", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -500,7 +552,7 @@ private fun ProfileContent(
                     .fillMaxWidth()
                     .height(50.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Surface2)
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(BorderStroke(1.dp, SemanticError.copy(alpha = 0.35f)), RoundedCornerShape(12.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -509,7 +561,7 @@ private fun ProfileContent(
                 contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Logout, contentDescription = null, tint = SemanticError, modifier = Modifier.size(18.dp))
+                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = SemanticError, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Sign Out", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold), color = SemanticError)
                 }
@@ -527,7 +579,7 @@ private fun ReputationStat(value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold), color = color)
         Spacer(modifier = Modifier.height(2.dp))
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
     }
 }
 
@@ -536,8 +588,8 @@ private fun QuickActionChip(label: String, modifier: Modifier = Modifier, onClic
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Surface2)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(10.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -545,7 +597,7 @@ private fun QuickActionChip(label: String, modifier: Modifier = Modifier, onClic
             .padding(vertical = 12.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextSecondary)
+        Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -554,15 +606,15 @@ private fun PortfolioLinkChip(label: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(Surface3)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) { onClick() }
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = TextSecondary)
+        Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -570,8 +622,8 @@ private fun PortfolioLinkChip(label: String, onClick: () -> Unit) {
 private fun ProfileLoadingState() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            CircularProgressIndicator(color = Indigo400, modifier = Modifier.size(32.dp), strokeWidth = 2.5.dp)
-            Text("Loading profile...", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp), strokeWidth = 2.5.dp)
+            Text("Loading profile...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
         }
     }
 }

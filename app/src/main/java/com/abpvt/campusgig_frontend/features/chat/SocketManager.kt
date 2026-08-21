@@ -2,6 +2,7 @@
  * SocketManager.kt — Singleton Manager for Socket.IO Real-time Messaging & Presence (v3.0)
  */
 package com.abpvt.campusgig_frontend.features.chat
+import androidx.compose.material3.MaterialTheme
 
 import android.util.Log
 import com.abpvt.campusgig_frontend.core.utils.Constants

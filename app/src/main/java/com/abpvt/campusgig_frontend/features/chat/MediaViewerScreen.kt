@@ -55,9 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.delay
 
 @Composable
@@ -101,13 +98,13 @@ fun MediaViewerScreen(
                 Text(
                     text = "Image Viewer",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = mediaUrl.takeLast(40),
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextTertiary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             }
         }

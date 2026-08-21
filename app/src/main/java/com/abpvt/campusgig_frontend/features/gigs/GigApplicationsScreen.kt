@@ -5,7 +5,7 @@
  * applicant's proposal, bid, and skills at a glance, and act with one tap.
  *
  * FEATURES:
- * - v3.0 styled header (Surface3 icon btn, gradient bottom line)
+ * - v3.0 styled header (MaterialTheme.colorScheme.surfaceVariant icon btn, gradient bottom line)
  * - Applications count summary banner with teal accent
  * - ApplicantRowCard: glassmorphic dark card with indigo left accent line
  * - Avatar with gradient ring
@@ -76,23 +76,14 @@ import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.AvatarInitials
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 
 @Composable
@@ -125,7 +116,7 @@ fun GigApplicationsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundBase)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -133,7 +124,7 @@ fun GigApplicationsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Surface1)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Gradient bottom border line
                 Box(
@@ -162,15 +153,15 @@ fun GigApplicationsScreen(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(RoundedCornerShape(10.dp))
-                            .background(Surface3)
-                            .border(0.5.dp, BorderSubtle, RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(0.5.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
                             .clickable { navController.popBackStack() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = TextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -179,12 +170,12 @@ fun GigApplicationsScreen(
                         Text(
                             text = "Applications Received",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = "Review candidates for your gig",
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -194,7 +185,7 @@ fun GigApplicationsScreen(
                 is Resource.Loading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                             strokeWidth = 2.5.dp
                         )
@@ -249,7 +240,7 @@ fun GigApplicationsScreen(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape)
-                                            .background(BackgroundBase),
+                                            .background(MaterialTheme.colorScheme.background),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text("📁", fontSize = 36.sp)
@@ -259,13 +250,13 @@ fun GigApplicationsScreen(
                                 Text(
                                     "No applications yet",
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = TextPrimary
+                                    color = MaterialTheme.colorScheme.onBackground
                                 )
                                 Spacer(Modifier.height(6.dp))
                                 Text(
                                     "Keep sharing your gig to attract the right candidates.",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = TextTertiary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }
@@ -305,7 +296,7 @@ fun GigApplicationsScreen(
                                     Spacer(Modifier.width(8.dp))
                                     Text(
                                         "${applications.size} candidate${if (applications.size == 1) "" else "s"} applied",
-                                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                     )
                                 }
                                 // Pending count chip
@@ -404,21 +395,21 @@ fun GigApplicationsScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .background(Surface2)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                         .padding(horizontal = 28.dp, vertical = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(
-                            color = Indigo400,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(36.dp),
                             strokeWidth = 3.dp
                         )
                         Spacer(Modifier.height(14.dp))
                         Text(
                             "Processing...",
-                            color = TextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
                         )
                     }
@@ -444,13 +435,13 @@ private fun ApplicantRowCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(Surface2)
+            .background(MaterialTheme.colorScheme.surface)
             .border(
                 1.dp,
                 Brush.linearGradient(
                     listOf(
                         GradientIndigoStart.copy(alpha = 0.25f),
-                        BorderSubtle.copy(alpha = 0.5f),
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                         Color.Transparent
                     )
                 ),
@@ -506,7 +497,7 @@ private fun ApplicantRowCard(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape)
-                                    .background(Surface2),
+                                    .background(MaterialTheme.colorScheme.surface),
                                 contentAlignment = Alignment.Center
                             ) {
                                 AvatarInitials(name = applicant?.name ?: "C", size = 40)
@@ -520,12 +511,12 @@ private fun ApplicantRowCard(
                         Text(
                             text = applicant?.name ?: "Candidate",
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
-                            color = TextPrimary
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             text = applicant?.college ?: "College",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
 
@@ -534,7 +525,7 @@ private fun ApplicantRowCard(
                         val chipColor = when (status) {
                             "accepted" -> SemanticSuccess
                             "rejected" -> SemanticError
-                            else       -> TextTertiary
+                            else       -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         }
                         Box(
                             modifier = Modifier
@@ -560,7 +551,7 @@ private fun ApplicantRowCard(
                     style = TextStyle(
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Indigo400,
+                        color = MaterialTheme.colorScheme.primary,
                         letterSpacing = 1.sp
                     )
                 )
@@ -577,7 +568,7 @@ private fun ApplicantRowCard(
                             .fillMaxHeight()
                             .background(
                                 Brush.verticalGradient(
-                                    listOf(Indigo400, Violet400.copy(alpha = 0.3f))
+                                    listOf(MaterialTheme.colorScheme.primary, Violet400.copy(alpha = 0.3f))
                                 )
                             )
                     )
@@ -586,13 +577,13 @@ private fun ApplicantRowCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topEnd = 8.dp, bottomStart = 8.dp, bottomEnd = 8.dp))
-                            .background(Surface3)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(10.dp)
                     ) {
                         Text(
                             text = application.proposal,
                             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 19.sp),
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

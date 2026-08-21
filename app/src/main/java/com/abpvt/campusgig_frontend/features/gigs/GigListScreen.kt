@@ -57,9 +57,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -104,23 +104,11 @@ import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.GigCard
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Indigo500
-import com.abpvt.campusgig_frontend.ui.theme.Indigo600
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.Surface4
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import com.abpvt.campusgig_frontend.ui.theme.Violet400
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -178,12 +166,13 @@ private sealed interface GigListAction {
 
 // ─── Modifier Extensions ─────────────────────────────────────────────────────
 
+@Composable
 private fun Modifier.surfaceCard(
     cornerRadius: Int = 16
 ): Modifier = this
     .clip(RoundedCornerShape(cornerRadius.dp))
-    .background(Surface2)
-    .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(cornerRadius.dp))
+    .background(MaterialTheme.colorScheme.surface)
+    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(cornerRadius.dp))
 
 private fun Modifier.primaryGradientBg(cornerRadius: Int = 14): Modifier = this
     .clip(RoundedCornerShape(cornerRadius.dp))
@@ -304,7 +293,7 @@ fun GigListScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         LazyColumn(
             state = listState,
@@ -339,7 +328,7 @@ fun GigListScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Surface1)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     LazyRow(
                         contentPadding      = PaddingValues(horizontal = 20.dp, vertical = 10.dp),
@@ -358,7 +347,7 @@ fun GigListScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(BorderSubtle)
+                            .background(MaterialTheme.colorScheme.outline)
                     )
                 }
             }
@@ -474,7 +463,7 @@ fun GigListScreen(
             ModalBottomSheet(
                 onDismissRequest = { onAction(GigListAction.DismissSort) },
                 sheetState       = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor   = Surface2,
+                containerColor   = MaterialTheme.colorScheme.surface,
                 shape            = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
             ) {
                 SortSheetContent(
@@ -491,7 +480,7 @@ fun GigListScreen(
             ModalBottomSheet(
                 onDismissRequest = { onAction(GigListAction.DismissFilter) },
                 sheetState       = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor   = Surface2,
+                containerColor   = MaterialTheme.colorScheme.surface,
                 shape            = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
             ) {
                 FilterSheetContent(
@@ -525,15 +514,15 @@ private fun GigListTopBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface1)
-            .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(0.dp))
+            .background(MaterialTheme.colorScheme.background)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
             .padding(start = 4.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onBack) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowBack, "Back",
-                tint     = TextSecondary,
+                tint     = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp)
             )
         }
@@ -545,24 +534,24 @@ private fun GigListTopBar(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 18.sp
                 ),
-                color      = TextPrimary
+                color      = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 "Find your next opportunity",
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
 
         // Sort icon
         IconButton(onClick = onSort) {
-            Icon(Icons.Default.Sort, "Sort", tint = TextSecondary, modifier = Modifier.size(20.dp))
+            Icon(Icons.AutoMirrored.Filled.Sort, "Sort", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
         }
 
         // Filter icon + active dot
         Box {
             IconButton(onClick = onFilter) {
-                Icon(Icons.Default.Tune, "Filters", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.Tune, "Filters", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
             }
             if (hasActiveFilters) {
                 Box(
@@ -593,16 +582,16 @@ private fun GigSearchBar(
             Text(
                 "Search gigs, skills, categories…",
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp),
-                color = TextTertiary
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         },
         leadingIcon = {
-            Icon(Icons.Default.Search, null, tint = TextTertiary, modifier = Modifier.size(18.dp))
+            Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(18.dp))
         },
         trailingIcon = {
             if (query.isNotBlank()) {
                 IconButton(onClick = onClear) {
-                    Icon(Icons.Default.Close, "Clear", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Close, "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                 }
             }
         },
@@ -614,13 +603,13 @@ private fun GigSearchBar(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onSearch() }),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor    = TextPrimary,
-            unfocusedTextColor  = TextPrimary,
-            focusedContainerColor   = Surface3,
-            unfocusedContainerColor = Surface2,
-            focusedBorderColor      = Indigo500,
-            unfocusedBorderColor    = BorderSubtle,
-            cursorColor             = Indigo500
+            focusedTextColor    = MaterialTheme.colorScheme.onBackground,
+            unfocusedTextColor  = MaterialTheme.colorScheme.onBackground,
+            focusedContainerColor   = MaterialTheme.colorScheme.surfaceVariant,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedBorderColor      = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor    = MaterialTheme.colorScheme.outline,
+            cursorColor             = MaterialTheme.colorScheme.primary
         )
     )
 }
@@ -634,12 +623,12 @@ private fun CategoryFilterChip(
     onClick:    () -> Unit
 ) {
     val bgColor by animateColorAsState(
-        targetValue   = if (isSelected) GlowIndigo else Surface3,
+        targetValue   = if (isSelected) GlowIndigo else MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(160),
         label         = "chip_bg"
     )
     val borderColor by animateColorAsState(
-        targetValue   = if (isSelected) Indigo500 else BorderSubtle,
+        targetValue   = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
         animationSpec = tween(160),
         label         = "chip_border"
     )
@@ -664,7 +653,7 @@ private fun CategoryFilterChip(
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 fontSize   = 12.sp
             ),
-            color = if (isSelected) TextPrimary else TextSecondary
+            color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -690,7 +679,7 @@ private fun ActiveFilterRow(
                 Text(
                     "Clear all",
                     style    = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
-                    color    = Indigo400,
+                    color    = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -712,7 +701,7 @@ private fun ActiveFilterChip(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
             .background(Color(0x1A6366F1))
-            .border(BorderStroke(1.dp, Indigo500.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)), RoundedCornerShape(20.dp))
             .padding(start = 10.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
         verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -720,7 +709,7 @@ private fun ActiveFilterChip(
         Text(
             label,
             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, fontWeight = FontWeight.Medium),
-            color = Indigo400
+            color = MaterialTheme.colorScheme.primary
         )
         Box(
             modifier = Modifier
@@ -734,7 +723,7 @@ private fun ActiveFilterChip(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Close, "Remove", tint = Indigo400, modifier = Modifier.size(9.dp))
+            Icon(Icons.Default.Close, "Remove", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(9.dp))
         }
     }
 }
@@ -757,7 +746,7 @@ private fun ResultsMetaRow(
         Text(
             "$count gigs available",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-            color = TextTertiary
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
         Row(
             modifier = Modifier
@@ -767,17 +756,17 @@ private fun ResultsMetaRow(
                     indication        = null,
                     onClick           = onSort
                 )
-                .background(Surface3)
-                .border(BorderStroke(1.dp, BorderSubtle), RoundedCornerShape(6.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(6.dp))
                 .padding(horizontal = 10.dp, vertical = 5.dp),
             verticalAlignment     = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(Icons.Default.Sort, null, tint = TextTertiary, modifier = Modifier.size(12.dp))
+            Icon(Icons.AutoMirrored.Filled.Sort, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(12.dp))
             Text(
                 sortLabel.take(16) + if (sortLabel.length > 16) "…" else "",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -799,7 +788,7 @@ private fun GigCardShimmer(modifier: Modifier = Modifier) {
     )
 
     val shimmerBrush = Brush.linearGradient(
-        colors    = listOf(Surface3, Surface4, Surface3),
+        colors    = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.surfaceVariant),
         start     = Offset(shimmerX, 0f),
         end       = Offset(shimmerX + 600f, 0f)
     )
@@ -869,7 +858,7 @@ private fun GigListEmptyState(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize   = 17.sp
             ),
-            color     = TextPrimary,
+            color     = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         Text(
@@ -878,7 +867,7 @@ private fun GigListEmptyState(
                 fontSize   = 13.sp,
                 lineHeight = 19.sp
             ),
-            color     = TextSecondary,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
@@ -919,7 +908,7 @@ private fun GigListEmptyState(
                 Text(
                     secondaryLabel,
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -942,13 +931,13 @@ private fun EndOfListFooter(count: Int) {
             modifier = Modifier
                 .size(40.dp, 3.dp)
                 .clip(RoundedCornerShape(2.dp))
-                .background(BorderDefault)
+                .background(MaterialTheme.colorScheme.outlineVariant)
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             "You've seen all $count gigs",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-            color = TextTertiary
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
         )
         Text(
             "Adjust filters to discover more",
@@ -981,7 +970,7 @@ private fun SortSheetContent(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize   = 18.sp
             ),
-            color = TextPrimary
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -1013,9 +1002,9 @@ private fun SortSheetContent(
                     modifier = Modifier
                         .size(18.dp)
                         .clip(RoundedCornerShape(9.dp))
-                        .background(if (isSelected) Indigo500 else Surface4)
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh)
                         .border(
-                            BorderStroke(1.5.dp, if (isSelected) Indigo400 else BorderDefault),
+                            BorderStroke(1.5.dp, if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
                             RoundedCornerShape(9.dp)
                         ),
                     contentAlignment = Alignment.Center
@@ -1035,7 +1024,7 @@ private fun SortSheetContent(
                         fontSize   = 14.sp,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                     ),
-                    color = if (isSelected) TextPrimary else TextSecondary
+                    color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -1077,12 +1066,12 @@ private fun FilterSheetContent(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize   = 18.sp
                 ),
-                color = TextPrimary
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 "Reset",
                 style    = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
-                color    = Indigo400,
+                color    = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication        = null,
@@ -1136,7 +1125,7 @@ private fun SheetHandle() {
             .size(40.dp, 4.dp)
             .align(Alignment.CenterHorizontally)
             .clip(RoundedCornerShape(2.dp))
-            .background(BorderDefault)
+            .background(MaterialTheme.colorScheme.outlineVariant)
     )
 }
 
@@ -1149,7 +1138,7 @@ private fun FilterSectionLabel(label: String) {
             fontWeight    = FontWeight.Bold,
             letterSpacing = 0.6.sp
         ),
-        color = TextTertiary
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
 }
 
@@ -1160,12 +1149,12 @@ private fun FilterToggleChip(
     onClick:    () -> Unit
 ) {
     val bg by animateColorAsState(
-        targetValue   = if (isSelected) GlowIndigo else Surface3,
+        targetValue   = if (isSelected) GlowIndigo else MaterialTheme.colorScheme.surfaceVariant,
         animationSpec = tween(140),
         label         = "filter_chip_bg"
     )
     val border by animateColorAsState(
-        targetValue   = if (isSelected) Indigo500 else BorderSubtle,
+        targetValue   = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
         animationSpec = tween(140),
         label         = "filter_chip_border"
     )
@@ -1188,7 +1177,7 @@ private fun FilterToggleChip(
                 fontSize   = 12.sp,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
             ),
-            color = if (isSelected) TextPrimary else TextSecondary
+            color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

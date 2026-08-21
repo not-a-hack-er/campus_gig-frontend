@@ -96,21 +96,11 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.AuthViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.navigation.Routes
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
-import com.abpvt.campusgig_frontend.ui.theme.BorderDefault
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 import kotlinx.coroutines.delay
 import android.accounts.AccountManager
 import android.app.Activity
@@ -183,7 +173,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Surface1)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Ambient glow (top)
         Box(
@@ -214,15 +204,15 @@ fun LoginScreen(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Surface3)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                         .clickable { navController.popBackStack() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -259,7 +249,7 @@ fun LoginScreen(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = (-0.3).sp
                         ),
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -267,7 +257,7 @@ fun LoginScreen(
                     Text(
                         text = "Sign in to continue to CampusGig",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -336,25 +326,25 @@ fun LoginScreen(
                                 onCheckedChange = { rememberMe = it },
                                 colors = SwitchDefaults.colors(
                                     checkedThumbColor = Color.White,
-                                    checkedTrackColor = Indigo400,
-                                    uncheckedThumbColor = TextTertiary,
-                                    uncheckedTrackColor = Surface3
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                                 ),
                                 modifier = Modifier.height(24.dp)
                             )
                             Text(
                                 text = "Remember me",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = TextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        TextButton(onClick = { /* TODO: forgot password */ }) {
+                        TextButton(onClick = { navController.navigate(Routes.FORGOT_PASSWORD) }) {
                             Text(
                                 text = "Forgot password?",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     fontWeight = FontWeight.Medium
                                 ),
-                                color = Indigo400
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -404,7 +394,7 @@ fun LoginScreen(
                                     )
                                 else
                                     Brush.linearGradient(
-                                        colors = listOf(Surface3, Surface3)
+                                        colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
                                     )
                             )
                             .clickable(enabled = buttonEnabled) {
@@ -426,7 +416,7 @@ fun LoginScreen(
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold
                                 ),
-                                color = if (buttonEnabled) Color.White else TextTertiary
+                                color = if (buttonEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
                         }
                     }
@@ -447,16 +437,16 @@ fun LoginScreen(
                     ) {
                         HorizontalDivider(
                             modifier = Modifier.weight(1f),
-                            color = BorderSubtle
+                            color = MaterialTheme.colorScheme.outline
                         )
                         Text(
                             text = "  or continue with  ",
                             style = MaterialTheme.typography.labelMedium,
-                            color = TextTertiary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                         HorizontalDivider(
                             modifier = Modifier.weight(1f),
-                            color = BorderSubtle
+                            color = MaterialTheme.colorScheme.outline
                         )
                     }
 
@@ -468,8 +458,8 @@ fun LoginScreen(
                             .fillMaxWidth()
                             .height(52.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(Surface3)
-                            .border(1.dp, BorderSubtle, RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                             .clickable {
                                 showGoogleAccountSheet = true
                             },
@@ -503,7 +493,7 @@ fun LoginScreen(
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.Medium
                                 ),
-                                color = TextPrimary
+                                color = MaterialTheme.colorScheme.onBackground
                             )
                         }
                     }
@@ -525,14 +515,14 @@ fun LoginScreen(
                     Text(
                         text = "Don't have an account? ",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextTertiary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                     Text(
                         text = "Create one",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.SemiBold
                         ),
-                        color = Indigo400,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.REGISTER)
                         }
@@ -703,13 +693,13 @@ fun GoogleAccountChooserSheet(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = (-0.5).sp
                         ),
-                        color = TextPrimary
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "to continue to CampusGig",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -722,7 +712,7 @@ fun GoogleAccountChooserSheet(
                     modifier = Modifier
                         .size(32.dp)
                         .padding(4.dp),
-                    color = Indigo400,
+                    color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 2.5.dp
                 )
                 Spacer(modifier = Modifier.height(20.dp))
@@ -817,18 +807,18 @@ fun GoogleAccountChooserSheet(
                                     style = MaterialTheme.typography.bodyMedium.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
-                                    color = Indigo400
+                                    color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
                                     text = "View all accounts on this device",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = TextTertiary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                 )
                             }
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = null,
-                                tint = TextTertiary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier
                                     .size(16.dp)
                                     .graphicsLayer { rotationZ = 180f }
@@ -848,7 +838,7 @@ fun GoogleAccountChooserSheet(
                     fontSize = 11.sp,
                     lineHeight = 16.sp
                 ),
-                color = TextTertiary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 textAlign = TextAlign.Center
             )
         }
@@ -939,7 +929,7 @@ fun GoogleAccountRow(
                         fontWeight = FontWeight.SemiBold,
                         letterSpacing = (-0.1).sp
                     ),
-                    color = TextPrimary,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -948,7 +938,7 @@ fun GoogleAccountRow(
                     style = MaterialTheme.typography.bodySmall.copy(
                         letterSpacing = (-0.1).sp
                     ),
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
                 )
             }
@@ -984,12 +974,12 @@ fun GoogleAccountRow(
  * CampusInputField — The new canonical input component.
  *
  * Styling:
- * - Label above field: 12sp, 500, TextSecondary
- * - Container: Surface3 bg (#1A1F2E), 56dp height, 12dp radius
- * - Default border: BorderSubtle (1dp)
- * - Focus border: Indigo400 (1.5dp) + indigo ambient glow bg
- * - Text: 16sp, TextPrimary
- * - Placeholder: TextTertiary
+ * - Label above field: 12sp, 500, MaterialTheme.colorScheme.onSurfaceVariant
+ * - Container: MaterialTheme.colorScheme.surfaceVariant bg (#1A1F2E), 56dp height, 12dp radius
+ * - Default border: MaterialTheme.colorScheme.outline (1dp)
+ * - Focus border: MaterialTheme.colorScheme.primary (1.5dp) + indigo ambient glow bg
+ * - Text: 16sp, MaterialTheme.colorScheme.onBackground
+ * - Placeholder: MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
  */
 @Composable
 fun CampusInputField(
@@ -1012,20 +1002,20 @@ fun CampusInputField(
 
     val borderColor = when {
         isError -> SemanticError
-        isFocused -> Indigo400
-        else -> BorderSubtle
+        isFocused -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.outline
     }
     val borderWidth = if (isFocused || isError) 1.5.dp else 1.dp
     val containerBg = if (isFocused)
-        Brush.linearGradient(colors = listOf(Surface3, Color(0xFF1E2340)))
+        Brush.linearGradient(colors = listOf(MaterialTheme.colorScheme.surfaceVariant, Color(0xFF1E2340)))
     else
-        Brush.linearGradient(colors = listOf(Surface3, Surface3))
+        Brush.linearGradient(colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
 
     Column(modifier = modifier) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = if (isFocused) Indigo400 else TextSecondary,
+            color = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
@@ -1053,7 +1043,7 @@ fun CampusInputField(
                     Icon(
                         imageVector = leadingIcon,
                         contentDescription = null,
-                        tint = if (isFocused) Indigo400 else TextTertiary,
+                        tint = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -1071,7 +1061,7 @@ fun CampusInputField(
                     modifier = Modifier.weight(1f),
                     textStyle = TextStyle(
                         fontSize = 16.sp,
-                        color = TextPrimary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Normal
                     ),
                     singleLine = true,
@@ -1079,7 +1069,7 @@ fun CampusInputField(
                     keyboardOptions = keyboardOptions,
                     keyboardActions = keyboardActions,
                     interactionSource = interactionSource,
-                    cursorBrush = SolidColor(Indigo400),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     decorationBox = { innerTextField ->
                         Box {
                             if (value.isEmpty()) {
@@ -1087,7 +1077,7 @@ fun CampusInputField(
                                     text = placeholder,
                                     style = TextStyle(
                                         fontSize = 16.sp,
-                                        color = TextTertiary,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                         fontWeight = FontWeight.Normal
                                     )
                                 )
@@ -1107,7 +1097,7 @@ fun CampusInputField(
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                             contentDescription = if (passwordVisible) "Hide" else "Show",
-                            tint = TextTertiary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             modifier = Modifier.size(20.dp)
                         )
                     }

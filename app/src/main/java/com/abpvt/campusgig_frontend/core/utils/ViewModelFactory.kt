@@ -30,12 +30,14 @@ import com.abpvt.campusgig_frontend.data.repository.CommunityRepository
 import com.abpvt.campusgig_frontend.data.repository.GigRepository
 import com.abpvt.campusgig_frontend.data.repository.UserRepository
 import com.abpvt.campusgig_frontend.features.auth.AuthViewModel
+import com.abpvt.campusgig_frontend.features.auth.ForgotPasswordViewModel
 import com.abpvt.campusgig_frontend.features.chat.ChatViewModel
 import com.abpvt.campusgig_frontend.features.communities.CommunityViewModel
 import com.abpvt.campusgig_frontend.features.gigs.GigViewModel
 import com.abpvt.campusgig_frontend.features.home.HomeViewModel
 import com.abpvt.campusgig_frontend.features.notifications.NotificationViewModel
 import com.abpvt.campusgig_frontend.features.profile.ProfileViewModel
+import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
 
@@ -53,15 +55,27 @@ class AuthViewModelFactory(private val repo: AuthRepository) : ViewModelProvider
     }
 }
 
+// ─── Forgot Password ViewModel Factory ────────────────────────────────────────
+class ForgotPasswordViewModelFactory(private val repo: AuthRepository) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ForgotPasswordViewModel::class.java)) {
+            return ForgotPasswordViewModel(repo) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
+    }
+}
+
 // ─── Home ViewModel Factory ───────────────────────────────────────────────────
 class HomeViewModelFactory(
     private val gigRepo: GigRepository,
-    private val userRepo: UserRepository
+    private val userRepo: UserRepository,
+    private val api: ApiService = CampusGigApplication.instance.apiService
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel(gigRepo, userRepo) as T
+            return HomeViewModel(gigRepo, userRepo, api) as T
         }
         throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
     }

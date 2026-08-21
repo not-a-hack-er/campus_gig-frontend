@@ -61,16 +61,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 private data class Comment(val id: String, val author: String, val text: String, val time: String, var likes: Int = 0, val replies: List<Comment> = emptyList())
 
@@ -94,7 +86,7 @@ fun PostDetailScreen(
     val comments = remember { mutableStateListOf(*mockComments.toTypedArray()) }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(Surface1).imePadding()
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).imePadding()
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -108,13 +100,13 @@ fun PostDetailScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Surface2).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                        Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surface).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Post", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                        Text("Post", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     }
-                    Icon(Icons.Default.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                 }
             }
 
@@ -125,8 +117,8 @@ fun PostDetailScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(14.dp))
-                        .background(Surface2)
-                        .border(1.dp, BorderSubtle, RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(14.dp))
                         .padding(16.dp)
                 ) {
                     Column {
@@ -136,35 +128,35 @@ fun PostDetailScreen(
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
-                                Text("Akarsh Bajpai", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
-                                Text("2h ago · Android Devs", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                Text("Akarsh Bajpai", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                                Text("2h ago · Android Devs", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             "Just shipped the new animation system for CampusGig! Compose animations are incredible 🚀\n\nReally enjoying the spring physics API — makes UI feel alive without effort. The AnimatedContent composable especially is a game changer for state transitions. Would love to know if anyone else is using spring-based animations in production.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 22.sp
                         )
                         Spacer(modifier = Modifier.height(14.dp))
-                        HorizontalDivider(color = BorderSubtle)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outline)
                         Spacer(modifier = Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.ThumbUp, contentDescription = "Like", tint = Indigo400, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.ThumbUp, contentDescription = "Like", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("24", style = MaterialTheme.typography.labelSmall, color = Indigo400)
+                                Text("24", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("💬", fontSize = 14.sp)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("${comments.size} Comments", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                Text("${comments.size} Comments", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Share, contentDescription = "Share", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Share", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                                Text("Share", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                         }
                     }
@@ -179,13 +171,13 @@ fun PostDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("${comments.size} Comments", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                    Text("${comments.size} Comments", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         listOf("Top", "Recent").forEach { sort ->
                             Text(
                                 sort,
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (sortMode == sort) FontWeight.SemiBold else FontWeight.Normal),
-                                color = if (sortMode == sort) Indigo400 else TextTertiary,
+                                color = if (sortMode == sort) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 modifier = Modifier.clickable { sortMode = sort }
                             )
                         }
@@ -201,7 +193,7 @@ fun PostDetailScreen(
                 comment.replies.forEach { reply ->
                     Row(modifier = Modifier.padding(start = 40.dp, end = 16.dp, bottom = 4.dp)) {
                         // Connecting line
-                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(BorderSubtle))
+                        Box(modifier = Modifier.width(1.dp).height(40.dp).background(MaterialTheme.colorScheme.outline))
                         Spacer(modifier = Modifier.width(12.dp))
                         CommentRow(comment = reply, isReply = true, onReply = {})
                     }
@@ -214,8 +206,8 @@ fun PostDetailScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(Surface2)
-                .border(1.dp, BorderSubtle, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                 .padding(horizontal = 16.dp, vertical = 10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -227,18 +219,18 @@ fun PostDetailScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Surface3)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 14.dp, vertical = 10.dp)
                 ) {
                     if (commentText.isEmpty()) {
-                        Text("Add a comment...", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                        Text("Add a comment...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                     BasicTextField(
                         value = commentText,
                         onValueChange = { commentText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = TextStyle(color = TextPrimary, fontSize = 14.sp),
-                        cursorBrush = SolidColor(Indigo400),
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                         singleLine = true
                     )
                 }
@@ -247,14 +239,14 @@ fun PostDetailScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(if (commentText.isNotBlank()) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(Surface3, Surface3)))
+                        .background(if (commentText.isNotBlank()) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)))
                         .clickable(enabled = commentText.isNotBlank()) {
                             // In production: submit comment via VM
                             commentText = ""
                         },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = if (commentText.isNotBlank()) Color.White else TextTertiary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = if (commentText.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                 }
             }
         }
@@ -274,28 +266,28 @@ private fun CommentRow(comment: Comment, isReply: Boolean = false, onReply: () -
                 .background(GradientIndigoStart.copy(0.15f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(comment.author.first().uppercaseChar().toString(), fontSize = if (isReply) 11.sp else 13.sp, color = Indigo400, fontWeight = FontWeight.Bold)
+            Text(comment.author.first().uppercaseChar().toString(), fontSize = if (isReply) 11.sp else 13.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(comment.author, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold, fontSize = if (isReply) 11.sp else 13.sp), color = TextPrimary)
-                Text(comment.time, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+                Text(comment.author, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold, fontSize = if (isReply) 11.sp else 13.sp), color = MaterialTheme.colorScheme.onBackground)
+                Text(comment.time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }
             Spacer(modifier = Modifier.height(2.dp))
-            Text(comment.text, style = MaterialTheme.typography.bodySmall.copy(fontSize = if (isReply) 12.sp else 13.sp), color = TextSecondary)
+            Text(comment.text, style = MaterialTheme.typography.bodySmall.copy(fontSize = if (isReply) 12.sp else 13.sp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(modifier = Modifier.height(4.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { if (!liked) likeCount++ else likeCount--; liked = !liked }
                 ) {
-                    Icon(if (liked) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Like", tint = if (liked) Indigo400 else TextTertiary, modifier = Modifier.size(13.dp))
+                    Icon(if (liked) Icons.Default.Favorite else Icons.Default.FavoriteBorder, contentDescription = "Like", tint = if (liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(13.dp))
                     Spacer(modifier = Modifier.width(3.dp))
-                    Text("$likeCount", style = MaterialTheme.typography.labelSmall, color = if (liked) Indigo400 else TextTertiary)
+                    Text("$likeCount", style = MaterialTheme.typography.labelSmall, color = if (liked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
                 if (!isReply) {
-                    Text("Reply", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium), color = Indigo400, modifier = Modifier.clickable { onReply() })
+                    Text("Reply", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable { onReply() })
                 }
             }
         }

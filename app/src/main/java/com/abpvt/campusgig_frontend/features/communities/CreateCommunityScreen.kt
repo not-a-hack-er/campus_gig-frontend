@@ -69,17 +69,9 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.CommunityViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Community
-import com.abpvt.campusgig_frontend.ui.theme.BorderSubtle
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.Indigo400
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
-import com.abpvt.campusgig_frontend.ui.theme.Surface1
-import com.abpvt.campusgig_frontend.ui.theme.Surface2
-import com.abpvt.campusgig_frontend.ui.theme.Surface3
-import com.abpvt.campusgig_frontend.ui.theme.TextPrimary
-import com.abpvt.campusgig_frontend.ui.theme.TextSecondary
-import com.abpvt.campusgig_frontend.ui.theme.TextTertiary
 
 private val bannerOptions = listOf(
     listOf(Color(0xFF6366F1), Color(0xFF8B5CF6)),
@@ -123,24 +115,24 @@ fun CreateCommunityScreen(
     }
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary,
-        focusedContainerColor = Surface3, unfocusedContainerColor = Surface2,
-        focusedBorderColor = Indigo400, unfocusedBorderColor = BorderSubtle,
-        cursorColor = Indigo400, focusedPlaceholderColor = TextTertiary, unfocusedPlaceholderColor = TextTertiary
+        focusedTextColor = MaterialTheme.colorScheme.onBackground, unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant, unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+        cursorColor = MaterialTheme.colorScheme.primary, focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     )
 
-    Box(modifier = Modifier.fillMaxSize().background(Surface1)) {
+    Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Surface3).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant).clickable { navController.popBackStack() }, contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Create Community", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
+                Text("Create Community", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
             }
 
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -181,11 +173,11 @@ fun CreateCommunityScreen(
                         }
                     }
                     // Avatar
-                    Box(modifier = Modifier.align(Alignment.BottomStart).offset(x = 20.dp, y = 28.dp).size(64.dp).clip(CircleShape).background(Surface1).padding(3.dp)) {
+                    Box(modifier = Modifier.align(Alignment.BottomStart).offset(x = 20.dp, y = 28.dp).size(64.dp).clip(CircleShape).background(MaterialTheme.colorScheme.background).padding(3.dp)) {
                         Box(modifier = Modifier.fillMaxSize().clip(CircleShape).background(Brush.linearGradient(bannerOptions[selectedBanner])), contentAlignment = Alignment.Center) {
                             Text(name.firstOrNull()?.uppercaseChar()?.toString() ?: "?", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Color.White)
                         }
-                        Box(modifier = Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(Indigo400), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.align(Alignment.BottomEnd).size(18.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary), contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.CameraAlt, contentDescription = null, tint = Color.White, modifier = Modifier.size(10.dp))
                         }
                     }
@@ -203,7 +195,7 @@ fun CreateCommunityScreen(
                     FormLabel("Community Name *")
                     OutlinedTextField(value = name, onValueChange = { if (it.length <= 60) name = it; error = "" },
                         placeholder = { Text("e.g. Android Devs @ IIT Delhi") }, singleLine = true,
-                        trailingIcon = { Text("${name.length}/60", style = MaterialTheme.typography.labelSmall, color = TextTertiary) },
+                        trailingIcon = { Text("${name.length}/60", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) },
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
                     Spacer(modifier = Modifier.height(14.dp))
 
@@ -220,12 +212,12 @@ fun CreateCommunityScreen(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSel) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(Surface3, Surface3)))
-                                    .border(1.dp, if (isSel) Color.Transparent else BorderSubtle, RoundedCornerShape(8.dp))
+                                    .background(if (isSel) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)))
+                                    .border(1.dp, if (isSel) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                     .clickable { selectedCategory = cat }
                                     .padding(horizontal = 12.dp, vertical = 8.dp)
                             ) {
-                                Text(cat, style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSel) FontWeight.SemiBold else FontWeight.Normal), color = if (isSel) Color.White else TextSecondary)
+                                Text(cat, style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSel) FontWeight.SemiBold else FontWeight.Normal), color = if (isSel) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -236,7 +228,7 @@ fun CreateCommunityScreen(
                         // Public card
                         PrivacyCard(
                             selected = !isPrivate,
-                            icon = { Icon(Icons.Default.Public, contentDescription = null, tint = if (!isPrivate) Indigo400 else TextTertiary, modifier = Modifier.size(20.dp)) },
+                            icon = { Icon(Icons.Default.Public, contentDescription = null, tint = if (!isPrivate) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(20.dp)) },
                             label = "Public",
                             desc = "Anyone can find and join",
                             modifier = Modifier.weight(1f),
@@ -245,7 +237,7 @@ fun CreateCommunityScreen(
                         // Private card
                         PrivacyCard(
                             selected = isPrivate,
-                            icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = if (isPrivate) Indigo400 else TextTertiary, modifier = Modifier.size(20.dp)) },
+                            icon = { Icon(Icons.Default.Lock, contentDescription = null, tint = if (isPrivate) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(20.dp)) },
                             label = "Private",
                             desc = "Invite only",
                             modifier = Modifier.weight(1f),
@@ -256,16 +248,16 @@ fun CreateCommunityScreen(
 
                     // Open to all toggle
                     Box(
-                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(Surface2).border(1.dp, BorderSubtle, RoundedCornerShape(12.dp)).padding(16.dp)
+                        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surface).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)).padding(16.dp)
                     ) {
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Open to all colleges", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = TextPrimary)
-                                Text("Allow students from any college to join", style = MaterialTheme.typography.bodySmall, color = TextTertiary)
+                                Text("Open to all colleges", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onBackground)
+                                Text("Allow students from any college to join", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                             }
                             Switch(
                                 checked = openToAll, onCheckedChange = { openToAll = it },
-                                colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = Indigo400, uncheckedTrackColor = Surface3)
+                                colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.primary, uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant)
                             )
                         }
                     }
@@ -282,7 +274,7 @@ fun CreateCommunityScreen(
                         colors = fieldColors,
                         trailingIcon = {
                             if (tagInput.isNotBlank()) {
-                                Box(modifier = Modifier.clip(CircleShape).background(Indigo400).clickable { if (tagInput.isNotBlank()) { tags.add(tagInput.trim()); tagInput = "" } }.padding(4.dp), contentAlignment = Alignment.Center) {
+                                Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable { if (tagInput.isNotBlank()) { tags.add(tagInput.trim()); tagInput = "" } }.padding(4.dp), contentAlignment = Alignment.Center) {
                                     Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
                                 }
                             }
@@ -292,11 +284,11 @@ fun CreateCommunityScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             tags.forEach { tag ->
-                                Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(Indigo400.copy(0.1f)).border(1.dp, Indigo400.copy(0.3f), RoundedCornerShape(8.dp)).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)) {
+                                Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(MaterialTheme.colorScheme.primary.copy(0.1f)).border(1.dp, MaterialTheme.colorScheme.primary.copy(0.3f), RoundedCornerShape(8.dp)).padding(start = 8.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(tag, style = MaterialTheme.typography.bodySmall, color = Indigo400)
+                                        Text(tag, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Icon(Icons.Default.Close, contentDescription = "Remove", tint = Indigo400, modifier = Modifier.size(12.dp).clickable { tags.remove(tag) })
+                                        Icon(Icons.Default.Close, contentDescription = "Remove", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp).clickable { tags.remove(tag) })
                                     }
                                 }
                             }
@@ -347,7 +339,7 @@ fun CreateCommunityScreen(
 
 @Composable
 private fun FormLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium), color = TextSecondary, modifier = Modifier.padding(bottom = 6.dp))
+    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
 }
 
 @Composable
@@ -355,11 +347,11 @@ private fun PrivacyCard(selected: Boolean, icon: @Composable () -> Unit, label: 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(if (selected) GradientIndigoStart.copy(0.06f) else Surface2)
+            .background(if (selected) GradientIndigoStart.copy(0.06f) else MaterialTheme.colorScheme.surface)
             .border(
                 1.5.dp,
                 if (selected) Brush.linearGradient(listOf(GradientIndigoStart.copy(0.6f), GradientIndigoEnd.copy(0.3f)))
-                else Brush.linearGradient(listOf(BorderSubtle, BorderSubtle)),
+                else Brush.linearGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline)),
                 RoundedCornerShape(12.dp)
             )
             .clickable { onClick() }
@@ -373,8 +365,8 @@ private fun PrivacyCard(selected: Boolean, icon: @Composable () -> Unit, label: 
                 }
             }
             Spacer(modifier = Modifier.height(6.dp))
-            Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = if (selected) TextPrimary else TextSecondary)
-            Text(desc, style = MaterialTheme.typography.labelSmall, color = TextTertiary)
+            Text(label, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = if (selected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(desc, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
         }
     }
 }
