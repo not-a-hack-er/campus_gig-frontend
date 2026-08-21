@@ -1,11 +1,11 @@
 /**
- * CampusGig Material Theme — v3.0
+ * CampusVault Material Theme — v3.0
  *
  * Implements the new 4-layer dark surface system with Electric Indigo + Violet palette,
  * AND a vibrant campus-energy light mode with Campus Blue as the primary action color.
  *
  * Dynamic color (Android 12+ wallpaper-based) is intentionally DISABLED to preserve
- * CampusGig brand identity across all devices.
+ * CampusVault brand identity across all devices.
  *
  * Dark mode surface hierarchy:
  *   background  = Surface1   (#0F1117) — main screen bg
@@ -32,7 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 // ─── Dark Color Scheme ────────────────────────────────────────────────────────
-private val CampusGigDarkColorScheme = darkColorScheme(
+private val CampusVaultDarkColorScheme = darkColorScheme(
     primary             = Indigo400,
     onPrimary           = Color.White,
     primaryContainer    = Indigo700,
@@ -79,7 +79,7 @@ private val CampusGigDarkColorScheme = darkColorScheme(
 )
 
 // ─── Light Color Scheme — LinkedIn Warm Beige + Duolingo Multi-Color (v6.0) ──
-private val CampusGigLightColorScheme = lightColorScheme(
+private val CampusVaultLightColorScheme = lightColorScheme(
     // ── Primary: Electric Indigo (#4F46E5) — Premium AI/Tech (Linear, Vercel style)
     primary             = IndigoLight600,         // #4F46E5 — Electric Indigo
     onPrimary           = Color.White,
@@ -133,17 +133,17 @@ private val CampusGigLightColorScheme = lightColorScheme(
 )
 
 /**
- * CampusGigTheme — Root composable that wraps the entire app in Material3 theming.
+ * CampusVaultTheme — Root composable that wraps the entire app in Material3 theming.
  *
  * @param darkTheme  Whether to use dark mode. Pass from ThemeViewModel for user control.
  * @param content    The composable content to theme.
  */
 @Composable
-fun CampusGigTheme(
+fun CampusVaultTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) CampusGigDarkColorScheme else CampusGigLightColorScheme
+    val colorScheme = if (darkTheme) CampusVaultDarkColorScheme else CampusVaultLightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -154,7 +154,13 @@ fun CampusGigTheme(
 
 // Backward-compat alias
 @Composable
+fun CampusGigTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) = CampusVaultTheme(darkTheme = darkTheme, content = content)
+
+@Composable
 fun Campusgig_frontendTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
-) = CampusGigTheme(darkTheme = darkTheme, content = content)
+) = CampusVaultTheme(darkTheme = darkTheme, content = content)

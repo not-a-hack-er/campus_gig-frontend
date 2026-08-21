@@ -15,6 +15,8 @@ import com.abpvt.campusgig_frontend.features.chat.SocketManager
  * Application class — acts as a simple manual DI container.
  * Access repositories via [CampusGigApplication.instance].
  * Replace with Hilt/Koin for production-scale DI.
+ *
+ * Brand: CampusVault
  */
 class CampusGigApplication : Application() {
 

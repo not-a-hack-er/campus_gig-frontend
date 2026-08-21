@@ -1,5 +1,5 @@
 /**
- * SplashScreen.kt — Premium animated launch experience for CampusGig.
+ * SplashScreen.kt — Premium animated launch experience for CampusVault.
  *
  * Design inspiration: Linear, Stripe, Arc Browser.
  * - Dark obsidian background (#0B0F19) with radial glow orbs.
@@ -235,7 +235,7 @@ fun SplashScreen(
 
             // Brand name with gradient brush text + slide-up entrance
             Text(
-                text = "CampusGig",
+                text = "CampusVault",
                 modifier = Modifier
                     .alpha(titleAlpha.value)
                     .offset(y = titleOffset.value.dp),
