@@ -53,13 +53,18 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         val response = chain.proceed(request)
 
         // ── 401 Unauthorized: Session expired ────────────────────────────────
-        // If the server rejects our token, clear local session and signal the UI
-        // to navigate back to the Login screen.
-        if (response.code == 401) {
-            Log.w(TAG, "401 Unauthorized — clearing session and signalling logout")
-            // Clear all stored session data
+        // If the server rejects our token on a protected endpoint (NOT an auth endpoint),
+        // clear local session and signal the UI to navigate back to the Login screen.
+        val path = chain.request().url.encodedPath
+        val isAuthEndpoint = path.contains("auth/login") ||
+                             path.contains("auth/register") ||
+                             path.contains("auth/forgot-password") ||
+                             path.contains("auth/verify-otp") ||
+                             path.contains("auth/reset-password")
+
+        if (response.code == 401 && !isAuthEndpoint) {
+            Log.w(TAG, "401 Unauthorized on protected endpoint — clearing session and signalling logout")
             prefs.edit().clear().apply()
-            // Emit the event (non-blocking, tryEmit is safe from background threads)
             _sessionExpiredEvent.tryEmit(Unit)
         }
 

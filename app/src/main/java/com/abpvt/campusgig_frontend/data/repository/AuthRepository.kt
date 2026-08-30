@@ -23,13 +23,15 @@ class AuthRepository(
         return try {
             val response = api.login(LoginRequest(email, password))
             if (response.isSuccessful) {
-                // Safe unwrap: return descriptive error if body is unexpectedly null
-                val body = response.body()
-                    ?: return Resource.Error("Server returned an empty response. Please try again.", response.code())
-                saveSession(body.token, body.user)
-                Resource.Success(body)
+                val apiResponse = response.body()
+                val authData = apiResponse?.data
+                if (authData != null && !authData.token.isNullOrBlank()) {
+                    saveSession(authData.token, authData.user)
+                    Resource.Success(authData)
+                } else {
+                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                }
             } else {
-                // Parse backend's custom JSON error message (e.g. "Invalid credentials")
                 response.toResourceError()
             }
         } catch (e: Exception) {
@@ -41,10 +43,14 @@ class AuthRepository(
         return try {
             val response = api.googleLogin(mapOf("name" to name, "email" to email))
             if (response.isSuccessful) {
-                val body = response.body()
-                    ?: return Resource.Error("Server returned an empty response. Please try again.", response.code())
-                saveSession(body.token, body.user)
-                Resource.Success(body)
+                val apiResponse = response.body()
+                val authData = apiResponse?.data
+                if (authData != null && !authData.token.isNullOrBlank()) {
+                    saveSession(authData.token, authData.user)
+                    Resource.Success(authData)
+                } else {
+                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                }
             } else {
                 response.toResourceError()
             }
@@ -83,12 +89,15 @@ class AuthRepository(
                 )
             )
             if (response.isSuccessful) {
-                val body = response.body()
-                    ?: return Resource.Error("Server returned an empty response. Please try again.", response.code())
-                saveSession(body.token, body.user)
-                Resource.Success(body)
+                val apiResponse = response.body()
+                val authData = apiResponse?.data
+                if (authData != null && !authData.token.isNullOrBlank()) {
+                    saveSession(authData.token, authData.user)
+                    Resource.Success(authData)
+                } else {
+                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                }
             } else {
-                // Parse backend's custom JSON error (e.g. "Email already registered")
                 response.toResourceError()
             }
         } catch (e: Exception) {

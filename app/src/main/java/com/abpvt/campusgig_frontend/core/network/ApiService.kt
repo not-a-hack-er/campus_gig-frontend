@@ -31,13 +31,13 @@ interface ApiService {
 
     // ─── Auth ───────────────────────────────────────────────────────────────
     @POST("auth/login")
-    suspend fun login(@Body body: LoginRequest): Response<AuthResponse>
+    suspend fun login(@Body body: LoginRequest): Response<ApiResponse<AuthResponse>>
 
     @POST("auth/register")
-    suspend fun register(@Body body: RegisterRequest): Response<AuthResponse>
+    suspend fun register(@Body body: RegisterRequest): Response<ApiResponse<AuthResponse>>
 
     @POST("auth/google")
-    suspend fun googleLogin(@Body body: Map<String, String>): Response<AuthResponse>
+    suspend fun googleLogin(@Body body: Map<String, String>): Response<ApiResponse<AuthResponse>>
 
     @POST("auth/forgot-password")
     suspend fun forgotPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
