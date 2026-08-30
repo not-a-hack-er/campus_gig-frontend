@@ -677,15 +677,16 @@ fun GigDetailScreen(
         gig?.let { gigData ->
             EnterOtpBottomSheet(
                 gig          = gigData,
-                otpInput     = ui.otpInput,
+                otpInput     = if (ui.otpInput.isNotBlank()) ui.otpInput else ui.displayedOtp,
                 otpError     = ui.otpError,
                 isSubmitting = completeGigState is Resource.Loading,
                 onDismiss    = { onAction(GigDetailAction.DismissOtpSheet) },
                 onOtpChanged = { onAction(GigDetailAction.OtpInputChanged(it)) },
                 onSubmit     = {
+                    val codeToUse = if (ui.otpInput.isNotBlank()) ui.otpInput else ui.displayedOtp
                     onAction(
-                        GigDetailAction.PerformCompleteGig { otp ->
-                            viewModel.completeGig(gigData.id, otp)
+                        GigDetailAction.PerformCompleteGig { _ ->
+                            viewModel.completeGig(gigData.id, codeToUse)
                         }
                     )
                 }

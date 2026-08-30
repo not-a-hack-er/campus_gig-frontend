@@ -215,7 +215,7 @@ fun NotificationScreen(
                                             viewModel.markAsRead(notification.id)
                                             when (notification.type) {
                                                 "new_message" -> navController.navigate(Routes.CHAT_LIST)
-                                                "new_application" -> navController.navigate(Routes.MY_GIGS)
+                                                "new_application", "work_submitted", "completion_otp", "gig_completed" -> navController.navigate(Routes.MY_GIGS)
                                                 "application_accepted", "application_rejected" -> navController.navigate(Routes.MY_APPLICATIONS)
                                                 else -> {}
                                             }
@@ -244,6 +244,9 @@ private fun NotificationRow(notification: Notification, onClick: () -> Unit) {
         "new_message"          -> "💬" to GradientTealEnd.copy(alpha = 0.15f)
         "new_review"           -> "⭐" to SemanticWarning.copy(alpha = 0.15f)
         "community_post"       -> "📢" to SemanticWarning.copy(alpha = 0.15f)
+        "work_submitted"       -> "🚀" to SemanticSuccess.copy(alpha = 0.15f)
+        "completion_otp"       -> "🔑" to SemanticWarning.copy(alpha = 0.15f)
+        "gig_completed"        -> "✅" to SemanticSuccess.copy(alpha = 0.15f)
         else                   -> "🔔" to MaterialTheme.colorScheme.surfaceVariant
     }
 

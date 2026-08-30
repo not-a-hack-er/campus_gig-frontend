@@ -85,6 +85,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.abpvt.campusgig_frontend.ui.components.LeaveReviewDialog
 import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.GigViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.HomeViewModelFactory
@@ -197,9 +198,12 @@ fun MyGigsScreen(navController: NavController) {
         currentUser?.let { gigViewModel.loadMyGigs(it.id) }
     }
 
+    var completedGigForReview by remember { mutableStateOf<Gig?>(null) }
+
     LaunchedEffect(completeGigState) {
         when (val s = completeGigState) {
             is Resource.Success -> {
+                completedGigForReview = selectedGigForOtp
                 selectedGigForOtp = null
                 otpInput = ""
                 otpError = ""
@@ -375,6 +379,23 @@ fun MyGigsScreen(navController: NavController) {
                     } else {
                         gigViewModel.completeGig(targetGig.id, codeToUse)
                     }
+                }
+            )
+        }
+
+        // ── Leave Review Dialog (Post-Completion Prompt) ───────────────────────────
+        if (completedGigForReview != null) {
+            val targetGig = completedGigForReview!!
+            val workerId = targetGig.acceptedApplicant ?: ""
+            LeaveReviewDialog(
+                gigId = targetGig.id,
+                gigTitle = targetGig.title,
+                targetUserId = workerId,
+                targetUserName = "Worker",
+                onDismiss = { completedGigForReview = null },
+                onSubmitSuccess = {
+                    completedGigForReview = null
+                    currentUser?.let { gigViewModel.loadMyGigs(it.id) }
                 }
             )
         }
