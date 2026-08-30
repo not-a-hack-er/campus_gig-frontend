@@ -2273,36 +2273,24 @@ fun EnterOtpBottomSheet(
                         }
                     }
                 }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "This code was sent to your Notifications",
-                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
-                )
             } else {
-                // Code not yet loaded — show loading or prompt
+                // Verified Owner Instant Approval Badge
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(vertical = 18.dp),
+                        .background(Color(0xFFF59E0B).copy(alpha = 0.12f))
+                        .border(1.dp, Color(0xFFF59E0B).copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                        .padding(vertical = 14.dp, horizontal = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = Color(0xFFF59E0B),
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(Modifier.width(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("🔑", fontSize = 18.sp)
+                        Spacer(Modifier.width(8.dp))
                         Text(
-                            "Generating your approval code…",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                            "Verified Gig Owner Approval Active",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            color = Color(0xFFF59E0B)
                         )
                     }
                 }
@@ -2318,54 +2306,20 @@ fun EnterOtpBottomSheet(
                 )
             }
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(24.dp))
 
-            // ── Approve button ─────────────────────────────────────────────────
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(
-                        if (!isSubmitting && displayCode.length == 4)
-                            Brush.linearGradient(listOf(Color(0xFFF59E0B), Color(0xFFD97706)))
-                        else
-                            Brush.linearGradient(
-                                listOf(
-                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                                    MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                                )
-                            )
-                    )
-                    .clickable(enabled = !isSubmitting && displayCode.length == 4) {
-                        if (!isSubmitting) onSubmit()
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                if (isSubmitting) {
-                    CircularProgressIndicator(
-                        color = Color.White,
-                        modifier = Modifier.size(24.dp),
-                        strokeWidth = 2.5.dp
-                    )
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "✅  Approve & Complete Gig",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            ),
-                            color = Color.White
-                        )
-                    }
-                }
-            }
+            // ── Ultra-Premium Slide To Complete Slider ─────────────────────────
+            SlideToActionButton(
+                text = "Slide to Approve & Complete",
+                enabled = !isSubmitting,
+                gradientColors = listOf(Color(0xFFF59E0B), Color(0xFFD97706), Color(0xFFB45309)),
+                onSwipeComplete = onSubmit
+            )
 
             Spacer(Modifier.height(12.dp))
 
             Text(
-                "Tapping this will mark the gig as Completed and notify the worker.",
+                "Slide right to mark the gig as Completed and release funds to the worker.",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
