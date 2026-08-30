@@ -146,3 +146,14 @@ class ProfileViewModelFactory(private val repo: UserRepository) : ViewModelProvi
         throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
     }
 }
+
+// ─── Feedback ViewModel Factory ───────────────────────────────────────────────
+class FeedbackViewModelFactory(private val repo: com.abpvt.campusgig_frontend.data.repository.FeedbackRepository) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(com.abpvt.campusgig_frontend.features.profile.FeedbackViewModel::class.java)) {
+            return com.abpvt.campusgig_frontend.features.profile.FeedbackViewModel(repo) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
+    }
+}

@@ -269,9 +269,10 @@ fun GigCard(
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(5.dp))
+                    val safeCount = kotlin.math.max(0, gig.applicationsCount)
                     Text(
-                        text = "${gig.applicationsCount} applicants",
-                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        text = "$safeCount applicant${if (safeCount != 1) "s" else ""}",
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
                         color = textMuted
                     )
                 }

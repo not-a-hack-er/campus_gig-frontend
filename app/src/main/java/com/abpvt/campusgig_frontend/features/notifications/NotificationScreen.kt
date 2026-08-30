@@ -40,6 +40,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,6 +83,11 @@ fun NotificationScreen(
 ) {
     val notifState by viewModel.notifications.collectAsState()
     var selectedFilter by remember { mutableStateOf("All") }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadNotifications()
+        viewModel.markAllAsRead()
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {

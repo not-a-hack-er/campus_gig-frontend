@@ -206,6 +206,7 @@ fun LeaveReviewDialog(
                     OutlinedTextField(
                         value = comment,
                         onValueChange = { comment = it },
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
                         placeholder = { Text("Write your review (optional)...", color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.bodySmall) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -216,8 +217,8 @@ fun LeaveReviewDialog(
                             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                            focusedTextColor = MaterialTheme.colorScheme.onBackground,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onBackground
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                         ),
                         maxLines = 3
                     )

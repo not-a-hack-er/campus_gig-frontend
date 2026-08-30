@@ -181,10 +181,10 @@ fun ChatListScreen(
                     }
                 }
 
-                is Resource.Success<List<ConversationItem>> -> {
+                                is Resource.Success<List<ConversationItem>> -> {
                     val allConversations = state.data
                     val conversations = if (searchQuery.isBlank()) allConversations
-                    else allConversations.filter { it.user.name.contains(searchQuery, ignoreCase = true) }
+                    else allConversations.filter { it.user?.name?.contains(searchQuery, ignoreCase = true) == true }
 
                     if (conversations.isEmpty() && allConversations.isEmpty()) {
                         // Empty state
@@ -208,8 +208,8 @@ fun ChatListScreen(
                             }
                         }
                     } else {
-                        // "Active Now" row — filter conversations whose peer is currently online
-                        val activeUsers = conversations.filter { onlineUserIds.contains(it.user.id) }
+                                                // "Active Now" row — filter conversations whose peer is currently online
+                        val activeUsers = conversations.filter { it.user?.let { u -> onlineUserIds.contains(u.id) } == true }
                         if (activeUsers.isNotEmpty()) {
                             Column {
                                 Text(
@@ -219,34 +219,36 @@ fun ChatListScreen(
                                     modifier = Modifier.padding(horizontal = 20.dp)
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
-                                LazyRow(
+                                                                                                LazyRow(
                                     contentPadding = PaddingValues(horizontal = 20.dp),
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
                                     items(activeUsers) { item ->
                                         val user = item.user
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.clickable { navController.navigate(Routes.chat(user.id, user.name)) }
-                                        ) {
-                                            Box {
-                                                AvatarInitials(name = user.name, size = 52)
-                                                Box(
-                                                    modifier = Modifier
-                                                        .size(14.dp)
-                                                        .clip(CircleShape)
-                                                        .background(SemanticSuccess)
-                                                        .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
-                                                        .align(Alignment.BottomEnd)
+                                        if (user != null) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                modifier = Modifier.clickable { navController.navigate(Routes.chat(user.id, user.name ?: "", item.gigTitle ?: "", null, item.gigId ?: "")) }
+                                            ) {
+                                                Box {
+                                                    AvatarInitials(name = user.name ?: "?", size = 52)
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(14.dp)
+                                                            .clip(CircleShape)
+                                                            .background(SemanticSuccess)
+                                                            .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                                                            .align(Alignment.BottomEnd)
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(4.dp))
+                                                Text(
+                                                    text = (user.name ?: "").split(" ").firstOrNull() ?: "?",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    maxLines = 1
                                                 )
                                             }
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = user.name.split(" ").firstOrNull() ?: user.name,
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                maxLines = 1
-                                            )
                                         }
                                     }
                                 }
@@ -259,12 +261,17 @@ fun ChatListScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            items(conversations, key = { it.conversationId }) { item ->
-                                val isOnline = onlineUserIds.contains(item.user.id)
+                                                        items(conversations, key = { it.conversationId ?: "" }) { item ->
+                                val isOnline = item.user?.let { u -> onlineUserIds.contains(u.id) } == true
                                 ConversationRow(
                                     item = item,
                                     isOnline = isOnline,
-                                    onClick = { navController.navigate(Routes.chat(item.user.id, item.user.name)) }
+                                    onClick = {
+                                        val u = item.user
+                                        if (u != null) {
+                                            navController.navigate(Routes.chat(u.id, u.name ?: "", item.gigTitle ?: "", null, item.gigId ?: ""))
+                                        }
+                                    }
                                 )
                             }
                         }
@@ -280,6 +287,7 @@ fun ChatListScreen(
 @Composable
 private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: () -> Unit) {
     val user = item.user
+    val userName = user?.name ?: "Unknown"
     val timeLabel = formatRelativeTime(item.updatedAt)
 
     Box(
@@ -297,7 +305,7 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
         ) {
             // Avatar with online dot
             Box {
-                AvatarInitials(name = user.name, size = 48)
+                AvatarInitials(name = userName, size = 48)
                 if (isOnline) {
                     Box(
                         modifier = Modifier
@@ -315,14 +323,14 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
             // Content
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = user.name,
+                    text = userName,
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = item.lastMessage.ifBlank { "Tap to start chatting" },
+                    text = (item.lastMessage ?: "").ifBlank { "Tap to start chatting" },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -330,17 +338,21 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 // Gig context chip
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        "Re: ${user.college.ifBlank { "Campus Gig" }}",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
+                if (!item.gigTitle.isNullOrBlank()) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            "Re: ${item.gigTitle}",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
 
@@ -356,8 +368,8 @@ private fun ConversationRow(item: ConversationItem, isOnline: Boolean, onClick: 
 /**
  * Format timestamp to a relative readable string (e.g. 5m ago, 2h ago)
  */
-fun formatRelativeTime(isoString: String): String {
-    if (isoString.isBlank()) return ""
+fun formatRelativeTime(isoString: String?): String {
+    if (isoString.isNullOrBlank()) return ""
     return try {
         val instant = java.time.Instant.parse(isoString)
         val now = java.time.Instant.now()

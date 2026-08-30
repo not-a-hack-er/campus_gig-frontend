@@ -102,8 +102,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.ApplicationViewModelFactory
+import com.abpvt.campusgig_frontend.core.utils.GigViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Application
+import com.abpvt.campusgig_frontend.features.gigs.GigViewModel
+import com.abpvt.campusgig_frontend.features.gigs.SubmitWorkBottomSheet
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.components.LeaveReviewDialog
 import com.abpvt.campusgig_frontend.ui.components.getRelativeTime
@@ -159,15 +162,25 @@ fun MyApplicationsScreen(
         factory = ApplicationViewModelFactory(
             (LocalContext.current.applicationContext as CampusGigApplication).apiService
         )
+    ),
+    gigViewModel: GigViewModel = viewModel(
+        factory = GigViewModelFactory(
+            (LocalContext.current.applicationContext as CampusGigApplication).gigRepository
+        )
     )
 ) {
     val applicationsState by viewModel.applications.collectAsState()
     val withdrawSuccess by viewModel.withdrawSuccess.collectAsState()
     val actionError by viewModel.actionError.collectAsState()
+    val submitWorkState by gigViewModel.submitWorkState.collectAsState()
 
     val snackbarHostState = remember { SnackbarHostState() }
     var appToWithdraw by remember { mutableStateOf<Application?>(null) }
     var reviewTargetApp by remember { mutableStateOf<Application?>(null) }
+    var submitWorkTargetApp by remember { mutableStateOf<Application?>(null) }
+    var submittedUrl by remember { mutableStateOf("") }
+    var submittedNote by remember { mutableStateOf("") }
+    var submittedUrlError by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) { viewModel.loadMyApplications() }
 
@@ -182,6 +195,25 @@ fun MyApplicationsScreen(
         actionError?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearActionError()
+        }
+    }
+
+    LaunchedEffect(submitWorkState) {
+        when (val s = submitWorkState) {
+            is Resource.Success -> {
+                submitWorkTargetApp = null
+                submittedUrl = ""
+                submittedNote = ""
+                submittedUrlError = ""
+                snackbarHostState.showSnackbar("Work submitted successfully! 🎉 Client has been notified.")
+                viewModel.loadMyApplications()
+                gigViewModel.resetSubmitWorkState()
+            }
+            is Resource.Error -> {
+                snackbarHostState.showSnackbar("Submission failed: ${s.message}")
+                gigViewModel.resetSubmitWorkState()
+            }
+            else -> {}
         }
     }
 
@@ -333,7 +365,8 @@ fun MyApplicationsScreen(
                                             }
                                         },
                                         onWithdraw    = { appToWithdraw = application },
-                                        onLeaveReview = { reviewTargetApp = application }
+                                        onLeaveReview = { reviewTargetApp = application },
+                                        onSubmitWork  = { submitWorkTargetApp = application }
                                     )
                                 }
                             } else {
@@ -350,6 +383,7 @@ fun MyApplicationsScreen(
                                     },
                                     onWithdraw    = { appToWithdraw = application },
                                     onLeaveReview = { reviewTargetApp = application },
+                                    onSubmitWork  = { submitWorkTargetApp = application },
                                     modifier      = Modifier.animateItem()
                                 )
                             }
@@ -417,6 +451,37 @@ fun MyApplicationsScreen(
                 )
             }
         }
+
+        // ── Submit Work Bottom Sheet ──────────────────────────────────────────
+        if (submitWorkTargetApp != null) {
+            val targetApp = submitWorkTargetApp!!
+            val targetGig = targetApp.gig
+            if (targetGig != null) {
+                SubmitWorkBottomSheet(
+                    gig = targetGig,
+                    submittedUrl = submittedUrl,
+                    submittedNote = submittedNote,
+                    urlError = submittedUrlError,
+                    isSubmitting = submitWorkState is Resource.Loading,
+                    onDismiss = {
+                        submitWorkTargetApp = null
+                        submittedUrlError = ""
+                    },
+                    onUrlChanged = {
+                        submittedUrl = it
+                        submittedUrlError = ""
+                    },
+                    onNoteChanged = { submittedNote = it },
+                    onSubmit = {
+                        if (submittedUrl.trim().isBlank()) {
+                            submittedUrlError = "Please enter a deliverable URL (e.g. GitHub, Drive, Figma)"
+                        } else {
+                            gigViewModel.submitWork(targetGig.id, submittedUrl.trim(), submittedNote.trim())
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -429,7 +494,8 @@ private fun buildChatRoute(navController: NavController, application: Applicatio
             receiverId   = id,
             receiverName = name,
             gigTitle     = application.gig?.title,
-            gigBudget    = "₹${application.expectedBudget.toInt()}"
+            gigBudget    = "₹${application.expectedBudget.toInt()}",
+            gigId        = application.gig?.id
         )
     )
 }
@@ -581,17 +647,19 @@ private fun ApplicationCard(
     onReApply:     () -> Unit,
     onWithdraw:    () -> Unit,
     onLeaveReview: () -> Unit,
+    onSubmitWork:  () -> Unit = {},
     modifier:      Modifier = Modifier
 ) {
     val status = application.status.lowercase()
 
     val (accentColor, statusLabel) = when (status) {
-        "accepted"    -> SemanticSuccess        to "Accepted 🎉"
-        "in_progress" -> Color(0xFF3B82F6)      to "In Progress"
-        "completed"   -> Color(0xFF14B8A6)      to "Completed ✓"
-        "rejected"    -> SemanticError          to "Not Selected"
-        "withdrawn"   -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)           to "Withdrawn"
-        else          -> SemanticWarning        to "Pending"
+        "accepted"       -> SemanticSuccess        to "Accepted 🎉"
+        "in_progress"    -> Color(0xFF3B82F6)      to "In Progress"
+        "work_submitted" -> Color(0xFFF59E0B)      to "Work Submitted"
+        "completed"      -> Color(0xFF14B8A6)      to "Completed ✓"
+        "rejected"       -> SemanticError          to "Not Selected"
+        "withdrawn"      -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) to "Withdrawn"
+        else             -> SemanticWarning        to "Pending"
     }
 
     val relativeTime = remember(application.createdAt) { getRelativeTime(application.createdAt) }
@@ -759,7 +827,8 @@ private fun ApplicationCard(
                 onFindSimilar = onFindSimilar,
                 onReApply     = onReApply,
                 onWithdraw    = onWithdraw,
-                onLeaveReview = onLeaveReview
+                onLeaveReview = onLeaveReview,
+                onSubmitWork  = onSubmitWork
             )
         }
     }
@@ -777,7 +846,8 @@ private fun ApplicationStatusFooter(
     onFindSimilar: () -> Unit,
     onReApply:     () -> Unit,
     onWithdraw:    () -> Unit,
-    onLeaveReview: () -> Unit
+    onLeaveReview: () -> Unit,
+    onSubmitWork:  () -> Unit = {}
 ) {
     when (status) {
         "pending" -> {
@@ -825,24 +895,19 @@ private fun ApplicationStatusFooter(
             }
         }
 
-        "accepted" -> {
+        "accepted", "in_progress" -> {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .background(SemanticSuccessBg)
                     .border(BorderStroke(1.dp, SemanticSuccess.copy(alpha = 0.25f)), RoundedCornerShape(10.dp))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication        = null,
-                        onClick           = onOpenChat
-                    )
                     .padding(horizontal = 12.dp, vertical = 9.dp),
                 verticalAlignment     = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    "You were selected! 🎉 Congratulations",
+                    "You were selected! 🎉",
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize   = 12.sp
@@ -851,30 +916,63 @@ private fun ApplicationStatusFooter(
                 )
                 Row(
                     verticalAlignment     = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(
-                        Icons.Default.ChatBubbleOutline, null,
-                        tint     = SemanticSuccess,
-                        modifier = Modifier.size(13.dp)
-                    )
-                    Text(
-                        "Chat →",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize   = 11.sp
-                        ),
-                        color = SemanticSuccess
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication        = null,
+                                onClick           = onOpenChat
+                            )
+                            .padding(end = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.ChatBubbleOutline, null,
+                            tint     = SemanticSuccess,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Text(
+                            "Chat",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize   = 11.sp
+                            ),
+                            color = SemanticSuccess
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)))
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication        = null,
+                                onClick           = onSubmitWork
+                            )
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            "Submit Work 🚀",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize   = 11.sp
+                            ),
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
 
         "in_progress" -> {
-            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row(
                     modifier              = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment     = Alignment.CenterVertically
                 ) {
                     Text(
                         "Work in Progress",
@@ -885,19 +983,62 @@ private fun ApplicationStatusFooter(
                         color = Color(0xFF3B82F6)
                     )
                     Text(
-                        "~7 days remaining",
-                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        "Submit Work →",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize   = 11.sp
+                        ),
+                        color = Color(0xFF3B82F6),
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication        = null,
+                            onClick           = onReApply
+                        )
                     )
                 }
                 LinearProgressIndicator(
-                    progress  = { 0.45f },
+                    progress  = { 0.5f },
                     modifier  = Modifier
                         .fillMaxWidth()
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp)),
                     color      = Color(0xFF3B82F6),
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
+
+        "work_submitted" -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0x1AF59E0B))
+                    .border(BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.35f)), RoundedCornerShape(10.dp))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication        = null,
+                        onClick           = onReApply
+                    )
+                    .padding(horizontal = 12.dp, vertical = 9.dp),
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    "Work Submitted! Awaiting client confirmation ⏳",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize   = 11.sp
+                    ),
+                    color = Color(0xFFF59E0B)
+                )
+                Text(
+                    "View →",
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize   = 11.sp
+                    ),
+                    color = Color(0xFFF59E0B)
                 )
             }
         }

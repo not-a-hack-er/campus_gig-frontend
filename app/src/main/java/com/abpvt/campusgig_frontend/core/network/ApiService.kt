@@ -2,16 +2,19 @@ package com.abpvt.campusgig_frontend.core.network
 
 import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.data.model.Community
-import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.data.model.ConversationItem
+import com.abpvt.campusgig_frontend.data.model.Feedback
+import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.data.model.Message
 import com.abpvt.campusgig_frontend.data.model.Notification
 import com.abpvt.campusgig_frontend.data.model.Review
 import com.abpvt.campusgig_frontend.data.model.User
+import com.abpvt.campusgig_frontend.data.model.request.FeedbackRequest
 import com.abpvt.campusgig_frontend.data.model.request.LoginRequest
 import com.abpvt.campusgig_frontend.data.model.request.RegisterRequest
 import com.abpvt.campusgig_frontend.data.model.response.ApiResponse
 import com.abpvt.campusgig_frontend.data.model.response.AuthResponse
+import com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse
 import com.abpvt.campusgig_frontend.data.model.response.MessageResponse
 import com.abpvt.campusgig_frontend.data.model.response.UnreadCountResponse
 import com.abpvt.campusgig_frontend.data.model.response.VerifyOtpResponse
@@ -52,6 +55,9 @@ interface ApiService {
     @PUT("users/me")
     suspend fun updateMyProfile(@Body body: User): Response<User>
 
+    @POST("users/me/change-password")
+    suspend fun changePassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
+
     @GET("users/{id}")
     suspend fun getUserById(@Path("id") id: String): Response<User>
 
@@ -78,6 +84,21 @@ interface ApiService {
     @DELETE("gigs/{id}")
     suspend fun deleteGig(@Path("id") id: String): Response<MessageResponse>
 
+    @POST("gigs/{id}/submit-work")
+    suspend fun submitWork(
+        @Path("id") id: String,
+        @Body body: Map<String, String>
+    ): Response<ApiResponse<Unit>>
+
+    @GET("gigs/{id}/completion-otp")
+    suspend fun getCompletionOtp(@Path("id") id: String): Response<ApiResponse<CompletionOtpResponse>>
+
+    @POST("gigs/{id}/complete")
+    suspend fun completeGig(
+        @Path("id") id: String,
+        @Body body: Map<String, String>
+    ): Response<ApiResponse<Unit>>
+
     // ─── Applications ────────────────────────────────────────────────────────
     @GET("applications/my")
     suspend fun getMyApplications(): Response<List<Application>>
@@ -101,10 +122,16 @@ interface ApiService {
     // NOTE: /inbox must be a separate named path (not a path param) to avoid
     // ambiguity with the GET messages/{receiverId} endpoint on the backend.
     @GET("messages/{receiverId}")
-    suspend fun getMessages(@Path("receiverId") receiverId: String): Response<List<Message>>
+    suspend fun getMessages(
+        @Path("receiverId") receiverId: String,
+        @Query("gigId") gigId: String
+    ): Response<List<Message>>
 
     @PUT("messages/{receiverId}/read")
-    suspend fun markMessagesRead(@Path("receiverId") receiverId: String): Response<MessageResponse>
+    suspend fun markMessagesRead(
+        @Path("receiverId") receiverId: String,
+        @Query("gigId") gigId: String
+    ): Response<MessageResponse>
 
     @GET("messages/inbox")
     suspend fun getInbox(): Response<List<ConversationItem>>
@@ -142,12 +169,17 @@ interface ApiService {
     @GET("reviews/user/{userId}")
     suspend fun getReviewsForUser(@Path("userId") userId: String): Response<List<Review>>
 
-    @POST("reviews/{userId}")
-    suspend fun createReview(@Path("userId") userId: String, @Body body: Review): Response<Review>
-
+    // One review per (reviewer, gig). Body sends rating, comment, gigId.
     @POST("reviews/{userId}")
     suspend fun submitReview(
         @Path("userId") userId: String,
         @Body body: Map<String, Any?>
     ): Response<ApiResponse<Review>>
+
+    // ─── Feedback ────────────────────────────────────────────────────────────
+    @POST("feedback")
+    suspend fun submitFeedback(@Body body: FeedbackRequest): Response<ApiResponse<Feedback>>
+
+    @GET("feedback/my")
+    suspend fun getMyFeedback(): Response<ApiResponse<List<Feedback>>>
 }

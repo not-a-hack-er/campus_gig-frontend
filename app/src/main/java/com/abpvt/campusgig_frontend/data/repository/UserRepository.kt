@@ -39,4 +39,17 @@ class UserRepository(private val api: ApiService) {
             Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
         }
     }
+
+    suspend fun changePassword(currentPass: String, newPass: String): Resource<String> {
+        return try {
+            val response = api.changePassword(
+                mapOf("currentPassword" to currentPass, "newPassword" to newPass)
+            )
+            if (response.isSuccessful) {
+                Resource.Success(response.body()?.message ?: "Password changed successfully")
+            } else response.toResourceError()
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
 }

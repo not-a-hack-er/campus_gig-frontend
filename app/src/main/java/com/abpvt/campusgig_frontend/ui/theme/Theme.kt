@@ -133,13 +133,13 @@ private val CampusVaultLightColorScheme = lightColorScheme(
 )
 
 /**
- * CampusVaultTheme — Root composable that wraps the entire app in Material3 theming.
+ * CampusGigTheme — Root composable that wraps the entire app in Material3 theming.
  *
  * @param darkTheme  Whether to use dark mode. Pass from ThemeViewModel for user control.
  * @param content    The composable content to theme.
  */
 @Composable
-fun CampusVaultTheme(
+fun CampusGigTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -152,15 +152,15 @@ fun CampusVaultTheme(
     )
 }
 
-// Backward-compat alias
+// Backward-compat aliases
 @Composable
-fun CampusGigTheme(
+fun CampusVaultTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
-) = CampusVaultTheme(darkTheme = darkTheme, content = content)
+) = CampusGigTheme(darkTheme = darkTheme, content = content)
 
 @Composable
 fun Campusgig_frontendTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
-) = CampusVaultTheme(darkTheme = darkTheme, content = content)
+) = CampusGigTheme(darkTheme = darkTheme, content = content)

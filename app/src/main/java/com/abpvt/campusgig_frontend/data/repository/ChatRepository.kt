@@ -14,9 +14,9 @@ class ChatRepository(private val api: ApiService) {
      * [req.user.id] and [receiverId], then returns all Message documents
      * sorted oldest-first, with sender populated ({ _id, name, avatar }).
      */
-    suspend fun getMessages(receiverId: String): Resource<List<Message>> {
+    suspend fun getMessages(receiverId: String, gigId: String): Resource<List<Message>> {
         return try {
-            val response = api.getMessages(receiverId)
+            val response = api.getMessages(receiverId, gigId)
             if (response.isSuccessful) Resource.Success(response.body() ?: emptyList())
             else Resource.Error(response.message(), response.code())
         } catch (e: Exception) {
@@ -44,9 +44,9 @@ class ChatRepository(private val api: ApiService) {
         }
     }
 
-    suspend fun markMessagesRead(receiverId: String): Resource<Boolean> {
+    suspend fun markMessagesRead(receiverId: String, gigId: String): Resource<Boolean> {
         return try {
-            val response = api.markMessagesRead(receiverId)
+            val response = api.markMessagesRead(receiverId, gigId)
             if (response.isSuccessful) Resource.Success(true)
             else Resource.Error(response.message(), response.code())
         } catch (e: Exception) {

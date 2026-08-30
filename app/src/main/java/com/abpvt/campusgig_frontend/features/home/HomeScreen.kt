@@ -326,7 +326,7 @@ fun HomeScreen(
 
                         Spacer(Modifier.width(10.dp))
                         Text(
-                            "CampusVault",
+                            "CampusGig",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                             ),

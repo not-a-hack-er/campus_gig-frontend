@@ -69,26 +69,33 @@ object Constants {
 
     // ─── Gig Statuses ─────────────────────────────────────────────────────────
     /**
-     * Status lifecycle: open → in_progress → closed/completed
-     * - open:        Gig is visible and accepting applications
-     * - in_progress: An applicant has been selected, work is ongoing
-     * - closed:      Gig is no longer accepting applications (or completed)
+     * Status lifecycle: open → in_progress → work_submitted → completed
+     * - open:           Gig is visible and accepting applications
+     * - in_progress:    An applicant has been selected, work is ongoing
+     * - work_submitted: Worker submitted deliverable, awaiting employer OTP
+     * - completed:      Gig work confirmed and completed
+     * - cancelled:      Gig cancelled by employer
      */
-    const val GIG_STATUS_OPEN        = "open"
-    const val GIG_STATUS_CLOSED      = "closed"
-    const val GIG_STATUS_IN_PROGRESS = "in_progress"
-    const val GIG_STATUS_COMPLETED   = "completed"
+    const val GIG_STATUS_OPEN           = "open"
+    const val GIG_STATUS_IN_PROGRESS    = "in_progress"
+    const val GIG_STATUS_WORK_SUBMITTED = "work_submitted"
+    const val GIG_STATUS_COMPLETED      = "completed"
+    const val GIG_STATUS_CANCELLED      = "cancelled"
 
     // ─── Application Statuses ─────────────────────────────────────────────────
     /**
-     * Status lifecycle: pending → accepted OR rejected
-     * - pending:  Just submitted, waiting for gig owner to review
-     * - accepted: Gig owner selected this applicant
-     * - rejected: Gig owner chose someone else
+     * Status lifecycle: pending → accepted OR rejected → completed
+     * - pending:   Just submitted, waiting for gig owner to review
+     * - accepted:  Gig owner selected this applicant
+     * - rejected:  Gig owner chose someone else
+     * - withdrawn: Applicant withdrew application
+     * - completed: Gig work completed
      */
-    const val APPLICATION_STATUS_PENDING  = "pending"
-    const val APPLICATION_STATUS_ACCEPTED = "accepted"
-    const val APPLICATION_STATUS_REJECTED = "rejected"
+    const val APPLICATION_STATUS_PENDING   = "pending"
+    const val APPLICATION_STATUS_ACCEPTED  = "accepted"
+    const val APPLICATION_STATUS_REJECTED  = "rejected"
+    const val APPLICATION_STATUS_WITHDRAWN = "withdrawn"
+    const val APPLICATION_STATUS_COMPLETED = "completed"
 
     // ─── Gig Categories ───────────────────────────────────────────────────────
     /**
@@ -144,10 +151,14 @@ object Constants {
      *   SOCKET_NEW_MESSAGE   : A new message arrived in the current room
      *   SOCKET_TYPING        : The other user is typing
      *   SOCKET_ONLINE_USERS  : List of currently connected users
+     *   SOCKET_WORK_SUBMITTED: Work submitted by worker (employer notified with OTP)
+     *   SOCKET_GIG_COMPLETED : Gig marked completed
      */
-    const val SOCKET_JOIN_ROOM    = "join_room"
-    const val SOCKET_SEND_MESSAGE = "send_message"
-    const val SOCKET_TYPING       = "typing"
-    const val SOCKET_NEW_MESSAGE  = "new_message"
-    const val SOCKET_ONLINE_USERS = "online_users"
+    const val SOCKET_JOIN_ROOM      = "join_room"
+    const val SOCKET_SEND_MESSAGE   = "send_message"
+    const val SOCKET_TYPING         = "typing"
+    const val SOCKET_NEW_MESSAGE    = "new_message"
+    const val SOCKET_ONLINE_USERS   = "online_users"
+    const val SOCKET_WORK_SUBMITTED = "work_submitted"
+    const val SOCKET_GIG_COMPLETED  = "gig_completed"
 }

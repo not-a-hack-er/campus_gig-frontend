@@ -110,8 +110,12 @@ object SocketManager {
     /**
      * Emits a read receipt notification to the sender.
      */
-    fun emitMarkRead(senderId: String) {
-        socket?.emit("mark_read", senderId)
+    fun emitMarkRead(senderId: String, gigId: String) {
+        val data = JSONObject().apply {
+            put("senderId", senderId)
+            put("gigId", gigId)
+        }
+        socket?.emit("mark_read", data)
     }
 
     /**
@@ -149,7 +153,7 @@ object SocketManager {
     /**
      * Emits a chat message to the server. Auto-reconnects if socket is disconnected.
      */
-    fun sendMessage(receiverId: String, content: String) {
+    fun sendMessage(receiverId: String, content: String, gigId: String) {
         if (socket?.connected() != true && !savedToken.isNullOrBlank()) {
             Log.w(TAG, "Socket disconnected — reconnecting before send")
             connect(savedToken!!)
@@ -157,6 +161,7 @@ object SocketManager {
 
         val data = JSONObject().apply {
             put("receiverId", receiverId)
+            put("gigId", gigId)
             put("content", content)
         }
         socket?.emit(Constants.SOCKET_SEND_MESSAGE, data)
@@ -180,8 +185,12 @@ object SocketManager {
     /**
      * Emits a "typing" event to notify the other user we're typing.
      */
-    fun emitTyping(receiverId: String) {
-        socket?.emit(Constants.SOCKET_TYPING, receiverId)
+    fun emitTyping(receiverId: String, gigId: String) {
+        val data = JSONObject().apply {
+            put("receiverId", receiverId)
+            put("gigId", gigId)
+        }
+        socket?.emit(Constants.SOCKET_TYPING, data)
     }
 
     /**
@@ -204,6 +213,13 @@ object SocketManager {
             val notification = args.getOrNull(0) as? JSONObject
             if (notification != null) {
                 Log.d(TAG, "New notification received: ${notification.optString("title")}")
+                val title = notification.optString("title", "CampusVault Alert")
+                val message = notification.optString("message", notification.optString("content", ""))
+                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
+                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
+                    title,
+                    message
+                )
                 callback(notification)
             }
         }
@@ -211,6 +227,44 @@ object SocketManager {
 
     fun removeNotificationListener() {
         socket?.off("new_notification")
+    }
+
+    /**
+     * Registers a callback for real-time work_submitted event (employer receives OTP).
+     */
+    fun onWorkSubmitted(callback: (JSONObject) -> Unit) {
+        socket?.off(Constants.SOCKET_WORK_SUBMITTED)
+        socket?.on(Constants.SOCKET_WORK_SUBMITTED) { args ->
+            val data = args.getOrNull(0) as? JSONObject
+            if (data != null) {
+                Log.d(TAG, "work_submitted event received for gig: ${data.optString("gigId")}")
+                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
+                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
+                    "Work Submitted 🚀",
+                    "Worker submitted deliverable for gig. Open app to view OTP."
+                )
+                callback(data)
+            }
+        }
+    }
+
+    /**
+     * Registers a callback for real-time gig_completed event.
+     */
+    fun onGigCompleted(callback: (JSONObject) -> Unit) {
+        socket?.off(Constants.SOCKET_GIG_COMPLETED)
+        socket?.on(Constants.SOCKET_GIG_COMPLETED) { args ->
+            val data = args.getOrNull(0) as? JSONObject
+            if (data != null) {
+                Log.d(TAG, "gig_completed event received for gig: ${data.optString("gigId")}")
+                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
+                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
+                    "Gig Completed 🎉",
+                    "Your gig has been verified and marked completed!"
+                )
+                callback(data)
+            }
+        }
     }
 
     /**
@@ -226,6 +280,8 @@ object SocketManager {
         removeChatListeners()
         socket?.off("online_users")
         socket?.off("conversation_updated")
+        socket?.off(Constants.SOCKET_WORK_SUBMITTED)
+        socket?.off(Constants.SOCKET_GIG_COMPLETED)
     }
 
     /** Returns true if the socket is currently connected. */

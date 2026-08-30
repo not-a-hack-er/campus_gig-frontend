@@ -61,6 +61,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -105,10 +107,11 @@ import com.abpvt.campusgig_frontend.ui.theme.SemanticWarningBg
 // ─── Domain Constants ─────────────────────────────────────────────────────────
 
 private val MY_GIGS_TABS = listOf(
-    "Active"      to "open",
-    "In Progress" to "in_progress",
-    "Completed"   to "completed",
-    "Cancelled"   to "cancelled"
+    "Active"         to "open",
+    "In Progress"    to "in_progress",
+    "Work Submitted" to "work_submitted",
+    "Completed"      to "completed",
+    "Cancelled"      to "cancelled"
 )
 
 // ─── UI State ─────────────────────────────────────────────────────────────────
@@ -180,11 +183,46 @@ fun MyGigsScreen(navController: NavController) {
 
     val profileState by homeViewModel.currentUser.collectAsState()
     val myGigsState  by gigViewModel.myGigs.collectAsState()
+    val completeGigState by gigViewModel.completeGigState.collectAsState()
+    val otpState by gigViewModel.otpState.collectAsState()
 
     val currentUser by remember { derivedStateOf { (profileState as? Resource.Success)?.data } }
 
+    var selectedGigForOtp by remember { mutableStateOf<Gig?>(null) }
+    var otpInput by remember { mutableStateOf("") }
+    var otpError by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+
     LaunchedEffect(currentUser) {
         currentUser?.let { gigViewModel.loadMyGigs(it.id) }
+    }
+
+    LaunchedEffect(completeGigState) {
+        when (val s = completeGigState) {
+            is Resource.Success -> {
+                selectedGigForOtp = null
+                otpInput = ""
+                otpError = ""
+                snackbarHostState.showSnackbar("Gig Completed Successfully! 🎉 Both parties can now leave reviews.")
+                currentUser?.let { gigViewModel.loadMyGigs(it.id) }
+                gigViewModel.resetCompleteGigState()
+            }
+            is Resource.Error -> {
+                snackbarHostState.showSnackbar("Completion failed: ${s.message}")
+                gigViewModel.resetCompleteGigState()
+            }
+            else -> {}
+        }
+    }
+
+    // Auto-fill displayed OTP when employer requests it
+    LaunchedEffect(otpState) {
+        if (otpState is Resource.Success) {
+            val code = (otpState as Resource.Success).data.otp
+            if (code.isNotBlank() && otpInput.isBlank()) {
+                otpInput = code
+            }
+        }
     }
 
     var ui by remember { mutableStateOf(MyGigsUiState()) }
@@ -200,6 +238,10 @@ fun MyGigsScreen(navController: NavController) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
+        )
         when (val state = myGigsState) {
 
             is Resource.Loading -> {
@@ -294,7 +336,11 @@ fun MyGigsScreen(navController: NavController) {
                                     }
                                 },
                                 onRequestReview    = { /* TODO: request review */ },
-                                onRepost           = { navController.navigate(Routes.CREATE_GIG) }
+                                onRepost           = { navController.navigate(Routes.CREATE_GIG) },
+                                onCompleteGig      = {
+                                    selectedGigForOtp = gig
+                                    gigViewModel.requestCompletionOtp(gig.id)
+                                }
                             )
                         }
                         item(key = "bottom_pad") { Spacer(Modifier.height(12.dp)) }
@@ -303,6 +349,34 @@ fun MyGigsScreen(navController: NavController) {
             }
 
             null -> Unit
+        }
+
+        // ── Enter OTP Bottom Sheet ───────────────────────────────────────────────
+        if (selectedGigForOtp != null) {
+            val targetGig = selectedGigForOtp!!
+            EnterOtpBottomSheet(
+                gig = targetGig,
+                otpInput = otpInput,
+                otpError = otpError,
+                isSubmitting = completeGigState is Resource.Loading,
+                onDismiss = {
+                    selectedGigForOtp = null
+                    otpError = ""
+                },
+                onOtpChanged = {
+                    otpInput = it
+                    otpError = ""
+                },
+                onSubmit = {
+                    val activeCode = (otpState as? Resource.Success)?.data?.otp ?: ""
+                    val codeToUse = if (otpInput.trim().isNotBlank()) otpInput.trim() else activeCode
+                    if (codeToUse.isBlank() || codeToUse.length < 4) {
+                        otpError = "Please enter the 4-digit code or tap to generate"
+                    } else {
+                        gigViewModel.completeGig(targetGig.id, codeToUse)
+                    }
+                }
+            )
         }
     }
 }
@@ -379,14 +453,6 @@ private fun MyGigsTopBar(
 
 // ─── Stats Horizontal Row ─────────────────────────────────────────────────────
 
-private data class StatItem(
-    val icon:       ImageVector,
-    val iconColor:  Color,
-    val iconBg:     Color,
-    val label:      String,
-    val value:      String
-)
-
 @Composable
 private fun GigStatsRow(
     totalPosted: Int,
@@ -394,60 +460,44 @@ private fun GigStatsRow(
     completed:   Int,
     totalBudget: Double
 ) {
-    val stats = listOf(
-        StatItem(Icons.Default.Work,        MaterialTheme.colorScheme.primary,      GlowIndigo,          "Posted",    totalPosted.toString()),
-        StatItem(Icons.Default.Edit,        SemanticWarning, SemanticWarningBg,  "Active",    activeNow.toString()),
-        StatItem(Icons.Default.CheckCircle, SemanticSuccess, SemanticSuccessBg,  "Completed", completed.toString()),
-        StatItem(Icons.Default.Star,        Color(0xFFF59E0B), Color(0x1AF59E0B),"Budget",    "₹${totalBudget.toInt()}")
-    )
-
-    LazyRow(
-        contentPadding        = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(16.dp))
+            .padding(vertical = 12.dp, horizontal = 16.dp)
     ) {
-        items(stats) { stat ->
-            Column(
-                modifier = Modifier
-                    .width(108.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Icon with coloured background
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(stat.iconBg),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        stat.icon, null,
-                        tint     = stat.iconColor,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-                Text(
-                    stat.value,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize   = 20.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    stat.label,
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontSize      = 10.sp,
-                        fontWeight    = FontWeight.SemiBold,
-                        letterSpacing = 0.5.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                )
-            }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            StatSummaryItem(label = "Posted", value = totalPosted.toString(), color = MaterialTheme.colorScheme.primary)
+            Box(modifier = Modifier.width(1.dp).height(24.dp).background(MaterialTheme.colorScheme.outline))
+            StatSummaryItem(label = "Active", value = activeNow.toString(), color = SemanticWarning)
+            Box(modifier = Modifier.width(1.dp).height(24.dp).background(MaterialTheme.colorScheme.outline))
+            StatSummaryItem(label = "Completed", value = completed.toString(), color = SemanticSuccess)
+            Box(modifier = Modifier.width(1.dp).height(24.dp).background(MaterialTheme.colorScheme.outline))
+            StatSummaryItem(label = "Earned", value = "₹${totalBudget.toInt()}", color = Color(0xFFF59E0B))
         }
+    }
+}
+
+@Composable
+private fun StatSummaryItem(label: String, value: String, color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold, fontSize = 16.sp),
+            color = color
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+        )
     }
 }
 
@@ -460,78 +510,64 @@ private fun GigTabStrip(
     selectedTab: Int,
     onTabClick:  (Int) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(0.dp))
+    LazyRow(
+        contentPadding        = PaddingValues(horizontal = 20.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier              = Modifier.fillMaxWidth()
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp)
-        ) {
-            tabs.forEachIndexed { index, tab ->
-                val isSelected = selectedTab == index
+        items(tabs.size) { index ->
+            val isSelected = selectedTab == index
+            val tabLabel   = tabs[index]
+            val count      = counts[index]
 
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication        = null
-                        ) { onTabClick(index) }
-                        .padding(top = 12.dp, bottom = 0.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(
+                        if (isSelected)
+                            Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
+                        else
+                            Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline,
+                        shape = RoundedCornerShape(999.dp)
+                    )
+                    .clickable { onTabClick(index) }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Row(
-                        verticalAlignment     = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            tab,
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                fontSize   = 11.sp
-                            ),
-                            color = if (isSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
-                        // Count badge
-                        if (counts[index] > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .background(if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh)
-                                    .padding(horizontal = 5.dp, vertical = 1.dp)
-                            ) {
-                                Text(
-                                    counts[index].toString(),
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize   = 9.sp,
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                )
-                            }
+                    Text(
+                        text = tabLabel,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            fontSize = 12.sp
+                        ),
+                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (count > 0) {
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .background(if (isSelected) Color.White.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surfaceContainerHigh)
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = count.toString(),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.ExtraBold
+                                ),
+                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
-
-                    // Active underline indicator
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth(0.6f)
-                            .height(2.dp)
-                            .clip(RoundedCornerShape(1.dp))
-                            .background(
-                                if (isSelected)
-                                    Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
-                                else
-                                    Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
-                            )
-                    )
-
-                    Spacer(Modifier.height(2.dp))
                 }
             }
         }
@@ -550,15 +586,17 @@ private fun ManagementGigCard(
     onClose:            () -> Unit,
     onDelete:           () -> Unit,
     onRequestReview:    () -> Unit,
-    onRepost:           () -> Unit
+    onRepost:           () -> Unit,
+    onCompleteGig:      () -> Unit = {}
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
     val statusStr = gig.status.lowercase()
     val (statusColor, statusLabel, statusBg) = when (statusStr) {
-        "open"                -> Triple(SemanticSuccess, "Active",      SemanticSuccessBg)
-        "in_progress"         -> Triple(SemanticWarning, "In Progress", SemanticWarningBg)
-        "completed"           -> Triple(Color(0xFF14B8A6), "Completed", Color(0x1A14B8A6))
+        "open"                -> Triple(SemanticSuccess, "Active",         SemanticSuccessBg)
+        "in_progress"         -> Triple(SemanticWarning, "In Progress",    SemanticWarningBg)
+        "work_submitted"      -> Triple(Color(0xFFF59E0B), "Work Submitted", Color(0x1AF59E0B))
+        "completed"           -> Triple(Color(0xFF14B8A6), "Completed",     Color(0x1A14B8A6))
         "cancelled", "closed" -> Triple(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),    "Cancelled",  MaterialTheme.colorScheme.surfaceContainerHigh)
         else                  -> Triple(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),    gig.status,   MaterialTheme.colorScheme.surfaceContainerHigh)
     }
@@ -682,6 +720,13 @@ private fun ManagementGigCard(
                         onDismissRequest = { menuExpanded = false },
                         containerColor   = MaterialTheme.colorScheme.surfaceVariant
                     ) {
+                        if (statusStr == "in_progress" || statusStr == "work_submitted") {
+                            DropdownMenuItem(
+                                text = { Text("Approve & Complete Gig", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                                leadingIcon = { Icon(Icons.Default.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp)) },
+                                onClick = { menuExpanded = false; onCompleteGig() }
+                            )
+                        }
                         DropdownMenuItem(
                             text = { Text("Edit", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground) },
                             leadingIcon = { Icon(Icons.Default.Edit, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(15.dp)) },
@@ -725,8 +770,9 @@ private fun ManagementGigCard(
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Icon(Icons.Default.People, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(12.dp))
+                    val safeCount = kotlin.math.max(0, gig.applicationsCount)
                     Text(
-                        "${gig.applicationsCount} application${if (gig.applicationsCount != 1) "s" else ""}",
+                        "$safeCount application${if (safeCount != 1) "s" else ""}",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontSize   = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -780,22 +826,91 @@ private fun ManagementGigCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0x1414B8A6))
+                                .border(BorderStroke(1.dp, Color(0xFF14B8A6).copy(alpha = 0.35f)), RoundedCornerShape(8.dp))
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication        = null,
+                                    onClick           = onOpenChat
+                                )
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                "Chat →",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
+                                color = Color(0xFF14B8A6)
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)))
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication        = null,
+                                    onClick           = onCompleteGig
+                                )
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                "Complete 🔑",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 11.sp),
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Work Submitted footer ───────────────────────────────────────
+            if (statusStr == "work_submitted") {
+                Spacer(Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(MaterialTheme.colorScheme.outline)
+                )
+                Spacer(Modifier.height(10.dp))
+                Row(
+                    modifier              = Modifier.fillMaxWidth(),
+                    verticalAlignment     = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        verticalAlignment     = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text("📩", fontSize = 16.sp)
+                        Text(
+                            "Deliverable submitted — enter OTP to approve",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp, fontWeight = FontWeight.SemiBold),
+                            color = Color(0xFFF59E0B)
+                        )
+                    }
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0x1414B8A6))
-                            .border(BorderStroke(1.dp, Color(0xFF14B8A6).copy(alpha = 0.35f)), RoundedCornerShape(8.dp))
+                            .background(Color(0x1AF59E0B))
+                            .border(BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f)), RoundedCornerShape(8.dp))
                             .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication        = null,
-                                onClick           = onOpenChat
+                                onClick           = onViewDetail
                             )
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            "Open Chat →",
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
-                            color = Color(0xFF14B8A6)
+                            "Enter OTP →",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, fontSize = 11.sp),
+                            color = Color(0xFFF59E0B)
                         )
                     }
                 }

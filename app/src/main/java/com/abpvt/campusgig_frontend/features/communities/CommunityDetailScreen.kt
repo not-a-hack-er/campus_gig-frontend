@@ -101,10 +101,10 @@ val detailTabs = listOf("Feed", "Members", "About")
 private data class MockPost(val author: String, val text: String, val likes: Int, val comments: Int, val time: String)
 
 private val mockPosts = listOf(
-    MockPost("Akarsh Bajpai", "Just shipped the new animation system for CampusVault! Compose animations are incredible 🚀 Really enjoying the spring physics API.", 24, 8, "2h ago"),
+    MockPost("Akarsh Bajpai", "Just shipped the new animation system for CampusGig! Compose animations are incredible 🚀 Really enjoying the spring physics API.", 24, 8, "2h ago"),
     MockPost("Sarah Jenkins", "Looking for a design partner for a hackathon project next week. DM me if you're interested — need someone strong with Figma + Prototyping.", 18, 12, "4h ago"),
     MockPost("Dev Sharma", "Hot take: Compose Multiplatform is ready for production if you're careful about what APIs you touch. Shipped iOS yesterday, barely any issues.", 31, 15, "Yesterday"),
-    MockPost("Neha Rao", "Just got my first freelance project through CampusVault 🎉 Built a landing page for a startup. ₹4,500 for 3 days work. Highly recommend this app!", 45, 6, "Yesterday"),
+    MockPost("Neha Rao", "Just got my first freelance project through CampusGig 🎉 Built a landing page for a startup. ₹4,500 for 3 days work. Highly recommend this app!", 45, 6, "Yesterday"),
 )
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -53,6 +54,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Code
@@ -64,6 +66,7 @@ import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Work
+import java.util.Calendar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -246,8 +249,8 @@ private fun Modifier.indigoGradient(radius: Int = 14): Modifier = this
 
 @Composable
 private fun gigFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedTextColor       = MaterialTheme.colorScheme.onBackground,
-    unfocusedTextColor     = MaterialTheme.colorScheme.onBackground,
+    focusedTextColor       = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor     = MaterialTheme.colorScheme.onSurface,
     focusedContainerColor  = MaterialTheme.colorScheme.surfaceVariant,
     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
     focusedBorderColor     = MaterialTheme.colorScheme.primary,
@@ -335,6 +338,7 @@ fun CreateGigScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .imePadding()
     ) {
         // ── Top Bar ──────────────────────────────────────────────────────────
         WizardTopBar(
@@ -769,26 +773,70 @@ private fun Step2Details(
         }
     }
 
+    val context = LocalContext.current
+    val calendar = remember { Calendar.getInstance() }
+
+    val datePickerDialog = remember {
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                onAction(GigFormAction.DeadlineChanged(selectedDate))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            datePicker.minDate = System.currentTimeMillis()
+        }
+    }
+
     Spacer(Modifier.height(22.dp))
 
     // Deadline
     FormLabel("Application Deadline")
     Spacer(Modifier.height(6.dp))
-    OutlinedTextField(
-        value         = form.deadline,
-        onValueChange = { onAction(GigFormAction.DeadlineChanged(it)) },
-        placeholder   = {
-            Text(
-                "YYYY-MM-DD  (e.g. 2026-09-15)",
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f).copy(alpha = 0.55f),
-                style = MaterialTheme.typography.bodySmall
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { datePickerDialog.show() }
+    ) {
+        OutlinedTextField(
+            value = form.deadline,
+            onValueChange = {},
+            readOnly = true,
+            enabled = false,
+            placeholder = {
+                Text(
+                    "Tap to select deadline from calendar… 📅",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    Icons.Default.CalendarToday,
+                    contentDescription = "Select Date from Calendar",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clickable { datePickerDialog.show() }
+                )
+            },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onBackground,
+                disabledBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                disabledTrailingIconColor = MaterialTheme.colorScheme.primary
             )
-        },
-        singleLine = true,
-        modifier   = Modifier.fillMaxWidth(),
-        shape      = RoundedCornerShape(12.dp),
-        colors     = gigFieldColors()
-    )
+        )
+    }
 
     Spacer(Modifier.height(22.dp))
 
@@ -1186,7 +1234,7 @@ private fun Step4Review(
         }
         Spacer(Modifier.width(10.dp))
         Text(
-            "I confirm this gig is genuine and follows CampusVault community guidelines",
+            "I confirm this gig is genuine and follows CampusGig community guidelines",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, lineHeight = 19.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

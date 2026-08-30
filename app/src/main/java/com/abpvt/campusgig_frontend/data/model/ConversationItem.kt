@@ -20,17 +20,23 @@ import com.google.gson.annotations.SerializedName
  */
 data class ConversationItem(
     @SerializedName("conversationId")
-    val conversationId: String = "",
+    val conversationId: String? = "",
 
     /** Preview of the most recent message in this conversation */
     @SerializedName("lastMessage")
-    val lastMessage: String = "",
+    val lastMessage: String? = null,
 
     /** ISO 8601 timestamp of last activity — used for sorting and display */
     @SerializedName("updatedAt")
-    val updatedAt: String = "",
+    val updatedAt: String? = null,
 
     /** The other participant in this conversation (not the logged-in user) */
     @SerializedName("user")
-    val user: User
+    val user: User? = null,
+
+    @SerializedName("gigId")
+    val gigId: String? = null,
+
+    @SerializedName("gigTitle")
+    val gigTitle: String? = null
 )

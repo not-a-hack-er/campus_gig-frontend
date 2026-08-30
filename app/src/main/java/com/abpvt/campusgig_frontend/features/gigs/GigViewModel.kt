@@ -149,6 +149,53 @@ class GigViewModel(private val repository: GigRepository) : ViewModel() {
         }
     }
 
+    // ── Work Submission & OTP Completion States ──────────────────────────────
+    private val _submitWorkState = MutableStateFlow<Resource<String>?>(null)
+    val submitWorkState: StateFlow<Resource<String>?> = _submitWorkState.asStateFlow()
+
+    private val _otpState = MutableStateFlow<Resource<com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse>?>(null)
+    val otpState: StateFlow<Resource<com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse>?> = _otpState.asStateFlow()
+
+    private val _completeGigState = MutableStateFlow<Resource<String>?>(null)
+    val completeGigState: StateFlow<Resource<String>?> = _completeGigState.asStateFlow()
+
+    /** Worker submits work url and optional note for gig completion */
+    fun submitWork(id: String, submittedUrl: String, submittedNote: String? = null) {
+        viewModelScope.launch {
+            _submitWorkState.value = Resource.Loading
+            val result = repository.submitWork(id, submittedUrl, submittedNote)
+            _submitWorkState.value = result
+            if (result is Resource.Success) {
+                loadGigById(id)
+            }
+        }
+    }
+
+    /** Employer requests/refreshes completion OTP */
+    fun requestCompletionOtp(id: String) {
+        viewModelScope.launch {
+            _otpState.value = Resource.Loading
+            _otpState.value = repository.getCompletionOtp(id)
+        }
+    }
+
+    /** Employer completes gig by entering OTP */
+    fun completeGig(id: String, otp: String, onSuccess: (() -> Unit)? = null) {
+        viewModelScope.launch {
+            _completeGigState.value = Resource.Loading
+            val result = repository.completeGig(id, otp)
+            _completeGigState.value = result
+            if (result is Resource.Success) {
+                onSuccess?.invoke()
+                loadGigById(id)
+            }
+        }
+    }
+
+    fun resetSubmitWorkState() { _submitWorkState.value = null }
+    fun resetOtpState() { _otpState.value = null }
+    fun resetCompleteGigState() { _completeGigState.value = null }
+
     /** Resets the create state to null (called after navigation on success). */
     fun resetCreateState() { _createState.value = null }
 

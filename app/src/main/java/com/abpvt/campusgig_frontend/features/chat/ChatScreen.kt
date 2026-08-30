@@ -21,6 +21,8 @@
 package com.abpvt.campusgig_frontend.features.chat
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -32,6 +34,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,11 +50,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -118,6 +123,7 @@ fun ChatScreen(
     receiverName: String,
     gigTitle: String? = null,
     gigBudget: String? = null,
+    gigId: String? = null,
     viewModel: ChatViewModel = viewModel(
         factory = ChatViewModelFactory(
             (LocalContext.current.applicationContext as CampusGigApplication).chatRepository
@@ -130,8 +136,8 @@ fun ChatScreen(
             .getString(Constants.KEY_USER_ID, "") ?: ""
     }
 
-    LaunchedEffect(receiverId) {
-        viewModel.loadMessages(receiverId, currentUserId)
+    LaunchedEffect(receiverId, gigId) {
+        viewModel.loadMessages(receiverId, currentUserId, gigId ?: "")
     }
 
     val messagesState by viewModel.messages.collectAsState()
@@ -154,6 +160,7 @@ fun ChatScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .imePadding()
     ) {
         // ── Header with ambient indigo glow ───────────────────────────────────
         Box(
@@ -308,16 +315,18 @@ fun ChatScreen(
                                 navController.navigate(Routes.publicProfile(receiverId))
                             }
                         )
-                        if (!gigTitle.isNullOrBlank()) {
-                            DropdownMenuItem(
-                                text = { Text("View Gig", color = MaterialTheme.colorScheme.onBackground) },
-                                leadingIcon = { Icon(Icons.Default.Work, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                                onClick = {
-                                    showMenu = false
-                                    showGigBanner = true
+                        DropdownMenuItem(
+                            text = { Text("View / Submit Gig 🚀", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold) },
+                            leadingIcon = { Icon(Icons.Default.Work, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                            onClick = {
+                                showMenu = false
+                                if (!gigId.isNullOrBlank()) {
+                                    navController.navigate(Routes.gigDetail(gigId))
+                                } else {
+                                    navController.navigate(Routes.MY_GIGS)
                                 }
-                            )
-                        }
+                            }
+                        )
                     }
                 }
             }
@@ -374,30 +383,56 @@ fun ChatScreen(
                         }
                     }
 
-                    if (!gigBudget.isNullOrBlank()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (!gigBudget.isNullOrBlank()) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(GradientTealStart.copy(alpha = 0.25f))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = gigBudget,
+                                    style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GradientTealEnd)
+                                )
+                            }
+                        }
+
+                        // Direct CTA to open Gig & Submit Work / OTP Code
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(GradientTealStart.copy(alpha = 0.25f))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
+                                )
+                                .clickable {
+                                    if (!gigId.isNullOrBlank()) {
+                                        navController.navigate(Routes.gigDetail(gigId))
+                                    } else {
+                                        navController.navigate(Routes.MY_GIGS)
+                                    }
+                                }
+                                .padding(horizontal = 10.dp, vertical = 6.dp)
                         ) {
                             Text(
-                                text = gigBudget,
-                                style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GradientTealEnd)
+                                text = "Open Gig 🚀",
+                                style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                             )
                         }
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
 
-                    Text(
-                        text = "✕",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { showGigBanner = false }
-                            .padding(4.dp)
-                    )
+                        Text(
+                            text = "✕",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable { showGigBanner = false }
+                                .padding(4.dp)
+                        )
+                    }
                 }
             }
         }
@@ -720,6 +755,11 @@ private fun TypingIndicatorRow(peerName: String) {
     }
 }
 
+private val POPULAR_EMOJIS = listOf(
+    "👍", "❤️", "🔥", "🎉", "😂", "🙏", "👏", "🙌", "😊", "🚀",
+    "💻", "✅", "📦", "🤝", "💸", "⭐", "🎯", "⏳", "📄", "⚡"
+)
+
 // ─── Chat Input Bar Composable ────────────────────────────────────────────────
 @Composable
 private fun ChatInputBar(
@@ -727,117 +767,172 @@ private fun ChatInputBar(
     onTextChange: (String) -> Unit,
     onSend: () -> Unit
 ) {
-    Box(
+    var showEmojiPicker by remember { mutableStateOf(false) }
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+        // ── Emoji Quick Picker Drawer ───────────────────────────────────────────
+        AnimatedVisibility(
+            visible = showEmojiPicker,
+            enter = fadeIn(tween(150)) + expandVertically(tween(150)),
+            exit = fadeOut(tween(150)) + shrinkVertically(tween(150))
         ) {
-            // Attachment paperclip icon
             Box(
                 modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(0.5.dp, MaterialTheme.colorScheme.outline, CircleShape),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .border(BorderStroke(0.5.dp, MaterialTheme.colorScheme.outline))
+                    .padding(vertical = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.AttachFile,
-                    contentDescription = "Attach File",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Text Input Box
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .border(
-                        width = 0.8.dp,
-                        brush = if (text.isNotBlank())
-                            Brush.horizontalGradient(listOf(GradientIndigoStart.copy(alpha = 0.5f), Violet400.copy(alpha = 0.3f)))
-                        else
-                            Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline)),
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    BasicTextField(
-                        value = text,
-                        onValueChange = onTextChange,
-                        modifier = Modifier.weight(1f),
-                        textStyle = TextStyle(fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onBackground),
-                        maxLines = 4,
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                        decorationBox = { inner ->
-                            Box {
-                                if (text.isEmpty()) {
-                                    Text(
-                                        text = "Type a message...",
-                                        style = TextStyle(fontSize = 14.5.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
-                                    )
-                                }
-                                inner()
-                            }
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+                ) {
+                    items(POPULAR_EMOJIS) { emoji ->
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clickable {
+                                    onTextChange(text + emoji)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(emoji, fontSize = 20.sp)
                         }
-                    )
-                    if (text.isBlank()) {
-                        Icon(
-                            imageVector = Icons.Default.EmojiEmotions,
-                            contentDescription = "Emoji",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            modifier = Modifier.size(18.dp)
-                        )
                     }
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            // Send Button with Spring Press Animation
-            val sendInteraction = remember { MutableInteractionSource() }
-            val isPressed by sendInteraction.collectIsPressedAsState()
-            val scale by animateFloatAsState(
-                targetValue = if (isPressed) 0.88f else 1.0f,
-                animationSpec = spring(stiffness = Spring.StiffnessMedium),
-                label = "sendScale"
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .scale(scale)
-                    .clip(CircleShape)
-                    .background(
-                        if (text.isNotBlank())
-                            Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
-                        else
-                            Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
-                    )
-                    .clickable(
-                        enabled = text.isNotBlank(),
-                        interactionSource = sendInteraction,
-                        indication = null
-                    ) { onSend() },
-                contentAlignment = Alignment.Center
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send Message",
-                    tint = if (text.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                    modifier = Modifier.size(18.dp)
+                // Attachment paperclip icon
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(0.5.dp, MaterialTheme.colorScheme.outline, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AttachFile,
+                        contentDescription = "Attach File",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Text Input Box
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(
+                            width = 0.8.dp,
+                            brush = if (text.isNotBlank())
+                                Brush.horizontalGradient(listOf(GradientIndigoStart.copy(alpha = 0.5f), Violet400.copy(alpha = 0.3f)))
+                            else
+                                Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.outline, MaterialTheme.colorScheme.outline)),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        BasicTextField(
+                            value = text,
+                            onValueChange = onTextChange,
+                            modifier = Modifier.weight(1f),
+                            textStyle = TextStyle(
+                                fontSize = 15.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            maxLines = 4,
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            decorationBox = { inner ->
+                                Box {
+                                    if (text.isEmpty()) {
+                                        Text(
+                                            text = "Type a message...",
+                                            style = TextStyle(fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                                        )
+                                    }
+                                    inner()
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        // Interactive Emoji Button
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(if (showEmojiPicker) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent)
+                                .clickable { showEmojiPicker = !showEmojiPicker },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.EmojiEmotions,
+                                contentDescription = "Emoji",
+                                tint = if (showEmojiPicker) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Send Button with Spring Press Animation
+                val sendInteraction = remember { MutableInteractionSource() }
+                val isPressed by sendInteraction.collectIsPressedAsState()
+                val scale by animateFloatAsState(
+                    targetValue = if (isPressed) 0.88f else 1.0f,
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                    label = "sendScale"
                 )
+
+                Box(
+                    modifier = Modifier
+                        .size(42.dp)
+                        .scale(scale)
+                        .clip(CircleShape)
+                        .background(
+                            if (text.isNotBlank())
+                                Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
+                            else
+                                Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
+                        )
+                        .clickable(
+                            enabled = text.isNotBlank(),
+                            interactionSource = sendInteraction,
+                            indication = null
+                        ) { onSend() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send Message",
+                        tint = if (text.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         }
     }

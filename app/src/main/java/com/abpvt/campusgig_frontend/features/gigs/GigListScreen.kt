@@ -578,6 +578,7 @@ private fun GigSearchBar(
     OutlinedTextField(
         value       = query,
         onValueChange = onChanged,
+        textStyle   = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
         placeholder = {
             Text(
                 "Search gigs, skills, categories…",
@@ -603,8 +604,8 @@ private fun GigSearchBar(
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { onSearch() }),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor    = MaterialTheme.colorScheme.onBackground,
-            unfocusedTextColor  = MaterialTheme.colorScheme.onBackground,
+            focusedTextColor    = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor  = MaterialTheme.colorScheme.onSurface,
             focusedContainerColor   = MaterialTheme.colorScheme.surfaceVariant,
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedBorderColor      = MaterialTheme.colorScheme.primary,

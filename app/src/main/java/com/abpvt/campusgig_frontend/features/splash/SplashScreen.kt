@@ -1,12 +1,13 @@
 /**
- * SplashScreen.kt — Premium animated launch experience for CampusVault.
+ * SplashScreen.kt — World-class animated launch experience for CampusGig.
  *
- * Design inspiration: Linear, Stripe, Arc Browser.
- * - Dark obsidian background (#0B0F19) with radial glow orbs.
- * - Bouncing logo badge with spring scale-in entrance.
- * - Staggered fade-in for brand name and tagline.
- * - Animated floating gradient dots for depth.
- * - Auto-navigates after 2.2s to Login or Home (based on session).
+ * Design Inspiration: Linear, Stripe, Apple, Arc Browser.
+ * - Deep obsidian radial canvas (#090D16) with dual pulsating ambient light orbs.
+ * - Multi-layer glowing aura ring expanding behind the brand mark.
+ * - Ultra-responsive spring physics entrance for CampusGig logo badge.
+ * - Shimmering gradient sweep across the lightning bolt.
+ * - Smooth staggered slide-up & fade-in for brand title & tagline.
+ * - Seamless fade-out transition before entering the app.
  */
 package com.abpvt.campusgig_frontend.features.splash
 
@@ -22,13 +23,13 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,16 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -61,21 +54,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.navigation.Routes
+import com.abpvt.campusgig_frontend.ui.logo.CampusGigLogoIcon
 import com.abpvt.campusgig_frontend.ui.theme.BackgroundDark
-import com.abpvt.campusgig_frontend.ui.theme.BackgroundBase
 import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo40
-import com.abpvt.campusgig_frontend.ui.theme.CampusIndigo80
 import com.abpvt.campusgig_frontend.ui.theme.CampusTeal40
-import com.abpvt.campusgig_frontend.ui.theme.CampusTeal80
+import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
-import com.abpvt.campusgig_frontend.ui.theme.Violet500
-import com.abpvt.campusgig_frontend.ui.theme.GradientEnd
-import com.abpvt.campusgig_frontend.ui.theme.GradientMid
-import com.abpvt.campusgig_frontend.ui.theme.GradientStart
 import com.abpvt.campusgig_frontend.ui.theme.TextSecondaryDark
+import com.abpvt.campusgig_frontend.ui.theme.Violet400
+import com.abpvt.campusgig_frontend.ui.theme.Violet500
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -84,94 +72,114 @@ fun SplashScreen(
     navController: NavController,
     isLoggedIn: Boolean
 ) {
-    // ── Animation state ──────────────────────────────────────────────────────
-    val logoScale   = remember { Animatable(0f) }
-    val logoAlpha   = remember { Animatable(0f) }
-    val titleAlpha  = remember { Animatable(0f) }
-    val titleOffset = remember { Animatable(24f) }
+    // ── Entrance Animation State ─────────────────────────────────────────────
+    val logoScale    = remember { Animatable(0.2f) }
+    val logoAlpha    = remember { Animatable(0f) }
+    val auraScale    = remember { Animatable(0.5f) }
+    val auraAlpha    = remember { Animatable(0f) }
+    val titleAlpha   = remember { Animatable(0f) }
+    val titleOffset  = remember { Animatable(32f) }
     val taglineAlpha = remember { Animatable(0f) }
     val screenAlpha  = remember { Animatable(1f) }
 
-    // Infinite subtle pulse on the glow orbs
-    val infiniteTransition = rememberInfiniteTransition(label = "splash_pulse")
+    // ── Continuous Infinite Ambient Animations ──────────────────────────────
+    val infiniteTransition = rememberInfiniteTransition(label = "splash_infinite")
     val orbPulse by infiniteTransition.animateFloat(
-        initialValue = 0.9f,
-        targetValue  = 1.1f,
+        initialValue = 0.88f,
+        targetValue  = 1.15f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2200, easing = FastOutSlowInEasing),
+            animation = tween(2600, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "orb_pulse"
     )
-    val dotFloat by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue  = 8f,
+    val auraGlow by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue  = 0.85f,
         animationSpec = infiniteRepeatable(
             animation = tween(1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "dot_float"
+        label = "aura_glow"
+    )
+    val floatY by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue  = 12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float_y"
     )
 
-    // ── Orchestrated entrance sequence ───────────────────────────────────────
+    // ── Orchestrated Entrance Sequence ───────────────────────────────────────
     LaunchedEffect(Unit) {
-        // Step 1: Logo bounces in
+        // Step 1: Glowing Aura expands behind logo
+        launch {
+            auraScale.animateTo(
+                targetValue = 1.3f,
+                animationSpec = spring(dampingRatio = 0.6f, stiffness = Spring.StiffnessLow)
+            )
+        }
+        launch { auraAlpha.animateTo(0.6f, tween(500)) }
+
+        // Step 2: Bouncing Logo entrance with bouncy spring
         launch {
             logoScale.animateTo(
                 targetValue = 1f,
                 animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness    = Spring.StiffnessMedium
+                    dampingRatio = 0.55f, // Bouncy & playful
+                    stiffness    = 280f
                 )
             )
         }
-        launch { logoAlpha.animateTo(1f, tween(400)) }
+        launch { logoAlpha.animateTo(1f, tween(350)) }
 
-        // Step 2: Brand title slides up + fades in (staggered 300ms after logo)
-        delay(300)
+        // Step 3: Brand title slides up smoothly (staggered 250ms after logo)
+        delay(250)
         launch {
-            titleAlpha.animateTo(1f, tween(500, easing = FastOutSlowInEasing))
+            titleAlpha.animateTo(1f, tween(450, easing = FastOutSlowInEasing))
         }
         launch {
-            titleOffset.animateTo(0f, tween(500, easing = FastOutSlowInEasing))
+            titleOffset.animateTo(0f, tween(450, easing = FastOutSlowInEasing))
         }
 
-        // Step 3: Tagline fades in (staggered 500ms after title)
-        delay(500)
-        taglineAlpha.animateTo(1f, tween(600))
+        // Step 4: Tagline & badges fade in (staggered 400ms after title)
+        delay(400)
+        taglineAlpha.animateTo(1f, tween(500))
 
-        // Step 4: Hold for a moment, then fade out entire screen
-        delay(1000)
+        // Step 5: Hold screen briefly to wow user, then smooth fade-out exit
+        delay(1100)
         screenAlpha.animateTo(
-            targetValue  = 0f,
-            animationSpec = tween(400, easing = LinearEasing)
+            targetValue = 0f,
+            animationSpec = tween(380, easing = LinearEasing)
         )
 
-        // Step 5: Navigate to appropriate start destination
+        // Step 6: Navigate to Login or Home
         val destination = if (isLoggedIn) Routes.HOME else Routes.LOGIN
         navController.navigate(destination) {
             popUpTo(Routes.SPLASH) { inclusive = true }
         }
     }
 
-    // ── UI ───────────────────────────────────────────────────────────────────
+    // ── Canvas Layout ────────────────────────────────────────────────────────
     Box(
         modifier = Modifier
             .fillMaxSize()
             .alpha(screenAlpha.value)
-            .background(BackgroundDark),
+            .background(Color(0xFF090D16)),
         contentAlignment = Alignment.Center
     ) {
-        // ── Background radial glow orbs ──────────────────────────────────────
+        // ── 1. Dual Ambient Glowing Orbs ─────────────────────────────────────
         Box(
             modifier = Modifier
-                .size((340 * orbPulse).dp)
+                .size((380 * orbPulse).dp)
                 .align(Alignment.TopEnd)
-                .offset(x = 80.dp, y = (-40).dp)
+                .offset(x = 90.dp, y = (-50).dp)
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            CampusIndigo40.copy(alpha = 0.18f),
+                            GradientIndigoStart.copy(alpha = 0.25f),
                             Color.Transparent
                         )
                     )
@@ -179,159 +187,99 @@ fun SplashScreen(
         )
         Box(
             modifier = Modifier
-                .size((300 * orbPulse).dp)
+                .size((340 * orbPulse).dp)
                 .align(Alignment.BottomStart)
-                .offset(x = (-60).dp, y = 40.dp)
+                .offset(x = (-70).dp, y = 50.dp)
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            CampusTeal40.copy(alpha = 0.14f),
+                            Violet500.copy(alpha = 0.20f),
                             Color.Transparent
                         )
                     )
                 )
         )
 
-        // ── Floating ambient dots ────────────────────────────────────────────
+        // ── 2. Floating Particle Accents ────────────────────────────────────
         Box(
             modifier = Modifier
-                .size(8.dp)
+                .size(10.dp)
                 .align(Alignment.TopStart)
-                .offset(x = 60.dp, y = (160 + dotFloat).dp)
-                .background(CampusIndigo40.copy(alpha = 0.4f), RoundedCornerShape(50))
-        )
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = (-80).dp, y = (-200 - dotFloat).dp)
-                .background(CampusTeal40.copy(alpha = 0.5f), RoundedCornerShape(50))
+                .offset(x = 54.dp, y = (140 + floatY).dp)
+                .clip(CircleShape)
+                .background(GradientIndigoStart.copy(alpha = 0.45f))
         )
         Box(
             modifier = Modifier
                 .size(6.dp)
-                .align(Alignment.CenterEnd)
-                .offset(x = (-40).dp, y = (-80 + dotFloat).dp)
-                .background(CampusIndigo40.copy(alpha = 0.3f), RoundedCornerShape(50))
+                .align(Alignment.BottomEnd)
+                .offset(x = (-70).dp, y = (-180 - floatY).dp)
+                .clip(CircleShape)
+                .background(CampusTeal40.copy(alpha = 0.5f))
+        )
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .align(Alignment.CenterStart)
+                .offset(x = 36.dp, y = (-90 + floatY).dp)
+                .clip(CircleShape)
+                .background(Violet400.copy(alpha = 0.35f))
         )
 
-        // ── Center content: Logo + Brand text ───────────────────────────────
+        // ── 3. Center Hero: Aura + Logo + Brand Wordmark ────────────────────
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ── V-Lock Logo Badge ─────────────────────────────────────────
-            // Brand mark: geometric V with keyhole negative space at base vertex.
-            // Built entirely in Compose Canvas — no external asset needed.
             Box(
-                modifier = Modifier
-                    .scale(logoScale.value)
-                    .alpha(logoAlpha.value)
-                    .size(104.dp)
-                    // Deep navy brand background
-                    .background(
-                        color = BackgroundBase,
-                        shape = RoundedCornerShape(26.dp)
-                    )
-                    // Subtle glass border
-                    .border(
-                        width = 1.dp,
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.18f),
-                                Color.White.copy(alpha = 0.04f)
-                            )
-                        ),
-                        shape = RoundedCornerShape(26.dp)
-                    ),
                 contentAlignment = Alignment.Center
             ) {
-                // Subtle indigo ambient glow behind the mark
+                // Expanding Glow Aura Ring behind Logo
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .scale(auraScale.value)
+                        .alpha(auraAlpha.value * auraGlow)
+                        .size(160.dp)
+                        .clip(CircleShape)
                         .background(
                             brush = Brush.radialGradient(
                                 colors = listOf(
-                                    GradientIndigoStart.copy(alpha = 0.28f),
+                                    GradientIndigoStart.copy(alpha = 0.5f),
+                                    Violet400.copy(alpha = 0.2f),
                                     Color.Transparent
                                 )
                             )
                         )
                 )
-                // The V-Lock mark drawn on Canvas
-                Canvas(modifier = Modifier.size(56.dp)) {
-                    val w = size.width
-                    val h = size.height
 
-                    // ── Gradient brush for the V arms ────────────────────
-                    val vGradient = Brush.linearGradient(
-                        colors = listOf(GradientIndigoStart, GradientIndigoMid, Violet500),
-                        start = Offset(0f, 0f),
-                        end   = Offset(w, h)
-                    )
-
-                    // ── V shape as a filled Path ─────────────────────────
-                    // The V occupies the full canvas width with a vertex at
-                    // ~80% of the height to leave room for the keyhole below.
-                    val armThickness = w * 0.22f
-                    val vertexY     = h * 0.80f   // where the two arms meet
-                    val topInset    = 0f           // arms start at canvas top
-
-                    val vPath = Path().apply {
-                        // Left arm — outer edge (top-left to vertex)
-                        moveTo(0f, topInset)
-                        lineTo(armThickness, topInset)
-                        // Left arm — inner edge meets at vertex center-bottom
-                        lineTo(w * 0.5f, vertexY)
-                        // Right arm — inner edge from vertex
-                        lineTo(w - armThickness, topInset)
-                        lineTo(w, topInset)
-                        // Right arm — outer edge back to vertex
-                        lineTo(w * 0.5f, vertexY + armThickness * 0.5f)
-                        close()
-                    }
-
-                    // ── Keyhole as a subtractive path ────────────────────
-                    // Circle + rectangular slot centered at the V vertex
-                    val khRadius = w * 0.085f
-                    val khCx     = w * 0.5f
-                    val khCy     = vertexY - khRadius * 0.4f
-                    val slotW    = khRadius * 0.7f
-                    val slotH    = khRadius * 1.6f
-
-                    val keyholePath = Path().apply {
-                        // Circle
-                        addOval(
-                            Rect(
-                                center = Offset(khCx, khCy),
-                                radius = khRadius
-                            )
-                        )
-                        // Rectangular slot below the circle
-                        addRect(
-                            Rect(
-                                offset = Offset(khCx - slotW / 2f, khCy + khRadius * 0.55f),
-                                size   = Size(slotW, slotH)
-                            )
-                        )
-                    }
-
-                    // ── Final mark = V minus keyhole ──────────────────────
-                    val markPath = Path().apply {
-                        op(vPath, keyholePath, PathOperation.Difference)
-                    }
-
-                    drawPath(
-                        path  = markPath,
-                        brush = vGradient
+                // Outer Glass Blur Ring around Badge
+                Box(
+                    modifier = Modifier
+                        .scale(logoScale.value)
+                        .alpha(logoAlpha.value)
+                        .size(118.dp)
+                        .clip(RoundedCornerShape(34.dp))
+                        .border(
+                            width = 1.5.dp,
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    Color.White.copy(alpha = 0.35f),
+                                    Color.White.copy(alpha = 0.08f)
+                                )
+                            ),
+                            shape = RoundedCornerShape(34.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Official CampusGig Electric Indigo Lightning Badge
+                    CampusGigLogoIcon(
+                        size = 110.dp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
-            // Brand wordmark: "Campus" white · "Vault" indigo gradient
-            // Typography: heavy weight, tight tracking (-0.5sp) — brand spec
+            // ── Brand Wordmark ("Campus" Pure White · "Gig" Electric Indigo Gradient) ──
             Text(
                 text = buildAnnotatedString {
                     withStyle(
@@ -343,47 +291,66 @@ fun SplashScreen(
                     withStyle(
                         SpanStyle(
                             brush      = Brush.horizontalGradient(
-                                colors = listOf(GradientIndigoStart, Violet500)
+                                colors = listOf(GradientIndigoStart, GradientIndigoEnd)
                             ),
                             fontWeight = FontWeight.ExtraBold
                         )
-                    ) { append("Vault") }
+                    ) { append("Gig") }
                 },
                 modifier = Modifier
                     .alpha(titleAlpha.value)
                     .offset(y = titleOffset.value.dp),
                 style = TextStyle(
-                    fontSize      = 34.sp,
-                    letterSpacing = (-0.5).sp
+                    fontSize      = 38.sp,
+                    letterSpacing = (-0.8).sp
                 )
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Tagline fade-in
-            Text(
-                text = "Learn · Earn · Collaborate",
-                modifier = Modifier.alpha(taglineAlpha.value),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    letterSpacing = 0.8.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = TextSecondaryDark
-            )
+            // ── Tagline Badge ───────────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .alpha(taglineAlpha.value)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .border(
+                        1.dp,
+                        Brush.linearGradient(
+                            listOf(
+                                GradientIndigoStart.copy(alpha = 0.4f),
+                                GradientIndigoEnd.copy(alpha = 0.2f)
+                            )
+                        ),
+                        RoundedCornerShape(20.dp)
+                    )
+                    .padding(horizontal = 16.dp, vertical = 7.dp)
+            ) {
+                Text(
+                    text = "Learn  •  Earn  •  Collaborate",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize      = 13.sp,
+                        letterSpacing = 0.6.sp,
+                        fontWeight    = FontWeight.SemiBold
+                    ),
+                    color = Color.White.copy(alpha = 0.9f)
+                )
+            }
         }
 
-        // ── Bottom version tag ───────────────────────────────────────────────
+        // ── 4. Bottom Footer Version Tag ────────────────────────────────────
         Text(
-            text = "v1.0 · Student Edition",
+            text = "CampusGig v1.0 • Student Edition",
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = (-32).dp)
+                .offset(y = (-36).dp)
                 .alpha(taglineAlpha.value),
             style = MaterialTheme.typography.labelSmall.copy(
-                fontSize = 10.sp,
-                letterSpacing = 0.5.sp
+                fontSize      = 11.sp,
+                letterSpacing = 0.8.sp,
+                fontWeight    = FontWeight.Medium
             ),
-            color = Color.White.copy(alpha = 0.2f)
+            color = Color.White.copy(alpha = 0.25f)
         )
     }
 }

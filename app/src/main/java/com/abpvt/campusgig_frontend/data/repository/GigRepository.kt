@@ -39,6 +39,51 @@ class GigRepository(private val api: ApiService) {
         }
     }
 
+    suspend fun submitWork(id: String, submittedUrl: String, submittedNote: String? = null): Resource<String> {
+        return try {
+            val body = mutableMapOf("submittedUrl" to submittedUrl)
+            if (!submittedNote.isNullOrBlank()) {
+                body["submittedNote"] = submittedNote
+            }
+            val response = api.submitWork(id, body)
+            if (response.isSuccessful) {
+                Resource.Success(response.body()?.message ?: "Work submitted successfully")
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
+    suspend fun getCompletionOtp(id: String): Resource<com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse> {
+        return try {
+            val response = api.getCompletionOtp(id)
+            if (response.isSuccessful) {
+                val data = response.body()?.data
+                if (data != null) Resource.Success(data)
+                else Resource.Error("No OTP data returned")
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
+    suspend fun completeGig(id: String, otp: String): Resource<String> {
+        return try {
+            val response = api.completeGig(id, mapOf("otp" to otp))
+            if (response.isSuccessful) {
+                Resource.Success(response.body()?.message ?: "Gig completed successfully")
+            } else {
+                response.toResourceError()
+            }
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
+        }
+    }
+
     /**
      * Generic safe API call wrapper.
      * - Uses safe body() unwrap instead of !! to prevent NullPointerException crashes.

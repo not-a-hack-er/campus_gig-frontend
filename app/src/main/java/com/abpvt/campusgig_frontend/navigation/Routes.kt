@@ -79,18 +79,20 @@ object Routes {
     /**
      * Chat route with receiver info and optional gig context (gigTitle, gigBudget).
      */
-    const val CHAT = "chat/{receiverId}/{receiverName}?gigTitle={gigTitle}&gigBudget={gigBudget}"
+    const val CHAT = "chat/{receiverId}/{receiverName}?gigTitle={gigTitle}&gigBudget={gigBudget}&gigId={gigId}"
 
     fun chat(
         receiverId: String,
         receiverName: String,
         gigTitle: String? = null,
-        gigBudget: String? = null
+        gigBudget: String? = null,
+        gigId: String? = null
     ): String {
         val encodedName = receiverName.replace(" ", "%20")
         val titleQuery  = if (!gigTitle.isNullOrBlank()) "gigTitle=${gigTitle.replace(" ", "%20")}" else ""
         val budgetQuery = if (!gigBudget.isNullOrBlank()) "gigBudget=${gigBudget.replace(" ", "%20")}" else ""
-        val queryString = listOf(titleQuery, budgetQuery).filter { it.isNotBlank() }.joinToString("&")
+        val idQuery     = if (!gigId.isNullOrBlank()) "gigId=$gigId" else ""
+        val queryString = listOf(titleQuery, budgetQuery, idQuery).filter { it.isNotBlank() }.joinToString("&")
         return if (queryString.isNotBlank()) "chat/$receiverId/$encodedName?$queryString" else "chat/$receiverId/$encodedName"
     }
 

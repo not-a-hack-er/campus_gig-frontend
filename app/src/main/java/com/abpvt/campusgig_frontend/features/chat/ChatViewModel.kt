@@ -40,9 +40,10 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
 
     private var lastTypingTime = 0L
 
-    // Track current conversation receiver
+    // Track current conversation receiver and gig
     private var currentReceiverId = ""
     private var currentUserId     = ""
+    private var currentGigId      = ""
 
     init {
         loadConversations()
@@ -81,17 +82,18 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
      * Loads chat history with a specific user AND registers socket listeners
      * for real-time incoming messages, presence, and read receipts.
      */
-    fun loadMessages(receiverId: String, myUserId: String = "") {
+    fun loadMessages(receiverId: String, myUserId: String = "", gigId: String = "") {
         currentReceiverId = receiverId
         currentUserId     = myUserId
+        currentGigId      = gigId
 
         viewModelScope.launch {
             _messages.value = Resource.Loading
-            _messages.value = repository.getMessages(receiverId)
+            _messages.value = repository.getMessages(receiverId, gigId)
 
             // Mark unread messages as read in DB and emit read event to peer
-            repository.markMessagesRead(receiverId)
-            SocketManager.emitMarkRead(receiverId)
+            repository.markMessagesRead(receiverId, gigId)
+            SocketManager.emitMarkRead(receiverId, gigId)
         }
 
         // Check current cached online users
@@ -107,8 +109,8 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
             val senderId  = senderObj?.optString("_id", "") ?: messageJson.optString("sender", "")
             if (senderId == receiverId) {
                 viewModelScope.launch {
-                    repository.markMessagesRead(receiverId)
-                    SocketManager.emitMarkRead(receiverId)
+                    repository.markMessagesRead(receiverId, currentGigId)
+                    SocketManager.emitMarkRead(receiverId, currentGigId)
                 }
             }
         }
@@ -148,7 +150,7 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
         val now = System.currentTimeMillis()
         if (now - lastTypingTime > 2000) {
             lastTypingTime = now
-            SocketManager.emitTyping(receiverId)
+            SocketManager.emitTyping(receiverId, currentGigId)
         }
     }
 
@@ -172,7 +174,7 @@ class ChatViewModel(private val repository: ChatRepository) : ViewModel() {
         _messages.value = Resource.Success(currentList.toList())
 
         // Emit to socket — server saves, broadcasts back
-        SocketManager.sendMessage(receiverId, content)
+        SocketManager.sendMessage(receiverId, content, currentGigId)
 
         // Reload inbox list in background so the new conversation immediately appears in Inbox
         viewModelScope.launch {

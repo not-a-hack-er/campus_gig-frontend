@@ -50,11 +50,17 @@ data class Application(
     val expectedBudget: Double = 0.0,
 
     /**
-     * Application status — changes as the employer reviews.
-     * Values: "pending" | "accepted" | "rejected"
+     * Application status — changes as the employer reviews and gig progresses.
+     * Values: "pending" | "accepted" | "rejected" | "withdrawn" | "completed"
      * Default is "pending" when first submitted.
      */
     val status: String = "pending",
+
+    /**
+     * Deliverable work submission attached to this application when the student submits work.
+     * Populated by the backend when the applicant calls submitWork().
+     */
+    val workSubmission: WorkSubmission? = null,
 
     // Timestamps
     @SerializedName("createdAt")

@@ -72,4 +72,17 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
     /** Reset update state after navigation. */
     fun resetUpdateState() { _updateState.value = null }
+
+    // State for change password operation
+    private val _changePasswordState = MutableStateFlow<Resource<String>?>(null)
+    val changePasswordState: StateFlow<Resource<String>?> = _changePasswordState.asStateFlow()
+
+    fun changePassword(currentPass: String, newPass: String) {
+        viewModelScope.launch {
+            _changePasswordState.value = Resource.Loading
+            _changePasswordState.value = repository.changePassword(currentPass, newPass)
+        }
+    }
+
+    fun resetChangePasswordState() { _changePasswordState.value = null }
 }

@@ -73,6 +73,7 @@ import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
+import kotlinx.coroutines.launch
 
 // ─── UI State ─────────────────────────────────────────────────────────────────
 
@@ -98,10 +99,35 @@ fun ProfileScreen(
         factory = ProfileViewModelFactory(
             (LocalContext.current.applicationContext as CampusGigApplication).userRepository
         )
+    ),
+    feedbackViewModel: com.abpvt.campusgig_frontend.features.profile.FeedbackViewModel = viewModel(
+        factory = com.abpvt.campusgig_frontend.core.utils.FeedbackViewModelFactory(
+            (LocalContext.current.applicationContext as CampusGigApplication).feedbackRepository
+        )
     )
 ) {
     val profileState by viewModel.profile.collectAsState()
+    val submitFeedbackState by feedbackViewModel.submitState.collectAsState()
     var uiState by remember { mutableStateOf(ProfileUiState()) }
+    var showFeedbackSheet by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+
+    androidx.compose.runtime.LaunchedEffect(submitFeedbackState) {
+        when (val s = submitFeedbackState) {
+            is com.abpvt.campusgig_frontend.core.utils.Resource.Success -> {
+                showFeedbackSheet = false
+                scope.launch { snackbarHostState.showSnackbar("Thank you for your feedback! 🎉") }
+                feedbackViewModel.resetSubmitState()
+            }
+            is com.abpvt.campusgig_frontend.core.utils.Resource.Error -> {
+                scope.launch { snackbarHostState.showSnackbar("Failed: ${s.message}") }
+                feedbackViewModel.resetSubmitState()
+            }
+            else -> {}
+        }
+    }
 
     val onAction: (ProfileAction) -> Unit = { action ->
         when (action) {
@@ -122,9 +148,25 @@ fun ProfileScreen(
                 user = state.data,
                 uiState = uiState,
                 onAction = onAction,
+                onOpenFeedback = { showFeedbackSheet = true },
                 navController = navController
             )
             null -> {}
+        }
+
+        androidx.compose.material3.SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+
+        if (showFeedbackSheet) {
+            com.abpvt.campusgig_frontend.ui.components.HelpFeedbackBottomSheet(
+                isSubmitting = submitFeedbackState is com.abpvt.campusgig_frontend.core.utils.Resource.Loading,
+                onDismiss = { showFeedbackSheet = false },
+                onSubmit = { type, rating, message ->
+                    feedbackViewModel.submitFeedback(type, rating, message)
+                }
+            )
         }
     }
 }
@@ -137,6 +179,7 @@ private fun ProfileContent(
     user: User,
     uiState: ProfileUiState,
     onAction: (ProfileAction) -> Unit,
+    onOpenFeedback: () -> Unit,
     navController: NavController
 ) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
@@ -284,7 +327,7 @@ private fun ProfileContent(
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        "🎓 ${user.college.ifBlank { "CampusVault Member" }}",
+                        "🎓 ${user.college.ifBlank { "CampusGig Member" }}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = GradientTealEnd
                     )
@@ -544,7 +587,36 @@ private fun ProfileContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
+
+            // ── Help & Feedback Action ─────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)), RoundedCornerShape(12.dp))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onOpenFeedback() },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("💬", fontSize = 18.sp)
+                    Text(
+                        "Help & Feedback",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
 
             // ── Logout Action ──────────────────────────────────────────────────
             Box(

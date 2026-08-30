@@ -204,19 +204,22 @@ fun AppNavGraph(
                     navArgument(Routes.ARG_RECEIVER_ID)   { type = NavType.StringType },
                     navArgument(Routes.ARG_RECEIVER_NAME) { type = NavType.StringType },
                     navArgument("gigTitle")  { type = NavType.StringType; nullable = true; defaultValue = null },
-                    navArgument("gigBudget") { type = NavType.StringType; nullable = true; defaultValue = null }
+                    navArgument("gigBudget") { type = NavType.StringType; nullable = true; defaultValue = null },
+                    navArgument("gigId")     { type = NavType.StringType; nullable = true; defaultValue = null }
                 )
             ) { navBackStackEntry ->
                 val receiverId   = navBackStackEntry.arguments?.getString(Routes.ARG_RECEIVER_ID)   ?: return@composable
                 val receiverName = navBackStackEntry.arguments?.getString(Routes.ARG_RECEIVER_NAME)?.replace("%20", " ") ?: "User"
                 val gigTitle     = navBackStackEntry.arguments?.getString("gigTitle")?.replace("%20", " ")
                 val gigBudget    = navBackStackEntry.arguments?.getString("gigBudget")?.replace("%20", " ")
+                val gigId        = navBackStackEntry.arguments?.getString("gigId")
                 ChatScreen(
                     navController  = navController,
                     receiverId     = receiverId,
                     receiverName   = receiverName,
                     gigTitle       = gigTitle,
-                    gigBudget      = gigBudget
+                    gigBudget      = gigBudget,
+                    gigId          = gigId
                 )
             }
 
