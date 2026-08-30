@@ -2228,76 +2228,36 @@ fun EnterOtpBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // ── OTP Display Box ───────────────────────────────────────────────
-            val displayCode = otpInput.trim()
-
-            if (displayCode.length == 4) {
-                // Show the 4 digits prominently
-                Text(
-                    "Your Completion Code",
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        letterSpacing = 1.5.sp,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            // ── OTP Input Field (Optional / Auto-filled) ────────────────────────
+            OutlinedTextField(
+                value = otpInput,
+                onValueChange = { if (it.length <= 4) onOtpChanged(it) },
+                textStyle = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                ),
+                label = { Text("4-Digit Completion Code", style = MaterialTheme.typography.labelMedium) },
+                placeholder = { Text("Enter code (or slide below to auto-approve)", style = MaterialTheme.typography.bodySmall) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = otpError.isNotBlank(),
+                shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedBorderColor = Color(0xFFF59E0B),
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    errorBorderColor = SemanticError,
+                    cursorColor = Color(0xFFF59E0B)
                 )
-                Spacer(Modifier.height(12.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    displayCode.forEach { digit ->
-                        Box(
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        listOf(
-                                            Color(0xFFF59E0B).copy(alpha = 0.15f),
-                                            Color(0xFFD97706).copy(alpha = 0.08f)
-                                        )
-                                    )
-                                )
-                                .border(1.5.dp, Color(0xFFF59E0B).copy(alpha = 0.5f), RoundedCornerShape(14.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                digit.toString(),
-                                style = MaterialTheme.typography.headlineMedium.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 28.sp
-                                ),
-                                color = Color(0xFFF59E0B)
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Verified Owner Instant Approval Badge
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(Color(0xFFF59E0B).copy(alpha = 0.12f))
-                        .border(1.dp, Color(0xFFF59E0B).copy(alpha = 0.3f), RoundedCornerShape(14.dp))
-                        .padding(vertical = 14.dp, horizontal = 16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("🔑", fontSize = 18.sp)
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            "Verified Gig Owner Approval Active",
-                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                            color = Color(0xFFF59E0B)
-                        )
-                    }
-                }
-            }
+            )
 
             if (otpError.isNotBlank()) {
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(6.dp))
                 Text(
                     otpError,
                     style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
@@ -2319,7 +2279,7 @@ fun EnterOtpBottomSheet(
             Spacer(Modifier.height(12.dp))
 
             Text(
-                "Slide right to mark the gig as Completed and release funds to the worker.",
+                "Slide right or enter code to mark gig as Completed and release funds.",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,

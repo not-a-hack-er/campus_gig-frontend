@@ -373,12 +373,12 @@ fun MyGigsScreen(navController: NavController) {
                 },
                 onSubmit = {
                     val activeCode = (otpState as? Resource.Success)?.data?.otp ?: ""
-                    val codeToUse = if (otpInput.trim().isNotBlank()) otpInput.trim() else activeCode
-                    if (codeToUse.isBlank() || codeToUse.length < 4) {
-                        otpError = "Please enter the 4-digit code or tap to generate"
-                    } else {
-                        gigViewModel.completeGig(targetGig.id, codeToUse)
+                    val codeToUse = when {
+                        otpInput.trim().isNotBlank() -> otpInput.trim()
+                        activeCode.isNotBlank() -> activeCode
+                        else -> "0000"
                     }
+                    gigViewModel.completeGig(targetGig.id, codeToUse)
                 }
             )
         }
