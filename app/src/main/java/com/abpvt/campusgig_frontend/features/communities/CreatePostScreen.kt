@@ -40,9 +40,12 @@ import androidx.compose.material.icons.filled.FormatItalic
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,19 +62,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.core.utils.CommunityViewModelFactory
+import com.abpvt.campusgig_frontend.core.utils.Constants
+import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 
 @Composable
 fun CreatePostScreen(
     navController: NavController,
-    communityId: String
+    communityId: String,
+    viewModel: CommunityViewModel = viewModel(
+        factory = CommunityViewModelFactory(
+            (LocalContext.current.applicationContext as CampusGigApplication).communityRepository
+        )
+    )
 ) {
+    val context = LocalContext.current
     var postText by remember { mutableStateOf("") }
     var isCodeMode by remember { mutableStateOf(false) }
-    var hasImage by remember { mutableStateOf(false) }
+    val postState by viewModel.postState.collectAsState()
+    val userName = remember {
+        context.getSharedPreferences(Constants.PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            .getString(Constants.KEY_USER_NAME, null)?.takeIf { it.isNotBlank() } ?: "Campus member"
+    }
 
-    val isPostEnabled = postText.isNotBlank()
+    val isPosting = postState is Resource.Loading
+    val isPostEnabled = postText.isNotBlank() && !isPosting
+
+    LaunchedEffect(postState) {
+        if (postState is Resource.Success) {
+            viewModel.resetPostState()
+            navController.popBackStack()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -105,14 +132,11 @@ fun CreatePostScreen(
                             else
                                 Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
                         )
-                        .clickable(enabled = isPostEnabled) { navController.popBackStack() }
+                        .clickable(enabled = isPostEnabled) { viewModel.createPost(communityId, postText) }
                         .padding(horizontal = 18.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        "Post",
-                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-                        color = if (isPostEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
+                    if (isPosting) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = Color.White)
+                    else Text("Post", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold), color = if (isPostEnabled) Color.White else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
 
@@ -158,11 +182,11 @@ fun CreatePostScreen(
                         .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("A", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                    Text(userName.first().uppercaseChar().toString(), fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
-                    Text("Akarsh Bajpai", style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                    Text(userName, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
                     Text("Sharing with community", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
@@ -198,32 +222,10 @@ fun CreatePostScreen(
                     }
                 )
 
-                // Image preview
-                if (hasImage) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .fillMaxWidth()
-                            .height(180.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize().background(Brush.linearGradient(listOf(GradientIndigoStart.copy(0.3f), GradientIndigoEnd.copy(0.2f)))))
-                        Text("📷 Image Preview", modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), style = MaterialTheme.typography.bodySmall)
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                                .size(26.dp)
-                                .clip(CircleShape)
-                                .background(Color.Black.copy(0.5f))
-                                .clickable { hasImage = false },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Remove image", tint = Color.White, modifier = Modifier.size(14.dp))
-                        }
-                    }
-                }
+            }
+
+            (postState as? Resource.Error)?.let {
+                Text(it.message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp))
             }
 
             // ── Bottom toolbar ─────────────────────────────────────────────
@@ -237,11 +239,7 @@ fun CreatePostScreen(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Icon(Icons.Default.Image, contentDescription = "Image", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp).clickable { hasImage = true })
-                    Icon(Icons.Default.Link, contentDescription = "Link", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
                     Icon(Icons.Default.Code, contentDescription = "Code", tint = if (isCodeMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp).clickable { isCodeMode = !isCodeMode })
-                    Icon(Icons.Default.FormatBold, contentDescription = "Bold", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
-                    Icon(Icons.Default.FormatItalic, contentDescription = "Italic", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(22.dp))
                 }
                 Text("${postText.length} chars", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
             }

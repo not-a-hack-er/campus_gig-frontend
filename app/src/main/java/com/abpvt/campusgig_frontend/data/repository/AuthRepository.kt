@@ -19,17 +19,36 @@ class AuthRepository(
         context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    private fun parseAuthData(rawJson: String): AuthResponse? {
+        if (rawJson.isBlank()) return null
+        return try {
+            val gson = com.google.gson.Gson()
+            val jsonObj = org.json.JSONObject(rawJson)
+
+            if (jsonObj.has("data") && !jsonObj.isNull("data")) {
+                val dataObj = jsonObj.getJSONObject("data")
+                gson.fromJson(dataObj.toString(), AuthResponse::class.java)
+            } else if (jsonObj.has("token") && jsonObj.has("user")) {
+                gson.fromJson(rawJson, AuthResponse::class.java)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     suspend fun login(email: String, password: String): Resource<AuthResponse> {
         return try {
             val response = api.login(LoginRequest(email, password))
             if (response.isSuccessful) {
-                val apiResponse = response.body()
-                val authData = apiResponse?.data
+                val rawJson = response.body()?.string() ?: ""
+                val authData = parseAuthData(rawJson)
                 if (authData != null && !authData.token.isNullOrBlank()) {
                     saveSession(authData.token, authData.user)
                     Resource.Success(authData)
                 } else {
-                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                    Resource.Error("Server returned invalid session data.")
                 }
             } else {
                 response.toResourceError()
@@ -43,13 +62,13 @@ class AuthRepository(
         return try {
             val response = api.googleLogin(mapOf("name" to name, "email" to email))
             if (response.isSuccessful) {
-                val apiResponse = response.body()
-                val authData = apiResponse?.data
+                val rawJson = response.body()?.string() ?: ""
+                val authData = parseAuthData(rawJson)
                 if (authData != null && !authData.token.isNullOrBlank()) {
                     saveSession(authData.token, authData.user)
                     Resource.Success(authData)
                 } else {
-                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                    Resource.Error("Server returned invalid session data.")
                 }
             } else {
                 response.toResourceError()
@@ -89,13 +108,13 @@ class AuthRepository(
                 )
             )
             if (response.isSuccessful) {
-                val apiResponse = response.body()
-                val authData = apiResponse?.data
+                val rawJson = response.body()?.string() ?: ""
+                val authData = parseAuthData(rawJson)
                 if (authData != null && !authData.token.isNullOrBlank()) {
                     saveSession(authData.token, authData.user)
                     Resource.Success(authData)
                 } else {
-                    Resource.Error(apiResponse?.message ?: "Server returned invalid session data.")
+                    Resource.Error("Server returned invalid session data.")
                 }
             } else {
                 response.toResourceError()
@@ -167,5 +186,7 @@ class AuthRepository(
             .putString(Constants.KEY_USER_NAME, user.name)
             .putString(Constants.KEY_USER_EMAIL, user.email)
             .apply()
+
+        com.abpvt.campusgig_frontend.CampusGigApplication.instance.syncFcmToken()
     }
 }

@@ -38,6 +38,7 @@ data class User(
     // Academic information — shown on profile and gig cards
     val college: String = "",
     val branch: String = "",           // e.g. "Computer Science", "Electronics"
+    val yearOfStudy: String = "",      // e.g. "1st", "2nd", "3rd", "4th", "5th+"
     val graduationYear: Int = 0,       // e.g. 2026
 
     // Professional profile

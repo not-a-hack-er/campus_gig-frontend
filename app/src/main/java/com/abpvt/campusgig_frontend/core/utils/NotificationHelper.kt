@@ -21,10 +21,12 @@ object NotificationHelper {
         context: Context,
         title: String,
         message: String,
-        notificationId: Int = (System.currentTimeMillis() % 10000).toInt()
+        notificationId: Int = (System.currentTimeMillis() % 10000).toInt(),
+        data: Map<String, String> = emptyMap()
     ) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            data.forEach { (key, value) -> putExtra(key, value) }
         }
 
         val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -35,13 +37,13 @@ object NotificationHelper {
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            notificationId,
             intent,
             pendingIntentFlags
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title.ifBlank { "CampusVault Alert" })
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

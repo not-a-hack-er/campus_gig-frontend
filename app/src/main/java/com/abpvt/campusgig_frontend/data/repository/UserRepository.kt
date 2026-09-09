@@ -4,8 +4,35 @@ import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.core.utils.toResourceError
 import com.abpvt.campusgig_frontend.data.model.User
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class UserRepository(private val api: ApiService) {
+
+    suspend fun uploadAvatar(bytes: ByteArray, mimeType: String): Resource<User> {
+        return try {
+            if (bytes.size > MAX_AVATAR_BYTES) {
+                return Resource.Error("Photo is too large. Please choose an image under 5 MB.")
+            }
+            val body = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+            val extension = when (mimeType.lowercase()) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                "image/gif" -> "gif"
+                else -> "jpg"
+            }
+            val part = MultipartBody.Part.createFormData("avatar", "profile-photo.$extension", body)
+            val response = api.uploadAvatar(part)
+            if (response.isSuccessful) {
+                val user = response.body()?.data?.user
+                    ?: return Resource.Error("Empty profile photo response", response.code())
+                Resource.Success(user)
+            } else response.toResourceError()
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Profile photo upload failed")
+        }
+    }
 
     suspend fun getMyProfile(): Resource<User> {
         return try {
@@ -51,5 +78,20 @@ class UserRepository(private val api: ApiService) {
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
         }
+    }
+
+    suspend fun updateFcmToken(fcmToken: String): Resource<Unit> {
+        return try {
+            val response = api.updateFcmToken(mapOf("fcmToken" to fcmToken))
+            if (response.isSuccessful) {
+                Resource.Success(Unit)
+            } else response.toResourceError()
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "Network error — failed to send FCM token")
+        }
+    }
+
+    private companion object {
+        const val MAX_AVATAR_BYTES = 5 * 1024 * 1024
     }
 }

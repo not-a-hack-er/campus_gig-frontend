@@ -58,6 +58,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
@@ -267,11 +270,20 @@ private fun ProfileContent(
                         .background(Brush.linearGradient(colors = listOf(GradientIndigoStart, GradientIndigoEnd))),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = user.initials(),
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White
-                    )
+                    if (user.profilePicture.isNotBlank()) {
+                        AsyncImage(
+                            model = user.profilePicture,
+                            contentDescription = "${user.name} profile photo",
+                            modifier = Modifier.fillMaxSize().clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Text(
+                            text = user.initials(),
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
@@ -292,6 +304,9 @@ private fun ProfileContent(
                     Text(user.college.ifBlank { "College Student" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (user.branch.isNotBlank()) {
                         Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    }
+                    if (user.yearOfStudy.isNotBlank()) {
+                        Text(" · ${user.yearOfStudy} Year", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
                 }
 
@@ -327,7 +342,7 @@ private fun ProfileContent(
                         .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        "🎓 ${user.college.ifBlank { "CampusGig Member" }}",
+                        "🎓 ${user.college.ifBlank { "Campus Vault Member" }}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = GradientTealEnd
                     )

@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -68,8 +69,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.layout.ContentScale
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
@@ -109,6 +116,15 @@ fun EditProfileScreen(
 ) {
     val profileState by viewModel.profile.collectAsState()
     val updateState by viewModel.updateState.collectAsState()
+    val avatarUploadState by viewModel.avatarUploadState.collectAsState()
+    val context = LocalContext.current
+    var selectedAvatarUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            selectedAvatarUri = uri
+            viewModel.uploadAvatar(context.contentResolver, uri)
+        }
+    }
 
     var name by remember { mutableStateOf("") }
     var bio by remember { mutableStateOf("") }
@@ -139,6 +155,7 @@ fun EditProfileScreen(
             bio = user.bio
             college = user.college
             course = user.branch
+            selectedYear = user.yearOfStudy
             skills.clear()
             skills.addAll(user.skills)
             github = user.githubProfile
@@ -155,6 +172,18 @@ fun EditProfileScreen(
             showAutoSave = false
             viewModel.resetUpdateState()
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(avatarUploadState) {
+        when (val state = avatarUploadState) {
+            is Resource.Success -> {
+                selectedAvatarUri = null
+                localError = ""
+                viewModel.resetAvatarUploadState()
+            }
+            is Resource.Error -> localError = state.message
+            else -> Unit
         }
     }
 
@@ -200,6 +229,7 @@ fun EditProfileScreen(
                                         bio = bio.trim(),
                                         college = college.trim(),
                                         branch = course.trim(),
+                                        yearOfStudy = selectedYear,
                                         skills = skills.toList(),
                                         githubProfile = github.trim(),
                                         linkedinProfile = linkedin.trim(),
@@ -272,11 +302,22 @@ fun EditProfileScreen(
                                 .border(3.dp, MaterialTheme.colorScheme.background, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
-                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                                color = Color.White
-                            )
+                            val remoteAvatar = (profileState as? Resource.Success<User>)?.data?.profilePicture
+                            val avatarModel = selectedAvatarUri ?: remoteAvatar?.takeIf { it.isNotBlank() }
+                            if (avatarModel != null) {
+                                AsyncImage(
+                                    model = avatarModel,
+                                    contentDescription = "Profile photo",
+                                    modifier = Modifier.fillMaxSize().clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    name.firstOrNull()?.uppercaseChar()?.toString() ?: "?",
+                                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White
+                                )
+                            }
                         }
                         Box(
                             modifier = Modifier
@@ -285,10 +326,16 @@ fun EditProfileScreen(
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary)
                                 .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
-                                .clickable { },
+                                .clickable(enabled = avatarUploadState !is Resource.Loading) {
+                                    avatarPicker.launch("image/*")
+                                },
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.CameraAlt, contentDescription = "Change photo", tint = Color.White, modifier = Modifier.size(12.dp))
+                            if (avatarUploadState is Resource.Loading) {
+                                CircularProgressIndicator(color = Color.White, strokeWidth = 1.5.dp, modifier = Modifier.size(12.dp))
+                            } else {
+                                Icon(Icons.Default.CameraAlt, contentDescription = "Change photo", tint = Color.White, modifier = Modifier.size(12.dp))
+                            }
                         }
                     }
                 }
@@ -413,10 +460,22 @@ fun EditProfileScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             colors = fieldColors,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                            keyboardActions = KeyboardActions(onDone = {
+                                val candidate = skillInput.trim().take(50)
+                                if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) {
+                                    skills.add(candidate)
+                                }
+                                skillInput = ""
+                            }),
                             trailingIcon = {
                                 if (skillInput.isNotBlank()) {
                                     Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable {
-                                        if (skillInput.isNotBlank()) { skills.add(skillInput.trim()); skillInput = "" }
+                                        val candidate = skillInput.trim().take(50)
+                                        if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) {
+                                            skills.add(candidate)
+                                        }
+                                        skillInput = ""
                                     }.padding(4.dp), contentAlignment = Alignment.Center) {
                                         Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
                                     }

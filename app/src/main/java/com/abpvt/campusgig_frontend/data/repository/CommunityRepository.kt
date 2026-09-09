@@ -4,6 +4,7 @@ import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.core.utils.toResourceError
 import com.abpvt.campusgig_frontend.data.model.Community
+import com.abpvt.campusgig_frontend.data.model.Post
 
 class CommunityRepository(private val api: ApiService) {
 
@@ -38,6 +39,12 @@ class CommunityRepository(private val api: ApiService) {
             Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
         }
     }
+
+    suspend fun getCommunityFeed(id: String): Resource<List<Post>> =
+        safeApiCall { api.getCommunityFeed(id) }
+
+    suspend fun createPost(id: String, content: String): Resource<Post> =
+        safeApiCall { api.createCommunityPost(id, mapOf("content" to content)) }
 
     private suspend fun <T> safeApiCall(call: suspend () -> retrofit2.Response<T>): Resource<T> {
         return try {

@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 // ─── Load keystore properties from keystore.properties (NOT committed to Git) ─
@@ -49,10 +50,11 @@ android {
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             create("release") {
-                storeFile = file(keystoreProperties.getProperty("storeFile", ""))
-                storePassword = keystoreProperties.getProperty("storePassword", "")
-                keyAlias = keystoreProperties.getProperty("keyAlias", "")
-                keyPassword = keystoreProperties.getProperty("keyPassword", "")
+                  storeFile = rootProject.file(keystoreProperties.getProperty("storeFile", ""))
+                  storePassword = keystoreProperties.getProperty("storePassword", "")
+                  keyAlias = keystoreProperties.getProperty("keyAlias", "")
+                  // PKCS12 uses the keystore password for private keys as well.
+                  keyPassword = keystoreProperties.getProperty("storePassword", "")
             }
         }
     }
@@ -117,8 +119,11 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.gson)
 
-    // Real-time chat
+    // Real-time chat & Messaging
     implementation(libs.socketio.client)
+    implementation(libs.firebase.messaging)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.fragment.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

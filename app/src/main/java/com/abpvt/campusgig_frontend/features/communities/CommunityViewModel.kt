@@ -7,6 +7,7 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.Constants
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Community
+import com.abpvt.campusgig_frontend.data.model.Post
 import com.abpvt.campusgig_frontend.data.repository.CommunityRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,12 @@ class CommunityViewModel(private val repository: CommunityRepository) : ViewMode
     private val _actionState = MutableStateFlow<Resource<String>?>(null)
     val actionState: StateFlow<Resource<String>?> = _actionState
 
+    private val _feed = MutableStateFlow<Resource<List<Post>>>(Resource.Loading)
+    val feed: StateFlow<Resource<List<Post>>> = _feed
+
+    private val _postState = MutableStateFlow<Resource<Post>?>(null)
+    val postState: StateFlow<Resource<Post>?> = _postState
+
     init { loadCommunities() }
 
     fun loadCommunities() {
@@ -45,6 +52,20 @@ class CommunityViewModel(private val repository: CommunityRepository) : ViewMode
             val res = repository.getCommunityById(id)
             _selectedCommunity.value = res
             updateMemberState(res)
+        }
+    }
+
+    fun loadFeed(id: String) {
+        viewModelScope.launch {
+            _feed.value = Resource.Loading
+            _feed.value = repository.getCommunityFeed(id)
+        }
+    }
+
+    fun createPost(id: String, content: String) {
+        viewModelScope.launch {
+            _postState.value = Resource.Loading
+            _postState.value = repository.createPost(id, content.trim())
         }
     }
 
@@ -91,5 +112,6 @@ class CommunityViewModel(private val repository: CommunityRepository) : ViewMode
 
     fun resetCreateState() { _createState.value = null }
     fun resetActionState() { _actionState.value = null }
+    fun resetPostState() { _postState.value = null }
 }
 

@@ -89,6 +89,7 @@ import com.abpvt.campusgig_frontend.core.utils.AuthViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Constants
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.navigation.Routes
+import com.abpvt.campusgig_frontend.core.utils.CollegeCatalog
 import com.abpvt.campusgig_frontend.ui.theme.GlowIndigo
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
@@ -140,27 +141,13 @@ fun RegisterScreen(
     LaunchedEffect(authState) {
         if (authState is Resource.Success) {
             viewModel.resetState()
-            navController.navigate(Routes.HOME) {
+            navController.navigate(Routes.PROFILE_SETUP) {
                 popUpTo(Routes.REGISTER) { inclusive = true }
             }
         }
     }
 
-    // Popular colleges list
-    val popularColleges = remember {
-        listOf(
-            "IIT Bombay", "IIT Delhi", "IIT Madras", "IIT Kanpur", "IIT Kharagpur",
-            "BITS Pilani", "BITS Goa", "BITS Hyderabad",
-            "NIT Trichy", "NIT Warangal", "NIT Surathkal",
-            "VIT Vellore", "VIT Chennai", "Manipal Institute of Technology",
-            "SRM Institute of Science and Technology", "Amity University",
-            "Delhi University", "Mumbai University", "Pune University",
-            "Anna University", "Osmania University", "Jadavpur University",
-            "IIIT Hyderabad", "IIIT Delhi", "IIIT Allahabad",
-            "Christ University", "Symbiosis International University",
-            "Lovely Professional University", "Chandigarh University"
-        ).sorted()
-    }
+    val popularColleges = CollegeCatalog.greaterNoida
 
     val yearOptions = listOf("1st", "2nd", "3rd", "4th", "5th+")
 
@@ -372,14 +359,14 @@ fun RegisterScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(SemanticErrorBg, RoundedCornerShape(8.dp))
-                                        .border(1.dp, SemanticError.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                        .background(Color(0x33DC2626), RoundedCornerShape(8.dp))
+                                        .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                                         .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
                                     Text(
                                         text = localError,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = SemanticError
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                        color = Color(0xFFFCA5A5)
                                     )
                                 }
                             }
@@ -694,14 +681,14 @@ fun RegisterScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(SemanticErrorBg, RoundedCornerShape(8.dp))
-                                        .border(1.dp, SemanticError.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                        .background(Color(0x33DC2626), RoundedCornerShape(8.dp))
+                                        .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                                         .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
                                     Text(
                                         text = (authState as Resource.Error).message,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = SemanticError
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                        color = Color(0xFFFCA5A5)
                                     )
                                 }
                             }
@@ -709,14 +696,14 @@ fun RegisterScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(SemanticErrorBg, RoundedCornerShape(8.dp))
-                                        .border(1.dp, SemanticError.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                        .background(Color(0x33DC2626), RoundedCornerShape(8.dp))
+                                        .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                                         .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
                                     Text(
                                         text = localError,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = SemanticError
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                        color = Color(0xFFFCA5A5)
                                     )
                                 }
                             }

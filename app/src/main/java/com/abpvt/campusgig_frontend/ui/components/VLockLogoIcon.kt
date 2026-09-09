@@ -12,12 +12,6 @@ import com.abpvt.campusgig_frontend.ui.logo.CampusGigLogoIcon
  * com.abpvt.campusgig_frontend.ui.logo.CampusGigLogo.kt
  */
 @Composable
-fun CampusGigLogoIcon(
-    modifier: Modifier = Modifier,
-    size: Dp = 30.dp
-) = CampusGigLogoIcon(modifier = modifier, size = size)
-
-@Composable
 fun VLockLogoIcon(
     modifier: Modifier = Modifier,
     size: Dp = 30.dp

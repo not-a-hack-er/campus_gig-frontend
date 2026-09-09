@@ -213,13 +213,6 @@ object SocketManager {
             val notification = args.getOrNull(0) as? JSONObject
             if (notification != null) {
                 Log.d(TAG, "New notification received: ${notification.optString("title")}")
-                val title = notification.optString("title", "CampusVault Alert")
-                val message = notification.optString("message", notification.optString("content", ""))
-                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
-                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
-                    title,
-                    message
-                )
                 callback(notification)
             }
         }
@@ -238,11 +231,6 @@ object SocketManager {
             val data = args.getOrNull(0) as? JSONObject
             if (data != null) {
                 Log.d(TAG, "work_submitted event received for gig: ${data.optString("gigId")}")
-                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
-                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
-                    "Work Submitted 🚀",
-                    "Worker submitted deliverable for gig. Open app to view OTP."
-                )
                 callback(data)
             }
         }
@@ -257,11 +245,6 @@ object SocketManager {
             val data = args.getOrNull(0) as? JSONObject
             if (data != null) {
                 Log.d(TAG, "gig_completed event received for gig: ${data.optString("gigId")}")
-                com.abpvt.campusgig_frontend.core.utils.NotificationHelper.showNotification(
-                    com.abpvt.campusgig_frontend.CampusGigApplication.instance,
-                    "Gig Completed 🎉",
-                    "Your gig has been verified and marked completed!"
-                )
                 callback(data)
             }
         }

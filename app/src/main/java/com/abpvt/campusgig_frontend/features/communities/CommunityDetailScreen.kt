@@ -15,9 +15,6 @@
  */
 package com.abpvt.campusgig_frontend.features.communities
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,15 +51,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -76,13 +70,16 @@ import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.CommunityViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Community
+import com.abpvt.campusgig_frontend.data.model.Post
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 private fun communityGradient(name: String): List<Color> {
     val gradients = listOf(
@@ -98,15 +95,6 @@ private fun communityGradient(name: String): List<Color> {
 
 val detailTabs = listOf("Feed", "Members", "About")
 
-private data class MockPost(val author: String, val text: String, val likes: Int, val comments: Int, val time: String)
-
-private val mockPosts = listOf(
-    MockPost("Akarsh Bajpai", "Just shipped the new animation system for CampusGig! Compose animations are incredible 🚀 Really enjoying the spring physics API.", 24, 8, "2h ago"),
-    MockPost("Sarah Jenkins", "Looking for a design partner for a hackathon project next week. DM me if you're interested — need someone strong with Figma + Prototyping.", 18, 12, "4h ago"),
-    MockPost("Dev Sharma", "Hot take: Compose Multiplatform is ready for production if you're careful about what APIs you touch. Shipped iOS yesterday, barely any issues.", 31, 15, "Yesterday"),
-    MockPost("Neha Rao", "Just got my first freelance project through CampusGig 🎉 Built a landing page for a startup. ₹4,500 for 3 days work. Highly recommend this app!", 45, 6, "Yesterday"),
-)
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommunityDetailScreen(
@@ -118,9 +106,13 @@ fun CommunityDetailScreen(
         )
     )
 ) {
-    LaunchedEffect(communityId) { viewModel.loadCommunityById(communityId) }
+    LaunchedEffect(communityId) {
+        viewModel.loadCommunityById(communityId)
+        viewModel.loadFeed(communityId)
+    }
 
     val communityState by viewModel.selectedCommunity.collectAsState()
+    val feedState by viewModel.feed.collectAsState()
     val isMember by viewModel.isMember.collectAsState()
     var selectedTab by remember { mutableStateOf(0) }
 
@@ -304,8 +296,23 @@ fun CommunityDetailScreen(
                     when (selectedTab) {
                         0 -> { // FEED
                             item { Spacer(modifier = Modifier.height(12.dp)) }
-                            items(mockPosts) { post ->
-                                PostCard(post = post, modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
+                            when (val state = feedState) {
+                                is Resource.Loading -> item {
+                                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                        CircularProgressIndicator(modifier = Modifier.size(28.dp))
+                                    }
+                                }
+                                is Resource.Error -> item {
+                                    Text("Could not load posts. Tap Feed to retry.", modifier = Modifier.padding(20.dp), color = SemanticSuccess)
+                                }
+                                is Resource.Success -> {
+                                    if (state.data.isEmpty()) item {
+                                        Text("No posts yet. Start the conversation.", modifier = Modifier.padding(20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                    items(state.data, key = { it.id }) { post ->
+                                        PostCard(post = post, modifier = Modifier.padding(horizontal = 16.dp, vertical = 5.dp))
+                                    }
+                                }
                             }
                         }
                         1 -> { // MEMBERS
@@ -391,11 +398,11 @@ private fun CommunityStat(value: String, label: String) {
 }
 
 @Composable
-private fun PostCard(post: MockPost, modifier: Modifier = Modifier) {
-    var likeCount by remember { mutableIntStateOf(post.likes) }
-    var isLiked by remember { mutableStateOf(false) }
-    val scale = remember { Animatable(1f) }
-    val scope = rememberCoroutineScope()
+private fun PostCard(post: Post, modifier: Modifier = Modifier) {
+    val authorName = post.author?.name?.ifBlank { "Campus member" } ?: "Campus member"
+    val postedAt = runCatching {
+        DateTimeFormatter.ofPattern("d MMM, h:mm a").format(Instant.parse(post.createdAt).atZone(ZoneId.systemDefault()))
+    }.getOrDefault("Recently")
 
     Box(
         modifier = modifier
@@ -409,46 +416,25 @@ private fun PostCard(post: MockPost, modifier: Modifier = Modifier) {
             // Author row
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(36.dp).clip(CircleShape).background(GradientIndigoStart.copy(0.2f)), contentAlignment = Alignment.Center) {
-                    Text(post.author.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
+                    Text(authorName.first().uppercaseChar().toString(), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(post.author, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
-                    Text(post.time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    Text(authorName, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground)
+                    Text(postedAt, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
                 Icon(Icons.Default.MoreVert, contentDescription = "More", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
             }
             Spacer(modifier = Modifier.height(10.dp))
             // Post text
-            Text(post.text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 5)
+            Text(post.content, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 5)
             Spacer(modifier = Modifier.height(12.dp))
             // Engagement row
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        scope.launch {
-                            if (!isLiked) {
-                                likeCount++
-                                scale.animateTo(1.3f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
-                                scale.animateTo(1f, spring(dampingRatio = Spring.DampingRatioMediumBouncy))
-                            } else {
-                                likeCount--
-                            }
-                            isLiked = !isLiked
-                        }
-                    }
-                ) {
-                    Box(modifier = Modifier.scale(scale.value)) {
-                        Icon(Icons.Default.ThumbUp, contentDescription = "Like", tint = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
-                    }
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("$likeCount", style = MaterialTheme.typography.labelSmall, color = if (isLiked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
-                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.ChatBubbleOutline, contentDescription = "Comment", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.ThumbUp, contentDescription = "Likes", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("${post.comments} Comments", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    Text("${post.likesCount}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))

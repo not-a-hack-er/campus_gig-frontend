@@ -98,7 +98,7 @@ import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.Application
 import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.features.applications.ApplicationViewModel
-import com.abpvt.campusgig_frontend.ui.components.VLockLogoIcon
+import com.abpvt.campusgig_frontend.ui.logo.CampusGigHeaderLogo
 import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
@@ -165,37 +165,12 @@ private object CategoryColors {
     }
 }
 
-// --- Mock / Static Data ----------------------------------------------------------
-// Featured banner cards (static UI showcase - tap navigates to real gig list)
 private data class FeaturedCard(
     val category: String,
     val title: String,
     val budget: String,
     val poster: String,
-    val gigId: String? = null
-)
-
-private val featuredCards = listOf(
-    FeaturedCard("Coding",      "Build a Full-Stack E-Commerce Platform",   "₹8,000 - 12,000", "Rohan M."),
-    FeaturedCard("Design",      "Brand Identity for a Tech Startup",         "₹5,000 - 7,000",  "Priya K."),
-    FeaturedCard("Writing",     "SEO Blog Articles - 10 Posts",              "₹3,000 - 4,000",  "Arjun S."),
-    FeaturedCard("Photography", "Product Photography for D2C Brand",         "₹2,500 - 4,000",  "Neha R."),
-)
-
-// Community cards (static - real communities shown on Communities screen)
-private data class CommunityCard(
-    val name: String,
-    val members: String,
-    val category: String,
-    val joined: Boolean = false,
-    val gradientColors: List<Color>
-)
-
-private val trendingCommunities = listOf(
-    CommunityCard("Dev Circle",      "2.4K", "Coding",  false, listOf(Color(0xFF312E81), Color(0xFF6366F1))),
-    CommunityCard("Design Hub",      "1.8K", "Design",  true,  listOf(Color(0xFF831843), Color(0xFFBE185D))),
-    CommunityCard("Freelance Pro",   "3.1K", "General", false, listOf(Color(0xFF134E4A), Color(0xFF0D9488))),
-    CommunityCard("Campus Creators", "956",  "Video",   true,  listOf(Color(0xFF4C1D95), Color(0xFF7C3AED))),
+    val gigId: String
 )
 
 private val categoryList = listOf("All", "Coding", "Design", "Writing", "Tutoring", "Photography", "Video", "Marketing", "Other")
@@ -270,6 +245,20 @@ fun HomeScreen(
 
     var selectedCategory by remember { mutableStateOf("All") }
     val liveGigs = (gigsState as? Resource.Success<List<Gig>>)?.data
+    val matchingGigCount = remember(liveGigs, currentUser?.skills) {
+        val userSkills = currentUser?.skills
+            ?.map { it.trim().lowercase() }
+            ?.filter { it.isNotEmpty() }
+            ?.toSet()
+            .orEmpty()
+        if (userSkills.isEmpty()) {
+            0
+        } else {
+            liveGigs.orEmpty().count { gig ->
+                gig.isOpen() && gig.skills.any { skill -> skill.trim().lowercase() in userSkills }
+            }
+        }
+    }
     val activeFeaturedCards = remember(liveGigs) {
         if (!liveGigs.isNullOrEmpty()) {
             liveGigs.take(5).map { gig ->
@@ -281,9 +270,7 @@ fun HomeScreen(
                     gigId = gig.id
                 )
             }
-        } else {
-            featuredCards
-        }
+        } else emptyList()
     }
     val pagerState = rememberPagerState(pageCount = { activeFeaturedCards.size })
 
@@ -321,16 +308,10 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Official CampusVault V-Lock Logo Mark
-                        VLockLogoIcon(size = 30.dp)
-
-                        Spacer(Modifier.width(10.dp))
-                        Text(
-                            "CampusGig",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold, fontSize = 16.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onBackground
+                        // Official artwork only — no reconstructed text or icon.
+                        CampusGigHeaderLogo(
+                            iconSize = 32.dp,
+                            fontSize = 18f
                         )
                         Spacer(Modifier.weight(1f))
 
@@ -380,7 +361,11 @@ fun HomeScreen(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            "3 new gigs match your skills",
+                            when {
+                                currentUser?.skills.isNullOrEmpty() -> "Add skills to receive matched gig recommendations"
+                                matchingGigCount == 1 -> "1 open gig matches your skills"
+                                else -> "$matchingGigCount open gigs match your skills"
+                            },
                             style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -394,7 +379,12 @@ fun HomeScreen(
                         ) {
                             // Count pending/active applications
                             val activeAppsCount = (appsState as? Resource.Success)?.data
-                                ?.count { it.status == "pending" || it.status == "accepted" } ?: 0
+                                ?.count { application ->
+                                    application.status.equals("pending", ignoreCase = true) ||
+                                        (application.status.equals("accepted", ignoreCase = true) &&
+                                            (application.gig?.isInProgress() == true ||
+                                                application.gig?.isWorkSubmitted() == true))
+                                } ?: 0
 
                             QuickStatCard(
                                 value = "$activeAppsCount",
@@ -510,23 +500,26 @@ fun HomeScreen(
                             modifier = Modifier.padding(start = 20.dp, bottom = 8.dp)
                         )
 
-                        HorizontalPager(
-                            state = pagerState,
-                            contentPadding = PaddingValues(start = 20.dp, end = 48.dp),
-                            pageSpacing = 12.dp
-                        ) { page ->
-                            val card = activeFeaturedCards.getOrNull(page) ?: featuredCards[0]
-                            FeaturedGigCard(
-                                card = card,
-                                onClick = {
-                                    if (card.gigId != null) {
-                                        navController.navigate(Routes.gigDetail(card.gigId))
-                                    } else {
-                                        navController.navigate(Routes.GIG_LIST)
-                                    }
-                                },
-                                isDark = isDarkTheme
+                        if (activeFeaturedCards.isEmpty()) {
+                            Text(
+                                "No gigs have been posted yet.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
                             )
+                        } else {
+                            HorizontalPager(
+                                state = pagerState,
+                                contentPadding = PaddingValues(start = 20.dp, end = 48.dp),
+                                pageSpacing = 12.dp
+                            ) { page ->
+                                val card = activeFeaturedCards[page]
+                                FeaturedGigCard(
+                                    card = card,
+                                    onClick = { navController.navigate(Routes.gigDetail(card.gigId)) },
+                                    isDark = isDarkTheme
+                                )
+                            }
                         }
 
                         Spacer(Modifier.height(12.dp))
@@ -1179,52 +1172,6 @@ private fun CommunityPill(label: String, modifier: Modifier = Modifier) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-// ─── Community Mini Card ──────────────────────────────────────────────────────
-@Composable
-private fun CommunityMiniCard(community: CommunityCard, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(160.dp, 120.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(Brush.linearGradient(community.gradientColors))
-            .clickable { onClick() }
-            .padding(12.dp)
-    ) {
-        // Category badge top-right
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .clip(RoundedCornerShape(6.dp))
-                .background(Color.White.copy(alpha = 0.15f))
-                .padding(horizontal = 6.dp, vertical = 3.dp)
-        ) {
-            Text(community.category, style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp), color = Color.White)
-        }
-
-        // Community info bottom-left
-        Column(modifier = Modifier.align(Alignment.BottomStart)) {
-            Text(community.name, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, fontSize = 14.sp), color = Color.White)
-            Text("${community.members} members", style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp), color = Color.White.copy(alpha = 0.7f))
-        }
-
-        // Join button bottom-right
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .clip(RoundedCornerShape(6.dp))
-                .border(1.dp, Color.White.copy(alpha = if (community.joined) 0.2f else 0.4f), RoundedCornerShape(6.dp))
-                .background(if (community.joined) Color.White.copy(alpha = 0.05f) else Color.Transparent)
-                .padding(horizontal = 10.dp, vertical = 4.dp)
-        ) {
-            Text(
-                if (community.joined) "Joined ✓" else "Join",
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontSize = 11.sp),
-                color = Color.White.copy(alpha = if (community.joined) 0.5f else 1f)
-            )
-        }
     }
 }
 

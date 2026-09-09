@@ -10,13 +10,14 @@ import com.abpvt.campusgig_frontend.data.repository.CommunityRepository
 import com.abpvt.campusgig_frontend.data.repository.GigRepository
 import com.abpvt.campusgig_frontend.data.repository.UserRepository
 import com.abpvt.campusgig_frontend.features.chat.SocketManager
+import kotlinx.coroutines.launch
 
 /**
  * Application class — acts as a simple manual DI container.
  * Access repositories via [CampusGigApplication.instance].
  * Replace with Hilt/Koin for production-scale DI.
  *
- * Brand: CampusGig
+ * Brand: Campus Vault
  */
 class CampusGigApplication : Application() {
 
@@ -45,10 +46,39 @@ class CampusGigApplication : Application() {
 
         createNotificationChannel()
 
-        // Connect socket if already logged in
+        // Connect socket & sync FCM token if already logged in
         val token = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
             .getString(Constants.KEY_TOKEN, null)
-        if (token != null) SocketManager.connect(token)
+        if (token != null) {
+            SocketManager.connect(token)
+            syncFcmToken()
+        }
+    }
+
+    fun syncFcmToken() {
+        val token = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
+            .getString(Constants.KEY_TOKEN, null)
+        if (token.isNullOrBlank()) return
+
+        try {
+            com.google.firebase.messaging.FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful && task.result != null) {
+                    val fcmToken = task.result
+                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        try {
+                            userRepository.updateFcmToken(fcmToken)
+                            android.util.Log.d("CampusGigApp", "FCM token synchronized")
+                        } catch (e: Exception) {
+                            android.util.Log.e("CampusGigApp", "Failed to sync FCM Token", e)
+                        }
+                    }
+                } else {
+                    android.util.Log.w("CampusGigApp", "FCM token unavailable", task.exception)
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("CampusGigApp", "FirebaseMessaging token retrieval skipped/failed: ${e.message}")
+        }
     }
 
     private fun createNotificationChannel() {

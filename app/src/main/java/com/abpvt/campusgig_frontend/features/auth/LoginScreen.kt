@@ -102,6 +102,7 @@ import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
+import com.abpvt.campusgig_frontend.ui.logo.CampusGigLogoIcon
 import kotlinx.coroutines.delay
 import android.accounts.AccountManager
 import android.app.Activity
@@ -228,20 +229,8 @@ fun LoginScreen(
                 enter = fadeIn(tween(400)) + slideInVertically(tween(400)) { 20 }
             ) {
                 Column {
-                    // Logo badge
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                brush = Brush.linearGradient(
-                                    colors = listOf(GradientIndigoStart, GradientIndigoEnd)
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "⚡", fontSize = 20.sp)
-                    }
+                    // Official CampusVault logo badge (exact PNG)
+                    CampusGigLogoIcon(size = 48.dp)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -257,7 +246,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Text(
-                        text = "Sign in to continue to CampusGig",
+                        text = "Sign in to continue to Campus Vault",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
@@ -356,14 +345,14 @@ fun LoginScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(SemanticErrorBg, RoundedCornerShape(8.dp))
-                                .border(1.dp, SemanticError.copy(alpha = 0.3f), RoundedCornerShape(8.dp))
+                                .background(Color(0x33DC2626), RoundedCornerShape(8.dp))
+                                .border(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                                 .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
                             Text(
                                 text = (authState as Resource.Error).message,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = SemanticError
+                                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                color = Color(0xFFFCA5A5)
                             )
                         }
                     }
@@ -699,7 +688,7 @@ fun GoogleAccountChooserSheet(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "to continue to CampusGig",
+                        text = "to continue to Campus Vault",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -835,7 +824,7 @@ fun GoogleAccountChooserSheet(
             // ── Footer disclaimer ─────────────────────────────────────────────
             Text(
                 modifier = Modifier.padding(horizontal = 32.dp),
-                text = "By continuing, Google will share your name, email and profile picture with CampusGig.",
+                text = "By continuing, Google will share your name, email and profile picture with Campus Vault.",
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontSize = 11.sp,
                     lineHeight = 16.sp

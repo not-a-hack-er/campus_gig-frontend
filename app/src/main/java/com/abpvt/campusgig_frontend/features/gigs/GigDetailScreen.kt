@@ -1181,23 +1181,6 @@ private fun ApplicationStatRow(count: Int) {
         verticalAlignment     = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Overlapping mock avatar stack
-        val dotColors = listOf(
-            Color(0xFF6366F1), Color(0xFF14B8A6), Color(0xFFF59E0B), Color(0xFFEC4899)
-        )
-        Box(modifier = Modifier.width(((dotColors.size - 1) * 16 + 24).dp)) {
-            dotColors.forEachIndexed { i, color ->
-                Box(
-                    modifier = Modifier
-                        .offset(x = (i * 16).dp)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                        .border(BorderStroke(1.5.dp, MaterialTheme.colorScheme.background), CircleShape)
-                )
-            }
-        }
-
         Icon(Icons.Default.People, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), modifier = Modifier.size(14.dp))
         val safeCount = kotlin.math.max(0, count)
         Text(

@@ -1,69 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-
-    <!-- 1. Dark Rounded Squircle App Tile Background -->
-    <path
-        android:pathData="M32,24 h44 a16,16 0 0 1 16,16 v44 a16,16 0 0 1 -16,16 h-44 a16,16 0 0 1 -16,-16 v-44 a16,16 0 0 1 16,-16 z"
-        android:fillColor="#0D0D14">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="20"
-                android:startY="20"
-                android:endX="88"
-                android:endY="88"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#40FFFFFF" />
-                <item android:offset="1.0" android:color="#0DFFFFFF" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- 2. Left Glowing Violet Beam of "V" -->
-    <path
-        android:pathData="M 43,38 L 51,64"
-        android:strokeWidth="9"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="43"
-                android:startY="38"
-                android:endX="51"
-                android:endY="64"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#7C3AED" />
-                <item android:offset="0.5" android:color="#8B5CF6" />
-                <item android:offset="1.0" android:color="#C084FC" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- 3. Right Glowing Violet Beam of "V" -->
-    <path
-        android:pathData="M 65,38 L 57,64"
-        android:strokeWidth="9"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="65"
-                android:startY="38"
-                android:endX="57"
-                android:endY="64"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#7C3AED" />
-                <item android:offset="0.5" android:color="#8B5CF6" />
-                <item android:offset="1.0" android:color="#C084FC" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- 4. Center Convergence Glowing Node Dot -->
-    <path
-        android:pathData="M 54,67.5 m -3.5,0 a 3.5,3.5 0 1,0 7,0 a 3.5,3.5 0 1,0 -7,0"
-        android:fillColor="#A855F7" />
-
-</vector>
+<!-- The PNG already contains exact adaptive-icon safe-zone padding. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_launcher_foreground_asset"
+    android:gravity="fill"
+    android:antialias="true"
+    android:dither="true" />

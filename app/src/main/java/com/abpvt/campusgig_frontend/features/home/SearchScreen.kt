@@ -49,6 +49,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -76,6 +77,12 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
+import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.core.utils.Resource
+import com.abpvt.campusgig_frontend.data.model.Gig
+import com.abpvt.campusgig_frontend.navigation.Routes
+import com.abpvt.campusgig_frontend.ui.components.GigCard
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import kotlinx.coroutines.delay
@@ -92,14 +99,16 @@ private val categoryGrid = listOf(
     "🎵" to "Music", "📊" to "Finance", "🌐" to "Marketing"
 )
 
-private val tabs = listOf("All", "Gigs", "People", "Communities")
+private val tabs = listOf("Gigs")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(navController: NavController) {
+    val app = LocalContext.current.applicationContext as CampusGigApplication
     var query by rememberSaveable { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(0) }
-    val recentSearches = remember { mutableStateListOf("Kotlin developer", "Figma design") }
+    val recentSearches = remember { mutableStateListOf<String>() }
+    var results by remember { mutableStateOf<Resource<List<Gig>>>(Resource.Success(emptyList())) }
     var showFilters by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val filterSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -109,6 +118,16 @@ fun SearchScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         delay(100)
         focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(query) {
+        if (query.isBlank()) {
+            results = Resource.Success(emptyList())
+        } else {
+            delay(300)
+            results = Resource.Loading
+            results = app.gigRepository.getGigs(search = query.trim())
+        }
     }
 
     val isTyping = query.isNotBlank()
@@ -363,33 +382,28 @@ fun SearchScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             } else {
-                // RESULTS STATE (mock)
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(32.dp)
-                    ) {
-                        Text("🔍", fontSize = 48.sp)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Showing results for",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
-                        Text(
-                            text = "\"$query\"",
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Search API will be wired here",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
+                when (val state = results) {
+                    is Resource.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                    is Resource.Error -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(state.message, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(24.dp))
+                    }
+                    is Resource.Success -> {
+                        if (state.data.isEmpty()) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Text("No gigs found for \"$query\"", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else {
+                            LazyColumn(
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                items(state.data, key = { it.id }) { gig ->
+                                    GigCard(gig = gig, onClick = { navController.navigate(Routes.gigDetail(gig.id)) })
+                                }
+                            }
+                        }
                     }
                 }
             }

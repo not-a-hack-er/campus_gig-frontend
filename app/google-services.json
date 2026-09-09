@@ -1,0 +1,32 @@
+{
+  "project_info": {
+    "project_number": "405536133969",
+    "project_id": "campusvault-d2b9e",
+    "storage_bucket": "campusvault-d2b9e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405536133969:android:4a231a86226ff2dc33f970",
+        "android_client_info": {
+          "package_name": "com.abpvt.campusgig_frontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "AIzaSyAb5TexlhoZEJNDwYgL5TsLJ86-NO_vov0" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405536133969:android:21cd9fa45425b10b33f970",
+        "android_client_info": {
+          "package_name": "com.abpvt.campusgig_frontend.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "AIzaSyAb5TexlhoZEJNDwYgL5TsLJ86-NO_vov0" }],
+      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+    }
+  ],
+  "configuration_version": "1"
+}

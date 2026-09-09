@@ -1,171 +1,143 @@
 /**
- * CampusGigLogo.kt — Dedicated Brand Logo & Emblem Package
+ * CampusGigLogo.kt — Official Brand Logo Package
  *
  * Location: com.abpvt.campusgig_frontend.ui.logo.CampusGigLogo.kt
  *
- * Provides all official CampusGig brand logos, icons, badges, and wordmarks
- * for easy access, customization, and reuse throughout the application.
+ * Displays crops prepared directly from the supplied official JPEG.
+ * The logo_full, logo_symbol, and logo_wordmark resources are the single
+ * source of truth for all logo rendering — no redrawing or reinterpretation.
  */
 package com.abpvt.campusgig_frontend.ui.logo
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
-import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
+import com.abpvt.campusgig_frontend.R
 
 /**
- * CampusGigLogoIcon — The official Brand Icon Tile.
- * Deep Obsidian Squircle containing the glowing dual-beam Violet "V" emblem.
+ * CampusGigLogoIcon — Displays the cleanly extracted infinity-people symbol mark (transparent bg).
+ *
+ * @param size The width/height of the symbol icon.
  */
 @Composable
 fun CampusGigLogoIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 30.dp
+    size: Dp = 30.dp,
+    onDarkBackground: Boolean? = null
 ) {
-    val cornerRadius = size * 0.28f
-    Box(
-        modifier = modifier
-            .size(size)
-            .background(
-                color = Color(0xFF0D0D14),
-                shape = RoundedCornerShape(cornerRadius)
-            )
-            .border(
-                width = 1.dp,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.35f),
-                        Color(0xFF8B5CF6).copy(alpha = 0.25f),
-                        Color.White.copy(alpha = 0.08f)
-                    )
-                ),
-                shape = RoundedCornerShape(cornerRadius)
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        val canvasSize = size * 0.60f
-        Canvas(modifier = Modifier.size(canvasSize)) {
-            val w = this.size.width
-            val h = this.size.height
-
-            val violetBeamBrush = Brush.linearGradient(
-                colors = listOf(
-                    Color(0xFF7C3AED), // Deep violet
-                    Color(0xFF8B5CF6), // Electric violet
-                    Color(0xFFC084FC)  // Light glowing purple
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(w, h)
-            )
-
-            val strokeW = w * 0.21f
-
-            // Left Beam of "V"
-            drawLine(
-                brush = violetBeamBrush,
-                start = Offset(w * 0.28f, h * 0.18f),
-                end = Offset(w * 0.44f, h * 0.70f),
-                strokeWidth = strokeW,
-                cap = StrokeCap.Round
-            )
-
-            // Right Beam of "V"
-            drawLine(
-                brush = violetBeamBrush,
-                start = Offset(w * 0.72f, h * 0.18f),
-                end = Offset(w * 0.56f, h * 0.70f),
-                strokeWidth = strokeW,
-                cap = StrokeCap.Round
-            )
-
-            // Center Convergence Glowing Node Dot
-            drawCircle(
-                color = Color(0xFFA855F7),
-                radius = w * 0.085f,
-                center = Offset(w * 0.50f, h * 0.76f)
-            )
-        }
-    }
+    val useDarkAsset = onDarkBackground
+        ?: (MaterialTheme.colorScheme.background.luminance() < 0.45f)
+    Image(
+        painter = painterResource(
+            id = if (useDarkAsset) R.drawable.logo_symbol_dark else R.drawable.logo_symbol
+        ),
+        contentDescription = "Campus Vault symbol",
+        modifier = modifier.size(size),
+        contentScale = ContentScale.Fit
+    )
 }
 
 /**
- * CampusGigHeaderLogo — Full Brand Logo with Icon + "CampusGig" Wordmark.
+ * CampusGigHeaderLogo — Official wordmark crop from the supplied artwork.
+ * No Compose text is used, so the letterforms and proportions never diverge.
  */
 @Composable
 fun CampusGigHeaderLogo(
     modifier: Modifier = Modifier,
     iconSize: Dp = 28.dp,
-    fontSize: Float = 20f
+    fontSize: Float = 20f,
+    onDarkBackground: Boolean? = null
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        CampusGigLogoIcon(size = iconSize)
-        Spacer(modifier = Modifier.width(10.dp))
-        CampusGigWordmark(fontSize = fontSize)
+        CampusGigLogoIcon(size = iconSize, onDarkBackground = onDarkBackground)
+        Spacer(modifier = Modifier.width(8.dp))
+        CampusGigWordmark(fontSize = fontSize, onDarkBackground = onDarkBackground)
     }
 }
 
 /**
- * CampusGigWordmark — Styled "CampusGig" text.
+ * CampusGigWordmark — The actual wordmark from the official artwork.
  */
 @Composable
 fun CampusGigWordmark(
     modifier: Modifier = Modifier,
-    fontSize: Float = 20f
+    fontSize: Float = 20f,
+    onDarkBackground: Boolean? = null
 ) {
-    Text(
-        text = buildAnnotatedString {
-            withStyle(
-                SpanStyle(
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            ) { append("Campus") }
-            withStyle(
-                SpanStyle(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(GradientIndigoStart, GradientIndigoEnd)
-                    ),
-                    fontWeight = FontWeight.ExtraBold
-                )
-            ) { append("Gig") }
-        },
-        modifier = modifier,
-        style = TextStyle(
-            fontSize = fontSize.sp,
-            letterSpacing = (-0.5).sp
-        )
+    val useDarkAsset = onDarkBackground
+        ?: (MaterialTheme.colorScheme.background.luminance() < 0.45f)
+    Image(
+        painter = painterResource(
+            id = if (useDarkAsset) R.drawable.logo_wordmark_dark else R.drawable.logo_wordmark
+        ),
+        contentDescription = "Campus Vault",
+        modifier = modifier.width((fontSize * 6.5f).dp),
+        contentScale = ContentScale.Fit
     )
 }
 
-/** Backward compatibility alias */
+/**
+ * CampusGigWordmarkGraphic — Displays the extracted wordmark PNG image.
+ */
+@Composable
+fun CampusGigWordmarkGraphic(
+    modifier: Modifier = Modifier,
+    width: Dp = 180.dp,
+    onDarkBackground: Boolean? = null
+) {
+    val useDarkAsset = onDarkBackground
+        ?: (MaterialTheme.colorScheme.background.luminance() < 0.45f)
+    Image(
+        painter = painterResource(
+            id = if (useDarkAsset) R.drawable.logo_wordmark_dark else R.drawable.logo_wordmark
+        ),
+        contentDescription = "Campus Vault Wordmark",
+        modifier = modifier.width(width),
+        contentScale = ContentScale.FillWidth
+    )
+}
+
+/**
+ * CampusGigFullLogo — Displays the cleanly extracted full logo (symbol + wordmark + tagline).
+ * Transparent background, perfectly cropped.
+ *
+ * @param width The desired width; height is auto-scaled to preserve proportions.
+ */
+@Composable
+fun CampusGigFullLogo(
+    modifier: Modifier = Modifier,
+    width: Dp = 240.dp,
+    onDarkBackground: Boolean? = null
+) {
+    val useDarkAsset = onDarkBackground
+        ?: (MaterialTheme.colorScheme.background.luminance() < 0.45f)
+    Image(
+        painter = painterResource(
+            id = if (useDarkAsset) R.drawable.logo_full_dark else R.drawable.logo_full
+        ),
+        contentDescription = "Campus Vault Logo",
+        modifier = modifier.width(width),
+        contentScale = ContentScale.FillWidth
+    )
+}
+
+/** Backward compatibility alias — delegates to CampusGigLogoIcon. */
 @Composable
 fun VLockLogoIcon(
     modifier: Modifier = Modifier,

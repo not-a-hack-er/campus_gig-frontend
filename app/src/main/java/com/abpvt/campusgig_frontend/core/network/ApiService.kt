@@ -7,6 +7,7 @@ import com.abpvt.campusgig_frontend.data.model.Feedback
 import com.abpvt.campusgig_frontend.data.model.Gig
 import com.abpvt.campusgig_frontend.data.model.Message
 import com.abpvt.campusgig_frontend.data.model.Notification
+import com.abpvt.campusgig_frontend.data.model.Post
 import com.abpvt.campusgig_frontend.data.model.Review
 import com.abpvt.campusgig_frontend.data.model.User
 import com.abpvt.campusgig_frontend.data.model.request.FeedbackRequest
@@ -18,11 +19,15 @@ import com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse
 import com.abpvt.campusgig_frontend.data.model.response.MessageResponse
 import com.abpvt.campusgig_frontend.data.model.response.UnreadCountResponse
 import com.abpvt.campusgig_frontend.data.model.response.VerifyOtpResponse
+import com.abpvt.campusgig_frontend.data.model.response.AvatarUploadData
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Multipart
+import retrofit2.http.Part
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -31,13 +36,13 @@ interface ApiService {
 
     // ─── Auth ───────────────────────────────────────────────────────────────
     @POST("auth/login")
-    suspend fun login(@Body body: LoginRequest): Response<ApiResponse<AuthResponse>>
+    suspend fun login(@Body body: LoginRequest): Response<okhttp3.ResponseBody>
 
     @POST("auth/register")
-    suspend fun register(@Body body: RegisterRequest): Response<ApiResponse<AuthResponse>>
+    suspend fun register(@Body body: RegisterRequest): Response<okhttp3.ResponseBody>
 
     @POST("auth/google")
-    suspend fun googleLogin(@Body body: Map<String, String>): Response<ApiResponse<AuthResponse>>
+    suspend fun googleLogin(@Body body: Map<String, String>): Response<okhttp3.ResponseBody>
 
     @POST("auth/forgot-password")
     suspend fun forgotPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
@@ -54,6 +59,15 @@ interface ApiService {
 
     @PUT("users/me")
     suspend fun updateMyProfile(@Body body: User): Response<User>
+
+    @Multipart
+    @POST("users/me/avatar")
+    suspend fun uploadAvatar(
+        @Part avatar: MultipartBody.Part
+    ): Response<ApiResponse<AvatarUploadData>>
+
+    @POST("users/me/fcm-token")
+    suspend fun updateFcmToken(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
 
     @POST("users/me/change-password")
     suspend fun changePassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
@@ -151,6 +165,15 @@ interface ApiService {
 
     @POST("communities/{id}/leave")
     suspend fun leaveCommunity(@Path("id") id: String): Response<MessageResponse>
+
+    @GET("communities/{id}/feed")
+    suspend fun getCommunityFeed(@Path("id") id: String): Response<List<Post>>
+
+    @POST("communities/{id}/posts")
+    suspend fun createCommunityPost(
+        @Path("id") id: String,
+        @Body body: Map<String, String>
+    ): Response<Post>
 
     // ─── Notifications ───────────────────────────────────────────────────────
     @GET("notifications")

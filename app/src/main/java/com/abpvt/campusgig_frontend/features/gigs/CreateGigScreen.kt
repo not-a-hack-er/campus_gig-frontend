@@ -780,7 +780,13 @@ private fun Step2Details(
         android.app.DatePickerDialog(
             context,
             { _, year, month, dayOfMonth ->
-                val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                val selectedDate = String.format(
+                    java.util.Locale.ROOT,
+                    "%04d-%02d-%02d",
+                    year,
+                    month + 1,
+                    dayOfMonth
+                )
                 onAction(GigFormAction.DeadlineChanged(selectedDate))
             },
             calendar.get(Calendar.YEAR),
@@ -1234,7 +1240,7 @@ private fun Step4Review(
         }
         Spacer(Modifier.width(10.dp))
         Text(
-            "I confirm this gig is genuine and follows CampusGig community guidelines",
+            "I confirm this gig is genuine and follows Campus Vault community guidelines",
             style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp, lineHeight = 19.sp),
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

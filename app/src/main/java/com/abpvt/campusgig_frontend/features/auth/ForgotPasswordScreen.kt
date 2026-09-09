@@ -332,7 +332,7 @@ fun ForgotPasswordScreen(
                     HeroHeader(
                         icon = "🔒",
                         title = "Set New Password",
-                        subtitle = "Create a new strong password for your CampusGig account."
+                        subtitle = "Create a new strong password for your Campus Vault account."
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
@@ -434,7 +434,7 @@ fun ForgotPasswordScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Your password has been updated successfully. You can now log in to CampusGig with your new credentials.",
+                            text = "Your password has been updated successfully. You can now log in to Campus Vault with your new credentials.",
                             style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,

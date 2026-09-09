@@ -68,8 +68,26 @@ import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import com.abpvt.campusgig_frontend.ui.theme.SemanticWarning
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 
 private val filterChips = listOf("All", "Applications", "Messages", "Community", "System")
+
+private fun groupNotifications(notifications: List<Notification>): Map<String, List<Notification>> {
+    val today = LocalDate.now()
+    return notifications.groupBy { notification ->
+        val date = runCatching {
+            Instant.parse(notification.createdAt).atZone(ZoneId.systemDefault()).toLocalDate()
+        }.getOrNull()
+        when {
+            date == today -> "Today"
+            date == today.minusDays(1) -> "Yesterday"
+            date != null && !date.isBefore(today.minusDays(6)) -> "This Week"
+            else -> "Earlier"
+        }
+    }
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -182,13 +200,7 @@ fun NotificationScreen(
                             }
                         }
                     } else {
-                        // Group by Today / Yesterday
-                        val groups = linkedMapOf<String, List<Notification>>()
-                        groups["Today"] = filtered.take((filtered.size * 0.4f).toInt().coerceAtLeast(1))
-                        val rest = filtered.drop((filtered.size * 0.4f).toInt().coerceAtLeast(1))
-                        if (rest.isNotEmpty()) groups["Yesterday"] = rest.take(rest.size / 2 + 1)
-                        val older = rest.drop(rest.size / 2 + 1)
-                        if (older.isNotEmpty()) groups["This Week"] = older
+                        val groups = groupNotifications(filtered)
 
                         LazyColumn(
                             contentPadding = PaddingValues(bottom = 24.dp)
@@ -213,12 +225,13 @@ fun NotificationScreen(
                                         notification = notification,
                                         onClick = {
                                             viewModel.markAsRead(notification.id)
-                                            when (notification.type) {
-                                                "new_message" -> navController.navigate(Routes.CHAT_LIST)
-                                                "new_application", "work_submitted", "completion_otp", "gig_completed" -> navController.navigate(Routes.MY_GIGS)
-                                                "application_accepted", "application_rejected" -> navController.navigate(Routes.MY_APPLICATIONS)
-                                                else -> {}
-                                            }
+                                            navController.navigate(
+                                                Routes.notificationDestination(
+                                                    notification.type,
+                                                    notification.referenceId,
+                                                    notification.data
+                                                )
+                                            )
                                         }
                                     )
                                 }

@@ -100,6 +100,27 @@ object Routes {
     const val MEDIA_VIEWER = "media_viewer/{mediaUrl}"
     fun mediaViewer(mediaUrl: String) = "media_viewer/${mediaUrl.replace("/", "%2F")}"
 
+    fun notificationDestination(
+        type: String,
+        referenceId: String = "",
+        data: Map<String, String> = emptyMap()
+    ): String = when (type) {
+        "new_message" -> {
+            val senderId = data["senderId"].orEmpty()
+            val senderName = data["senderName"].orEmpty()
+            val gigId = data["gigId"].orEmpty()
+            if (senderId.isNotBlank() && senderName.isNotBlank() && gigId.isNotBlank()) {
+                chat(senderId, senderName, gigId = gigId)
+            } else CHAT_LIST
+        }
+        "work_submitted", "completion_otp", "gig_completed" ->
+            if (referenceId.isNotBlank()) gigDetail(referenceId) else MY_GIGS
+        "new_application", "application_withdrawn" -> MY_GIGS
+        "application_accepted", "application_rejected" -> MY_APPLICATIONS
+        "new_review" -> PROFILE
+        else -> NOTIFICATIONS
+    }
+
     // ── Community Screens ─────────────────────────────────────────────────────
     const val COMMUNITY_DETAIL  = "community_detail/{communityId}"
     const val CREATE_COMMUNITY  = "create_community"

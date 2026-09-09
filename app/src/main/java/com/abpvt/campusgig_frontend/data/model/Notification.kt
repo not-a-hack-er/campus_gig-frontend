@@ -12,6 +12,7 @@ data class Notification(
     val isRead: Boolean = false,
     val referenceId: String = "",    // e.g. gigId, applicationId
     val referenceType: String = "",  // "Gig" | "Application" | "Message"
+    val data: Map<String, String> = emptyMap(),
     @SerializedName("createdAt")
     val createdAt: String = ""
 )

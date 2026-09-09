@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +40,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +53,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -58,10 +67,26 @@ import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
+import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.core.utils.ProfileViewModelFactory
+import com.abpvt.campusgig_frontend.core.utils.Resource
+import com.abpvt.campusgig_frontend.data.model.User
+import androidx.compose.runtime.LaunchedEffect
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ProfileSetupPromptScreen(navController: NavController) {
+fun ProfileSetupPromptScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(
+            (LocalContext.current.applicationContext as CampusGigApplication).userRepository
+        )
+    )
+) {
+    val context = LocalContext.current
+    val profileState by viewModel.profile.collectAsState()
+    val updateState by viewModel.updateState.collectAsState()
+    val avatarState by viewModel.avatarUploadState.collectAsState()
     val basicDone = true
     var skillsDone by remember { mutableStateOf(false) }
     var photoDone by remember { mutableStateOf(false) }
@@ -72,6 +97,51 @@ fun ProfileSetupPromptScreen(navController: NavController) {
     val skills = remember { mutableStateListOf<String>() }
     var github by remember { mutableStateOf("") }
     var linkedin by remember { mutableStateOf("") }
+    var saveError by remember { mutableStateOf("") }
+    var pendingProfileSection by remember { mutableStateOf<Int?>(null) }
+    val currentUser = (profileState as? Resource.Success<User>)?.data
+    val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) viewModel.uploadAvatar(context.contentResolver, uri)
+    }
+
+    LaunchedEffect(profileState) {
+        val user = (profileState as? Resource.Success<User>)?.data ?: return@LaunchedEffect
+        skills.clear()
+        skills.addAll(user.skills)
+        github = user.githubProfile
+        linkedin = user.linkedinProfile
+        skillsDone = user.skills.isNotEmpty()
+        photoDone = user.profilePicture.isNotBlank()
+        linksDone = user.githubProfile.isNotBlank() || user.linkedinProfile.isNotBlank()
+    }
+    LaunchedEffect(updateState) {
+        when (val state = updateState) {
+            is Resource.Error -> saveError = state.message
+            is Resource.Success -> {
+                saveError = ""
+                when (pendingProfileSection) {
+                    1 -> skillsDone = true
+                    3 -> linksDone = true
+                }
+                pendingProfileSection = null
+                expandedItem = null
+                viewModel.resetUpdateState()
+            }
+            else -> Unit
+        }
+    }
+    LaunchedEffect(avatarState) {
+        when (val state = avatarState) {
+            is Resource.Success -> {
+                photoDone = true
+                saveError = ""
+                expandedItem = null
+                viewModel.resetAvatarUploadState()
+            }
+            is Resource.Error -> saveError = state.message
+            else -> Unit
+        }
+    }
 
     val completedCount = listOf(basicDone, skillsDone, photoDone, linksDone).count { it }
     val progress = completedCount / 4f
@@ -88,7 +158,7 @@ fun ProfileSetupPromptScreen(navController: NavController) {
             .fillMaxSize()
             .background(Brush.radialGradient(listOf(GradientIndigoStart.copy(0.12f), Color(0xFF0A0C12))))
     ) {
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
+        Column(modifier = Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
             Spacer(modifier = Modifier.height(48.dp))
 
             // Progress bar
@@ -145,17 +215,30 @@ fun ProfileSetupPromptScreen(navController: NavController) {
                     }
                     if (skills.isNotEmpty()) Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(value = skillInput, onValueChange = { skillInput = it },
-                        placeholder = { Text("Type a skill and press add") }, singleLine = true,
+                        placeholder = { Text("Type a skill and press Enter") }, singleLine = true,
                         modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {
+                            val candidate = skillInput.trim().take(50)
+                            if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) skills.add(candidate)
+                            skillInput = ""
+                        }),
                         trailingIcon = {
                             if (skillInput.isNotBlank()) {
-                                Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable { skills.add(skillInput.trim()); skillInput = "" }.padding(4.dp)) {
+                                Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable {
+                                    val candidate = skillInput.trim().take(50)
+                                    if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) skills.add(candidate)
+                                    skillInput = ""
+                                }.padding(4.dp)) {
                                     androidx.compose.material3.Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
                                 }
                             }
                         })
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable(enabled = skills.isNotEmpty()) { skillsDone = true; expandedItem = null }.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable(enabled = currentUser != null && skills.isNotEmpty() && updateState !is Resource.Loading) {
+                        pendingProfileSection = 1
+                        viewModel.updateProfile(currentUser!!.copy(skills = skills.toList()))
+                    }.padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Text("Save Skills", style = MaterialTheme.typography.labelMedium, color = Color.White)
                     }
                 }
@@ -170,17 +253,17 @@ fun ProfileSetupPromptScreen(navController: NavController) {
             ) {
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     Box(
-                        modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)),
+                        modifier = Modifier.fillMaxWidth().height(100.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp)).clickable(enabled = avatarState !is Resource.Loading) { avatarPicker.launch("image/*") },
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("📷", fontSize = 24.sp)
-                            Text("Tap to choose a photo", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                            Text(if (avatarState is Resource.Loading) "Uploading photo…" else "Tap to choose a photo", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable { photoDone = true; expandedItem = null }.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        Text("Upload Photo", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable(enabled = avatarState !is Resource.Loading) { avatarPicker.launch("image/*") }.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                        Text(if (photoDone) "Change Photo" else "Choose & Upload Photo", style = MaterialTheme.typography.labelMedium, color = Color.White)
                     }
                 }
             }
@@ -197,13 +280,21 @@ fun ProfileSetupPromptScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(value = linkedin, onValueChange = { linkedin = it }, placeholder = { Text("💼 LinkedIn URL") }, singleLine = true, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable(enabled = github.isNotBlank() || linkedin.isNotBlank()) { linksDone = true; expandedItem = null }.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))).clickable(enabled = currentUser != null && (github.isNotBlank() || linkedin.isNotBlank()) && updateState !is Resource.Loading) {
+                        pendingProfileSection = 3
+                        viewModel.updateProfile(currentUser!!.copy(githubProfile = github.trim(), linkedinProfile = linkedin.trim()))
+                    }.padding(horizontal = 16.dp, vertical = 8.dp)) {
                         Text("Save Links", style = MaterialTheme.typography.labelMedium, color = Color.White)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(36.dp))
+
+            if (saveError.isNotBlank()) {
+                Text(saveError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
             // CTA buttons
             Box(

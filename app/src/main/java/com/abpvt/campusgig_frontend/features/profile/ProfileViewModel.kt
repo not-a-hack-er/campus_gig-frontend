@@ -19,6 +19,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.content.ContentResolver
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
@@ -29,6 +33,9 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     // State for profile update operation (null = idle)
     private val _updateState = MutableStateFlow<Resource<User>?>(null)
     val updateState: StateFlow<Resource<User>?> = _updateState.asStateFlow()
+
+    private val _avatarUploadState = MutableStateFlow<Resource<User>?>(null)
+    val avatarUploadState: StateFlow<Resource<User>?> = _avatarUploadState.asStateFlow()
 
     init {
         loadProfile()
@@ -72,6 +79,24 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
     /** Reset update state after navigation. */
     fun resetUpdateState() { _updateState.value = null }
+
+    fun uploadAvatar(contentResolver: ContentResolver, uri: Uri) {
+        viewModelScope.launch {
+            _avatarUploadState.value = Resource.Loading
+            val result = withContext(Dispatchers.IO) {
+                val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: return@withContext Resource.Error("Unable to read selected photo")
+                val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
+                repository.uploadAvatar(bytes, mimeType)
+            }
+            _avatarUploadState.value = result
+            if (result is Resource.Success<User>) {
+                _profile.value = result
+            }
+        }
+    }
+
+    fun resetAvatarUploadState() { _avatarUploadState.value = null }
 
     // State for change password operation
     private val _changePasswordState = MutableStateFlow<Resource<String>?>(null)
