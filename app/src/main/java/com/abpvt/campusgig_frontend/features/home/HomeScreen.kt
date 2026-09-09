@@ -382,6 +382,7 @@ fun HomeScreen(
                                 ?.count { application ->
                                     application.status.equals("pending", ignoreCase = true) ||
                                         (application.status.equals("accepted", ignoreCase = true) &&
+                                            application.gig?.acceptedApplicant == currentUser?.id &&
                                             (application.gig?.isInProgress() == true ||
                                                 application.gig?.isWorkSubmitted() == true))
                                 } ?: 0
