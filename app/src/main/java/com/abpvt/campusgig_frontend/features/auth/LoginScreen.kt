@@ -106,7 +106,6 @@ import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.logo.CampusGigLogoIcon
 import kotlinx.coroutines.delay
 import android.accounts.AccountManager
-import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -124,24 +123,26 @@ fun LoginScreen(
         )
     )
 ) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
-    var showGoogleAccountSheet by remember { mutableStateOf(false) }
-
     val googleSignInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            val accountName = result.data?.getStringExtra(AccountManager.KEY_ACCOUNT_NAME)
-            if (accountName != null) {
-                val name = accountName.split("@").firstOrNull()
-                    ?.split(".")
-                    ?.joinToString(" ") { it.replaceFirstChar { char -> if (char.isLowerCase()) char.titlecase() else char.toString() } }
-                    ?: "Google User"
-                viewModel.googleLogin(name, accountName)
+        try {
+            val account = com.google.android.gms.auth.api.signin.GoogleSignIn
+                .getSignedInAccountFromIntent(result.data)
+                .getResult(com.google.android.gms.common.api.ApiException::class.java)
+            val idToken = account.idToken
+            if (idToken.isNullOrBlank()) {
+                viewModel.showError("Google did not return a sign-in token. Please try again.")
+            } else {
+                viewModel.googleLogin(idToken)
             }
+        } catch (_: Exception) {
+            viewModel.showError("Google sign-in was cancelled or could not be completed.")
         }
     }
 
@@ -417,9 +418,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Google OAuth is intentionally hidden from production until a verified
-            // OAuth client is configured in Firebase/Google Cloud.
-            if (BuildConfig.DEBUG) AnimatedVisibility(
+            AnimatedVisibility(
                 visible = socialVisible.value,
                 enter = fadeIn(tween(400))
             ) {
@@ -454,7 +453,20 @@ fun LoginScreen(
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
                             .clickable {
-                                showGoogleAccountSheet = true
+                                val clientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
+                                if (clientId.isBlank()) {
+                                    viewModel.showError("Google sign-in is not configured yet. Please use email sign-in or contact support.")
+                                } else {
+                                    val options = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
+                                        com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
+                                    )
+                                        .requestIdToken(clientId)
+                                        .requestEmail()
+                                        .build()
+                                    googleSignInLauncher.launch(
+                                        com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(context, options).signInIntent
+                                    )
+                                }
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -524,25 +536,6 @@ fun LoginScreen(
             }
 
             Spacer(modifier = Modifier.height(40.dp))
-        }
-
-        if (BuildConfig.DEBUG && showGoogleAccountSheet) {
-            GoogleAccountChooserSheet(
-                onDismissRequest = { showGoogleAccountSheet = false },
-                onAccountSelected = { name, email ->
-                    showGoogleAccountSheet = false
-                    viewModel.googleLogin(name, email)
-                },
-                onLaunchSystemPicker = {
-                    showGoogleAccountSheet = false
-                    val intent = AccountManager.newChooseAccountIntent(
-                        null, null,
-                        arrayOf("com.google"),
-                        null, null, null, null
-                    )
-                    googleSignInLauncher.launch(intent)
-                }
-            )
         }
     }
 }

@@ -45,10 +45,10 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun googleLogin(name: String, email: String) {
+    fun googleLogin(idToken: String) {
         viewModelScope.launch {
             _authState.value = Resource.Loading
-            val result = repository.googleLogin(name, email)
+            val result = repository.googleLogin(idToken)
             if (result is Resource.Success) {
                 SocketManager.connect(result.data.token)
             }
@@ -93,5 +93,9 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
 
     fun resetState() {
         _authState.value = null
+    }
+
+    fun showError(message: String) {
+        _authState.value = Resource.Error(message)
     }
 }

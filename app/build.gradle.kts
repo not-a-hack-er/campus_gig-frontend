@@ -12,6 +12,9 @@ val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
+val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
 
 android {
     namespace = "com.abpvt.campusgig_frontend"
@@ -25,8 +28,8 @@ android {
         applicationId = "com.abpvt.campusgig_frontend"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -37,6 +40,9 @@ android {
             keystoreProperties.getProperty("BASE_URL", "\"https://campus-gig-backend.onrender.com/api/\""))
         buildConfigField("String", "SOCKET_URL",
             keystoreProperties.getProperty("SOCKET_URL", "\"https://campus-gig-backend.onrender.com\""))
+        // OAuth Web client ID. Keep this in keystore.properties so the Android
+        // ID token uses the same audience verified by the production backend.
+        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
     }
 
     // ── Release Signing Configuration ─────────────────────────────────────────
@@ -124,6 +130,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.coil.compose)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.google.play.services.auth)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

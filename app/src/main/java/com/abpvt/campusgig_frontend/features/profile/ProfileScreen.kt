@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -186,7 +187,14 @@ private fun ProfileContent(
     onOpenFeedback: () -> Unit,
     navController: NavController
 ) {
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+    // MainActivity draws edge-to-edge. Padding here prevents the release UI
+    // from placing the profile hero below the status icons on physical devices.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .verticalScroll(rememberScrollState())
+    ) {
 
         // ── Hero Section ──────────────────────────────────────────────────────
         Box(

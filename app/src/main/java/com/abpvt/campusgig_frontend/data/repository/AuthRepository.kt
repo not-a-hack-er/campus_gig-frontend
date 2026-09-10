@@ -58,9 +58,9 @@ class AuthRepository(
         }
     }
 
-    suspend fun googleLogin(name: String, email: String): Resource<AuthResponse> {
+    suspend fun googleLogin(idToken: String): Resource<AuthResponse> {
         return try {
-            val response = api.googleLogin(mapOf("name" to name, "email" to email))
+            val response = api.googleLogin(mapOf("idToken" to idToken))
             if (response.isSuccessful) {
                 val rawJson = response.body()?.string() ?: ""
                 val authData = parseAuthData(rawJson)
