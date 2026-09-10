@@ -19,6 +19,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,18 +36,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -67,6 +65,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,23 +101,28 @@ fun SettingsScreen(
     val profileState by viewModel.profile.collectAsState()
     val user = (profileState as? Resource.Success<User>)?.data
     val changePasswordState by viewModel.changePasswordState.collectAsState()
+    val deleteAccountState by viewModel.deleteAccountState.collectAsState()
     val submitFeedbackState by feedbackViewModel.submitState.collectAsState()
 
     val isDarkTheme by (themeViewModel?.isDarkTheme ?: kotlinx.coroutines.flow.MutableStateFlow(true)).collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     var showChangePasswordDialog by remember { mutableStateOf(false) }
     var showFeedbackSheet by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
     var showTermsDialog by remember { mutableStateOf(false) }
-    var showLinkedAccountsDialog by remember { mutableStateOf(false) }
-    var showVisibilityDialog by remember { mutableStateOf(false) }
-    var showBlockListDialog by remember { mutableStateOf(false) }
-    var show2FaDialog by remember { mutableStateOf(false) }
-
-    var profileVisibility by remember { mutableStateOf("Public") }
+    val uriHandler = LocalUriHandler.current
 
     val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
+
+    androidx.compose.runtime.LaunchedEffect(deleteAccountState) {
+        when (val state = deleteAccountState) {
+            is Resource.Success -> navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+            is Resource.Error -> snackbarHostState.showSnackbar(state.message)
+            else -> Unit
+        }
+    }
 
     // ── Change Password State ────────────────────────────────────────────────
     var currentPass by remember { mutableStateOf("") }
@@ -217,57 +221,6 @@ fun SettingsScreen(
     }
 
     // ── Info Dialogs ────────────────────────────────────────────────────────
-    if (showLinkedAccountsDialog) {
-        AlertDialog(
-            onDismissRequest = { showLinkedAccountsDialog = false },
-            title = { Text("Linked Accounts", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)) },
-            text = { Text("Google Account (${user?.email ?: "Verified"}): Connected ✓\nYour account is secured via single sign-on.", style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = { Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary).clickable { showLinkedAccountsDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) { Text("OK", color = Color.White) } },
-            containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)
-        )
-    }
-
-    if (showVisibilityDialog) {
-        AlertDialog(
-            onDismissRequest = { showVisibilityDialog = false },
-            title = { Text("Profile Visibility", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)) },
-            text = {
-                Column {
-                    Row(modifier = Modifier.fillMaxWidth().clickable { profileVisibility = "Public"; showVisibilityDialog = false }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("🌐 Public (Visible to all students)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                        if (profileVisibility == "Public") Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    }
-                    Row(modifier = Modifier.fillMaxWidth().clickable { profileVisibility = "Campus Only"; showVisibilityDialog = false }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("🎓 Campus Only (Visible to your college)", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                        if (profileVisibility == "Campus Only") Text("✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                    }
-                }
-            },
-            confirmButton = {},
-            containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)
-        )
-    }
-
-    if (showBlockListDialog) {
-        AlertDialog(
-            onDismissRequest = { showBlockListDialog = false },
-            title = { Text("Block List", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)) },
-            text = { Text("You haven't blocked any users.", style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = { Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary).clickable { showBlockListDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) { Text("Close", color = Color.White) } },
-            containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)
-        )
-    }
-
-    if (show2FaDialog) {
-        AlertDialog(
-            onDismissRequest = { show2FaDialog = false },
-            title = { Text("Two-Factor Authentication", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)) },
-            text = { Text("CampusVault secures transactions using 4-digit OTP Escrow verification for all gig completions. Mobile 2FA active.", style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = { Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary).clickable { show2FaDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) { Text("Got it", color = Color.White) } },
-            containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)
-        )
-    }
-
     if (showRateDialog) {
         var stars by remember { mutableStateOf(5) }
         AlertDialog(
@@ -310,8 +263,14 @@ fun SettingsScreen(
         AlertDialog(
             onDismissRequest = { showTermsDialog = false },
             title = { Text("Terms & Privacy Policy", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)) },
-            text = { Text("CampusVault Student Freelancing Platform v1.0\n\n• End-to-End Escrow OTP Verification\n• Secure Peer Messaging & Data Privacy\n• Verified College Community Guidelines", style = MaterialTheme.typography.bodyMedium) },
-            confirmButton = { Box(modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.primary).clickable { showTermsDialog = false }.padding(horizontal = 16.dp, vertical = 8.dp)) { Text("Close", color = Color.White) } },
+            text = { Text("Review how CampusVault handles your data and the rules for using the student marketplace.", style = MaterialTheme.typography.bodyMedium) },
+            confirmButton = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Privacy", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable { uriHandler.openUri("https://campus-gig-backend.onrender.com/privacy") }.padding(8.dp))
+                    Text("Terms", color = MaterialTheme.colorScheme.primary, modifier = Modifier.clickable { uriHandler.openUri("https://campus-gig-backend.onrender.com/terms") }.padding(8.dp))
+                }
+            },
+            dismissButton = { Text("Close", modifier = Modifier.clickable { showTermsDialog = false }.padding(8.dp)) },
             containerColor = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(20.dp)
         )
     }
@@ -333,6 +292,26 @@ fun SettingsScreen(
             },
             containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(20.dp)
+        )
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { if (deleteAccountState !is Resource.Loading) showDeleteDialog = false },
+            title = { Text("Delete account permanently") },
+            text = { Text("Your profile, messages, applications, posts, reviews and uploaded files will be permanently deleted. This cannot be undone.") },
+            confirmButton = {
+                Box(Modifier.clip(RoundedCornerShape(10.dp)).background(SemanticError)
+                    .clickable(enabled = deleteAccountState !is Resource.Loading) { viewModel.deleteAccount() }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    Text(if (deleteAccountState is Resource.Loading) "Deleting…" else "Delete permanently", color = Color.White)
+                }
+            },
+            dismissButton = {
+                Box(Modifier.clip(RoundedCornerShape(10.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable(enabled = deleteAccountState !is Resource.Loading) { showDeleteDialog = false }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)) { Text("Cancel") }
+            }
         )
     }
 
@@ -389,7 +368,7 @@ fun SettingsScreen(
             item { SectionHeader2("Account") }
             item { SettingsRow(icon = Icons.Default.Person, label = "Edit Profile") { navController.navigate(Routes.EDIT_PROFILE) } }
             item { SettingsRow(icon = Icons.Default.Lock, label = "Change Password") { showChangePasswordDialog = true } }
-            item { SettingsRow(icon = Icons.Default.Link, label = "Linked Accounts", value = "Google ✓") { showLinkedAccountsDialog = true } }
+            item { SettingsRow(icon = Icons.Default.DeleteForever, label = "Delete Account") { showDeleteDialog = true } }
             item { Spacer(modifier = Modifier.height(16.dp)) }
 
             // ── Preferences Section ──────────────────────────────────────────────
@@ -397,20 +376,6 @@ fun SettingsScreen(
             item { SettingsRowToggle(icon = Icons.Default.DarkMode, label = "Dark Mode", checked = isDarkTheme, onToggle = { themeViewModel?.toggleTheme() }) }
             item { SettingsRow(icon = Icons.Default.Language, label = "Language", value = "English") {} }
             item { SettingsRow(icon = Icons.Default.Notifications, label = "Notifications") { navController.navigate(Routes.NOTIFICATION_SETTINGS) } }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-
-            // ── Privacy & Security Section ───────────────────────────────────────
-            item { SectionHeader2("Privacy & Security") }
-            item { SettingsRow(icon = Icons.Default.Visibility, label = "Profile Visibility", value = profileVisibility) { showVisibilityDialog = true } }
-            item { SettingsRow(icon = Icons.Default.Block, label = "Block List") { showBlockListDialog = true } }
-            item {
-                // 2FA with amber badge
-                SettingsRow(icon = Icons.Default.Shield, label = "Two-Factor Authentication", trailingContent = {
-                    Box(modifier = Modifier.clip(RoundedCornerShape(6.dp)).background(SemanticWarning.copy(0.15f)).padding(horizontal = 8.dp, vertical = 4.dp).clickable { show2FaDialog = true }) {
-                        Text("Active ✓", style = MaterialTheme.typography.labelSmall, color = SemanticWarning)
-                    }
-                }) { show2FaDialog = true }
-            }
             item { Spacer(modifier = Modifier.height(16.dp)) }
 
             // ── About Section ────────────────────────────────────────────────────

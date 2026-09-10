@@ -100,6 +100,9 @@ class GigRepository(private val api: ApiService) {
                 response.toResourceError()
             }
         } catch (e: Exception) {
+            if (com.abpvt.campusgig_frontend.BuildConfig.DEBUG) {
+                android.util.Log.e("GigRepository", "Gig API request failed", e)
+            }
             Resource.Error(e.localizedMessage ?: "Network error — please check your connection")
         }
     }

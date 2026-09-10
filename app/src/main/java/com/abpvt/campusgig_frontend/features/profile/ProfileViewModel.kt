@@ -7,7 +7,6 @@
  * 3. logout()        — Clear stored token via AuthRepository
  */
 package com.abpvt.campusgig_frontend.features.profile
-import androidx.compose.material3.MaterialTheme
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +22,12 @@ import android.content.ContentResolver
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
+import java.io.ByteArrayOutputStream
 
 class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
@@ -36,6 +41,8 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
 
     private val _avatarUploadState = MutableStateFlow<Resource<User>?>(null)
     val avatarUploadState: StateFlow<Resource<User>?> = _avatarUploadState.asStateFlow()
+    private val _deleteAccountState = MutableStateFlow<Resource<Unit>?>(null)
+    val deleteAccountState: StateFlow<Resource<Unit>?> = _deleteAccountState.asStateFlow()
 
     init {
         loadProfile()
@@ -81,13 +88,39 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     fun resetUpdateState() { _updateState.value = null }
 
     fun uploadAvatar(contentResolver: ContentResolver, uri: Uri) {
+        if (_avatarUploadState.value is Resource.Loading) return
         viewModelScope.launch {
             _avatarUploadState.value = Resource.Loading
-            val result = withContext(Dispatchers.IO) {
-                val bytes = contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?: return@withContext Resource.Error("Unable to read selected photo")
-                val mimeType = contentResolver.getType(uri) ?: "image/jpeg"
-                repository.uploadAvatar(bytes, mimeType)
+            val result = try {
+                withContext(Dispatchers.IO) {
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri)) { decoder, info, _ ->
+                            val ratio = minOf(1f, 1024f / maxOf(info.size.width, info.size.height))
+                            decoder.setTargetSize(maxOf(1, (info.size.width * ratio).toInt()), maxOf(1, (info.size.height * ratio).toInt()))
+                            decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                        }
+                    } else {
+                        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                        contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                        require(options.outWidth > 0 && options.outHeight > 0) { "Unable to read selected photo" }
+                        options.inJustDecodeBounds = false
+                        options.inSampleSize = 1
+                        while (maxOf(options.outWidth, options.outHeight) / options.inSampleSize > 1024) options.inSampleSize *= 2
+                        contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                            ?: error("Unable to read selected photo")
+                    }
+                    val bytes = try {
+                        ByteArrayOutputStream().use { output ->
+                            check(bitmap.compress(Bitmap.CompressFormat.JPEG, 88, output))
+                            output.toByteArray()
+                        }
+                    } finally { bitmap.recycle() }
+                    repository.uploadAvatar(bytes, "image/jpeg")
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Resource.Error("Unable to upload this photo. Please choose another image and try again.")
             }
             _avatarUploadState.value = result
             if (result is Resource.Success<User>) {
@@ -97,6 +130,16 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     }
 
     fun resetAvatarUploadState() { _avatarUploadState.value = null }
+
+    fun deleteAccount() {
+        if (_deleteAccountState.value is Resource.Loading) return
+        viewModelScope.launch {
+            _deleteAccountState.value = Resource.Loading
+            val result = repository.deleteMyAccount()
+            _deleteAccountState.value = result
+            if (result is Resource.Success) logout()
+        }
+    }
 
     // State for change password operation
     private val _changePasswordState = MutableStateFlow<Resource<String>?>(null)

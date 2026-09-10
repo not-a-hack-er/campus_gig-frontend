@@ -61,6 +61,7 @@ data class Gig(
      * Used to identify the worker in the Submit Work and OTP flows.
      * Null if no applicant has been accepted yet.
      */
+    @com.google.gson.annotations.JsonAdapter(com.abpvt.campusgig_frontend.core.network.ObjectIdDeserializer::class)
     val acceptedApplicant: String? = null,
 
     // Work submission details (populated when status == "work_submitted").

@@ -16,6 +16,8 @@
  */
 package com.abpvt.campusgig_frontend.features.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -176,6 +178,14 @@ fun PublicProfileScreen(
 @Composable
 private fun PublicProfileContent(user: User, navController: NavController, userId: String) {
     var showFullBio by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    fun openUrl(url: String) {
+        val fullUrl = if (url.startsWith("http")) url else "https://$url"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(fullUrl))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try { context.startActivity(intent) } catch (_: Exception) {}
+    }
 
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
 
@@ -540,13 +550,13 @@ private fun PublicProfileContent(user: User, navController: NavController, userI
             if (user.githubProfile.isNotBlank() || user.linkedinProfile.isNotBlank() || user.portfolioLinks.isNotEmpty()) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (user.githubProfile.isNotBlank()) {
-                        PortfolioChip(emoji = "🐙", label = "GitHub")
+                        PortfolioChip(emoji = "🐙", label = "GitHub") { openUrl(user.githubProfile) }
                     }
                     if (user.linkedinProfile.isNotBlank()) {
-                        PortfolioChip(emoji = "💼", label = "LinkedIn")
+                        PortfolioChip(emoji = "💼", label = "LinkedIn") { openUrl(user.linkedinProfile) }
                     }
-                    user.portfolioLinks.firstOrNull()?.let {
-                        PortfolioChip(emoji = "🔗", label = "Website")
+                    user.portfolioLinks.firstOrNull()?.let { url ->
+                        PortfolioChip(emoji = "🔗", label = "Website") { openUrl(url) }
                     }
                 }
             } else {
@@ -644,7 +654,7 @@ private fun GradientDivider() {
 }
 
 @Composable
-private fun PortfolioChip(emoji: String, label: String) {
+private fun PortfolioChip(emoji: String, label: String, onClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(10.dp))
@@ -654,6 +664,7 @@ private fun PortfolioChip(emoji: String, label: String) {
                 Brush.horizontalGradient(listOf(GradientTealStart.copy(0.3f), MaterialTheme.colorScheme.outline)),
                 RoundedCornerShape(10.dp)
             )
+            .clickable { onClick() }
             .padding(horizontal = 14.dp, vertical = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

@@ -45,6 +45,13 @@ class UserRepository(private val api: ApiService) {
         }
     }
 
+    suspend fun deleteMyAccount(): Resource<Unit> = try {
+        val response = api.deleteMyAccount(mapOf("confirmation" to "DELETE"))
+        if (response.isSuccessful) Resource.Success(Unit) else response.toResourceError()
+    } catch (e: Exception) {
+        Resource.Error(e.localizedMessage ?: "Account deletion failed")
+    }
+
     suspend fun updateMyProfile(user: User): Resource<User> {
         return try {
             val response = api.updateMyProfile(user)

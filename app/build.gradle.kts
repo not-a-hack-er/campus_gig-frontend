@@ -34,9 +34,9 @@ android {
         // Override these in keystore.properties or CI environment variables.
         // For local dev on emulator: 10.0.2.2:5000 | For production: your HTTPS domain
         buildConfigField("String", "BASE_URL",
-            keystoreProperties.getProperty("BASE_URL", "\"http://10.0.2.2:5000/api/\""))
+            keystoreProperties.getProperty("BASE_URL", "\"https://campus-gig-backend.onrender.com/api/\""))
         buildConfigField("String", "SOCKET_URL",
-            keystoreProperties.getProperty("SOCKET_URL", "\"http://10.0.2.2:5000\""))
+            keystoreProperties.getProperty("SOCKET_URL", "\"https://campus-gig-backend.onrender.com\""))
     }
 
     // ── Release Signing Configuration ─────────────────────────────────────────

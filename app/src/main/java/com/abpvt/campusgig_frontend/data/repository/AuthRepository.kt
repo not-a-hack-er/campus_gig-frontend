@@ -185,7 +185,9 @@ class AuthRepository(
             .putString(Constants.KEY_USER_ROLE, user.role)
             .putString(Constants.KEY_USER_NAME, user.name)
             .putString(Constants.KEY_USER_EMAIL, user.email)
-            .apply()
+            // Authentication-dependent requests start immediately after navigation.
+            // Persist synchronously so their interceptor never sees a missing/stale JWT.
+            .commit()
 
         com.abpvt.campusgig_frontend.CampusGigApplication.instance.syncFcmToken()
     }

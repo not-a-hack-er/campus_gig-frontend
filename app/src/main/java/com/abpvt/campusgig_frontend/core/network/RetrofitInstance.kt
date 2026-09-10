@@ -26,7 +26,7 @@ object RetrofitInstance {
      */
     private fun getLoggingInterceptor() = HttpLoggingInterceptor().apply {
         level = if (BuildConfig.DEBUG) {
-            HttpLoggingInterceptor.Level.BODY
+            HttpLoggingInterceptor.Level.BASIC
         } else {
             HttpLoggingInterceptor.Level.NONE
         }
@@ -41,6 +41,7 @@ object RetrofitInstance {
         .build()
 
     private val gson = GsonBuilder()
+        .registerTypeAdapter(com.abpvt.campusgig_frontend.data.model.response.ApiResponse::class.java, ApiResponseDeserializer())
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
         .setLenient()
         .create()
@@ -54,4 +55,3 @@ object RetrofitInstance {
             .create(ApiService::class.java)
     }
 }
-

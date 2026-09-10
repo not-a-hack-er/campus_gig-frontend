@@ -94,6 +94,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.abpvt.campusgig_frontend.BuildConfig
 import com.abpvt.campusgig_frontend.core.utils.AuthViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.navigation.Routes
@@ -416,8 +417,9 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── Divider ────────────────────────────────────────────────────────
-            AnimatedVisibility(
+            // Google OAuth is intentionally hidden from production until a verified
+            // OAuth client is configured in Firebase/Google Cloud.
+            if (BuildConfig.DEBUG) AnimatedVisibility(
                 visible = socialVisible.value,
                 enter = fadeIn(tween(400))
             ) {
@@ -524,7 +526,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(40.dp))
         }
 
-        if (showGoogleAccountSheet) {
+        if (BuildConfig.DEBUG && showGoogleAccountSheet) {
             GoogleAccountChooserSheet(
                 onDismissRequest = { showGoogleAccountSheet = false },
                 onAccountSelected = { name, email ->

@@ -53,6 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,7 +62,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.ui.layout.ContentScale
-import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.abpvt.campusgig_frontend.CampusGigApplication
@@ -516,15 +517,22 @@ private fun ProfileContent(
             // ── Portfolio Section ──────────────────────────────────────────────
             Text("Portfolio & Socials", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = MaterialTheme.colorScheme.onBackground)
             Spacer(modifier = Modifier.height(12.dp))
+            val context = LocalContext.current
+            fun openUrl(url: String) {
+                val fullUrl = if (url.startsWith("http")) url else "https://$url"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(fullUrl))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                try { context.startActivity(intent) } catch (_: Exception) {}
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (user.githubProfile.isNotBlank()) {
-                    PortfolioLinkChip("🐙 GitHub") { }
+                    PortfolioLinkChip("🐙 GitHub") { openUrl(user.githubProfile) }
                 }
                 if (user.linkedinProfile.isNotBlank()) {
-                    PortfolioLinkChip("💼 LinkedIn") { }
+                    PortfolioLinkChip("💼 LinkedIn") { openUrl(user.linkedinProfile) }
                 }
-                user.portfolioLinks.firstOrNull()?.let {
-                    PortfolioLinkChip("🔗 Website") { }
+                user.portfolioLinks.firstOrNull()?.let { url ->
+                    PortfolioLinkChip("🔗 Website") { openUrl(url) }
                 }
                 if (user.githubProfile.isBlank() && user.linkedinProfile.isBlank() && user.portfolioLinks.isEmpty()) {
                     Text("No portfolio links added yet", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))

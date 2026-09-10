@@ -1,19 +1,21 @@
 /**
- * EditProfileScreen.kt — v2.0 — Edit Profile
+ * EditProfileScreen.kt — v2.1 — Edit Profile
  *
  * CONCEPT: Editing your profile should feel empowering, not tedious.
  * Sections are collapsible for focus. Auto-save bar at bottom.
  *
  * FEATURES:
  * - Gradient palette picker for banner (8 preset options as circles)
- * - Avatar circle with camera overlay
- * - Collapsible form sections (Basic Info, Campus, Skills, Portfolio, Visibility)
+ * - Avatar circle showing current photo or initials with photo picker
+ * - Collapsible form sections (Basic Info, Campus, Skills, Portfolio)
  * - Skills chip editor with add/remove
  * - Auto-save indicator bar (fades after 2s)
  * - Gradient save button at top-right
  */
 package com.abpvt.campusgig_frontend.features.profile
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -31,21 +33,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -53,7 +57,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,28 +70,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.layout.ContentScale
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import coil.compose.AsyncImage
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.ProfileViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.data.model.User
-import com.abpvt.campusgig_frontend.ui.theme.GradientGoldEnd
-import com.abpvt.campusgig_frontend.ui.theme.GradientGoldStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
-import com.abpvt.campusgig_frontend.ui.theme.GradientTealEnd
-import com.abpvt.campusgig_frontend.ui.theme.GradientTealStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
 import kotlinx.coroutines.delay
@@ -114,16 +110,12 @@ fun EditProfileScreen(
         )
     )
 ) {
+    val context = LocalContext.current
     val profileState by viewModel.profile.collectAsState()
     val updateState by viewModel.updateState.collectAsState()
     val avatarUploadState by viewModel.avatarUploadState.collectAsState()
-    val context = LocalContext.current
-    var selectedAvatarUri by remember { mutableStateOf<android.net.Uri?>(null) }
     val avatarPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            selectedAvatarUri = uri
-            viewModel.uploadAvatar(context.contentResolver, uri)
-        }
+        if (uri != null) viewModel.uploadAvatar(context.contentResolver, uri)
     }
 
     var name by remember { mutableStateOf("") }
@@ -175,18 +167,6 @@ fun EditProfileScreen(
         }
     }
 
-    LaunchedEffect(avatarUploadState) {
-        when (val state = avatarUploadState) {
-            is Resource.Success -> {
-                selectedAvatarUri = null
-                localError = ""
-                viewModel.resetAvatarUploadState()
-            }
-            is Resource.Error -> localError = state.message
-            else -> Unit
-        }
-    }
-
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(modifier = Modifier.fillMaxSize()) {
             // ── Top Bar ───────────────────────────────────────────────────────
@@ -208,7 +188,12 @@ fun EditProfileScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Text("Edit Profile", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.weight(1f))
+                Text(
+                    "Edit Profile",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.weight(1f)
+                )
 
                 // Save button
                 Box(
@@ -288,7 +273,7 @@ fun EditProfileScreen(
                         }
                     }
 
-                    // Avatar
+                    // Avatar — tap to choose and upload a replacement photo.
                     Box(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
@@ -299,14 +284,16 @@ fun EditProfileScreen(
                                 .size(72.dp)
                                 .clip(CircleShape)
                                 .background(Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)))
-                                .border(3.dp, MaterialTheme.colorScheme.background, CircleShape),
+                                .border(3.dp, MaterialTheme.colorScheme.background, CircleShape)
+                                .clickable(enabled = avatarUploadState !is Resource.Loading) {
+                                    avatarPicker.launch("image/*")
+                                },
                             contentAlignment = Alignment.Center
                         ) {
                             val remoteAvatar = (profileState as? Resource.Success<User>)?.data?.profilePicture
-                            val avatarModel = selectedAvatarUri ?: remoteAvatar?.takeIf { it.isNotBlank() }
-                            if (avatarModel != null) {
+                            if (!remoteAvatar.isNullOrBlank()) {
                                 AsyncImage(
-                                    model = avatarModel,
+                                    model = remoteAvatar,
                                     contentDescription = "Profile photo",
                                     modifier = Modifier.fillMaxSize().clip(CircleShape),
                                     contentScale = ContentScale.Crop
@@ -318,23 +305,21 @@ fun EditProfileScreen(
                                     color = Color.White
                                 )
                             }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(22.dp)
-                                .align(Alignment.BottomEnd)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                                .border(1.5.dp, MaterialTheme.colorScheme.background, CircleShape)
-                                .clickable(enabled = avatarUploadState !is Resource.Loading) {
-                                    avatarPicker.launch("image/*")
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
                             if (avatarUploadState is Resource.Loading) {
-                                CircularProgressIndicator(color = Color.White, strokeWidth = 1.5.dp, modifier = Modifier.size(12.dp))
+                                Box(
+                                    Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator(Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                                }
                             } else {
-                                Icon(Icons.Default.CameraAlt, contentDescription = "Change photo", tint = Color.White, modifier = Modifier.size(12.dp))
+                                Box(
+                                    Modifier.align(Alignment.BottomEnd).size(24.dp)
+                                        .clip(CircleShape).background(MaterialTheme.colorScheme.primary),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.PhotoCamera, "Change profile photo", tint = Color.White, modifier = Modifier.size(14.dp))
+                                }
                             }
                         }
                     }
@@ -354,6 +339,15 @@ fun EditProfileScreen(
                             .padding(12.dp)
                     ) {
                         Text("⚠ $localError", color = SemanticError, style = MaterialTheme.typography.bodySmall)
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+                (avatarUploadState as? Resource.Error)?.message?.let { message ->
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                            .clip(RoundedCornerShape(8.dp)).background(SemanticError.copy(alpha = 0.1f)).padding(12.dp)
+                    ) {
+                        Text(message, color = SemanticError, style = MaterialTheme.typography.bodySmall)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -379,14 +373,26 @@ fun EditProfileScreen(
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("Full Name *")
-                        OutlinedTextField(value = name, onValueChange = { name = it; localError = "" },
-                            placeholder = { Text("Enter your full name") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it; localError = "" },
+                            placeholder = { Text("Enter your full name") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("Bio (${bio.length}/160)")
-                        OutlinedTextField(value = bio, onValueChange = { if (it.length <= 160) bio = it },
-                            placeholder = { Text("Tell us about yourself...") }, maxLines = 4,
-                            modifier = Modifier.fillMaxWidth().height(100.dp), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = bio,
+                            onValueChange = { if (it.length <= 160) bio = it },
+                            placeholder = { Text("Tell us about yourself...") },
+                            maxLines = 4,
+                            modifier = Modifier.fillMaxWidth().height(100.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -398,14 +404,26 @@ fun EditProfileScreen(
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("College *")
-                        OutlinedTextField(value = college, onValueChange = { college = it; localError = "" },
-                            placeholder = { Text("e.g. GL Bajaj Institute") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = college,
+                            onValueChange = { college = it; localError = "" },
+                            placeholder = { Text("e.g. GL Bajaj Institute") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("Course / Branch")
-                        OutlinedTextField(value = course, onValueChange = { course = it },
-                            placeholder = { Text("e.g. Computer Science") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = course,
+                            onValueChange = { course = it },
+                            placeholder = { Text("e.g. Computer Science") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("Year of Study")
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -414,12 +432,19 @@ fun EditProfileScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
-                                        .background(if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd)) else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)))
+                                        .background(
+                                            if (isSelected) Brush.linearGradient(listOf(GradientIndigoStart, GradientIndigoEnd))
+                                            else Brush.linearGradient(listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant))
+                                        )
                                         .border(1.dp, if (isSelected) Color.Transparent else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                                         .clickable { selectedYear = year }
                                         .padding(horizontal = 16.dp, vertical = 10.dp)
                                 ) {
-                                    Text(year, style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal), color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        year,
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal),
+                                        color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
                         }
@@ -445,8 +470,12 @@ fun EditProfileScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(skill, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Icon(Icons.Default.Close, contentDescription = "Remove", tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(14.dp).clickable { skills.remove(skill) })
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Remove",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(14.dp).clickable { skills.remove(skill) }
+                                        )
                                     }
                                 }
                             }
@@ -470,13 +499,20 @@ fun EditProfileScreen(
                             }),
                             trailingIcon = {
                                 if (skillInput.isNotBlank()) {
-                                    Box(modifier = Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.primary).clickable {
-                                        val candidate = skillInput.trim().take(50)
-                                        if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) {
-                                            skills.add(candidate)
-                                        }
-                                        skillInput = ""
-                                    }.padding(4.dp), contentAlignment = Alignment.Center) {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.primary)
+                                            .clickable {
+                                                val candidate = skillInput.trim().take(50)
+                                                if (candidate.isNotEmpty() && skills.none { it.equals(candidate, ignoreCase = true) }) {
+                                                    skills.add(candidate)
+                                                }
+                                                skillInput = ""
+                                            }
+                                            .padding(4.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
                                         Icon(Icons.Default.Check, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(14.dp))
                                     }
                                 }
@@ -493,24 +529,48 @@ fun EditProfileScreen(
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("🐙 GitHub URL")
-                        OutlinedTextField(value = github, onValueChange = { github = it },
-                            placeholder = { Text("github.com/username") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = github,
+                            onValueChange = { github = it },
+                            placeholder = { Text("github.com/username") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("💼 LinkedIn URL")
-                        OutlinedTextField(value = linkedin, onValueChange = { linkedin = it },
-                            placeholder = { Text("linkedin.com/in/username") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = linkedin,
+                            onValueChange = { linkedin = it },
+                            placeholder = { Text("linkedin.com/in/username") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("🔗 Portfolio / Website")
-                        OutlinedTextField(value = website, onValueChange = { website = it },
-                            placeholder = { Text("yourwebsite.com") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = website,
+                            onValueChange = { website = it },
+                            placeholder = { Text("yourwebsite.com") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(12.dp))
                         SectionLabel("📄 Resume / CV Link (Google Drive, Notion, PDF)")
-                        OutlinedTextField(value = resumeUrl, onValueChange = { resumeUrl = it },
-                            placeholder = { Text("https://drive.google.com/... or resume link") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = fieldColors)
+                        OutlinedTextField(
+                            value = resumeUrl,
+                            onValueChange = { resumeUrl = it },
+                            placeholder = { Text("https://drive.google.com/... or resume link") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = fieldColors
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -566,5 +626,10 @@ private fun SectionHeader(title: String, isExpanded: Boolean, onToggle: () -> Un
 
 @Composable
 private fun SectionLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 6.dp)
+    )
 }

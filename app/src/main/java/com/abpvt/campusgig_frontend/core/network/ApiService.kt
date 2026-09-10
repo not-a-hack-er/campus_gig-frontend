@@ -60,6 +60,9 @@ interface ApiService {
     @PUT("users/me")
     suspend fun updateMyProfile(@Body body: User): Response<User>
 
+    @retrofit2.http.HTTP(method = "DELETE", path = "users/me", hasBody = true)
+    suspend fun deleteMyAccount(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
+
     @Multipart
     @POST("users/me/avatar")
     suspend fun uploadAvatar(
@@ -187,6 +190,9 @@ interface ApiService {
 
     @GET("notifications/unread-count")
     suspend fun getUnreadNotificationCount(): Response<ApiResponse<UnreadCountResponse>>
+
+    @POST("notifications/test")
+    suspend fun testPushNotification(): Response<Map<String, String>>
 
     // ─── Reviews ─────────────────────────────────────────────────────────────
     @GET("reviews/user/{userId}")

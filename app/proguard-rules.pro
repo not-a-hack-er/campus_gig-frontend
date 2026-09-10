@@ -19,6 +19,9 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 
+# Gson instantiates field-level @JsonAdapter classes reflectively.
+-keep class com.abpvt.campusgig_frontend.core.network.*Deserializer { public <init>(); *; }
+
 # ─── OkHttp ──────────────────────────────────────────────────────────────────
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
@@ -28,6 +31,10 @@
 # ─── Socket.IO Client ────────────────────────────────────────────────────────
 -keep class io.socket.** { *; }
 -dontwarn io.socket.**
+
+# Firebase discovers these registrars by class name from manifest metadata.
+-keep class * implements com.google.firebase.components.ComponentRegistrar { public <init>(); *; }
+-keep class com.google.firebase.**Registrar { public <init>(); *; }
 
 # ─── Kotlin Coroutines ───────────────────────────────────────────────────────
 -keep class kotlinx.coroutines.** { *; }

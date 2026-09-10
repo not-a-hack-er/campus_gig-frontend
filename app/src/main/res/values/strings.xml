@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Campus Vault</string>
+    <string name="app_name">CampusVault</string>
+    <string name="support_email">CampusVault.co@gmail.com</string>
 </resources>
