@@ -12,7 +12,7 @@ val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
-val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "")
+val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com")
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")
 
