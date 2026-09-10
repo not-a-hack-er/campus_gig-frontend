@@ -13,6 +13,8 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
 val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com")
+    .trim()
+    .removeSurrounding("\"")
     .replace("\\", "\\\\")
     .replace("\"", "\\\"")
 
@@ -28,8 +30,8 @@ android {
         applicationId = "com.abpvt.campusgig_frontend"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

@@ -418,11 +418,10 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            AnimatedVisibility(
-                visible = socialVisible.value,
-                enter = fadeIn(tween(400))
-            ) {
-                Column {
+            // Keep this available immediately in release builds. A staged
+            // animation previously made the Google action disappear on some
+            // production devices after recomposition.
+            Column {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -502,7 +501,6 @@ fun LoginScreen(
                             )
                         }
                     }
-                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
