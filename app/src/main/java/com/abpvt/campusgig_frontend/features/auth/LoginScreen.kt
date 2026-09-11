@@ -304,11 +304,14 @@ fun LoginScreen(
                         )
                     )
 
-                    // Remember me + Forgot password row
+                    // Password-reset email delivery is intentionally hidden while the
+                    // production backend remains on Render's free SMTP-blocked plan.
+                    // Keep the reset flow and API implementation available so this can
+                    // be restored once an HTTPS email provider or paid hosting is used.
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.Start
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -329,15 +332,6 @@ fun LoginScreen(
                                 text = "Remember me",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        TextButton(onClick = { navController.navigate(Routes.FORGOT_PASSWORD) }) {
-                            Text(
-                                text = "Forgot password?",
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
