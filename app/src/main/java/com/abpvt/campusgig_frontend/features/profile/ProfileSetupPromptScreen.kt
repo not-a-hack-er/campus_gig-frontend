@@ -156,7 +156,7 @@ fun ProfileSetupPromptScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.radialGradient(listOf(GradientIndigoStart.copy(0.12f), Color(0xFF0A0C12))))
+            .background(Brush.radialGradient(listOf(GradientIndigoStart.copy(0.12f), MaterialTheme.colorScheme.background)))
     ) {
         Column(modifier = Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp)) {
             Spacer(modifier = Modifier.height(48.dp))

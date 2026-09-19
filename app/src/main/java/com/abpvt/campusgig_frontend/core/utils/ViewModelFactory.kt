@@ -30,7 +30,6 @@ import com.abpvt.campusgig_frontend.data.repository.CommunityRepository
 import com.abpvt.campusgig_frontend.data.repository.GigRepository
 import com.abpvt.campusgig_frontend.data.repository.UserRepository
 import com.abpvt.campusgig_frontend.features.auth.AuthViewModel
-import com.abpvt.campusgig_frontend.features.auth.ForgotPasswordViewModel
 import com.abpvt.campusgig_frontend.features.chat.ChatViewModel
 import com.abpvt.campusgig_frontend.features.communities.CommunityViewModel
 import com.abpvt.campusgig_frontend.features.gigs.GigViewModel
@@ -50,17 +49,6 @@ class AuthViewModelFactory(private val repo: AuthRepository) : ViewModelProvider
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
             return AuthViewModel(repo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
-    }
-}
-
-// ─── Forgot Password ViewModel Factory ────────────────────────────────────────
-class ForgotPasswordViewModelFactory(private val repo: AuthRepository) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ForgotPasswordViewModel::class.java)) {
-            return ForgotPasswordViewModel(repo) as T
         }
         throw IllegalArgumentException("Unknown ViewModel: ${modelClass.name}")
     }

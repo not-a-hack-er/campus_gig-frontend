@@ -39,7 +39,6 @@ import com.abpvt.campusgig_frontend.features.gigs.MyGigsScreen
 import com.abpvt.campusgig_frontend.features.gigs.GigApplicationsScreen
 import com.abpvt.campusgig_frontend.features.auth.LoginScreen
 import com.abpvt.campusgig_frontend.features.auth.RegisterScreen
-import com.abpvt.campusgig_frontend.features.auth.ForgotPasswordScreen
 import com.abpvt.campusgig_frontend.features.chat.ChatListScreen
 import com.abpvt.campusgig_frontend.features.chat.ChatScreen
 import com.abpvt.campusgig_frontend.features.communities.CommunityDetailScreen
@@ -124,10 +123,6 @@ fun AppNavGraph(
 
             composable(Routes.REGISTER) {
                 RegisterScreen(navController = navController)
-            }
-
-            composable(Routes.FORGOT_PASSWORD) {
-                ForgotPasswordScreen(navController = navController)
             }
 
             // ── Main Screens (with bottom bar) ────────────────────────────────

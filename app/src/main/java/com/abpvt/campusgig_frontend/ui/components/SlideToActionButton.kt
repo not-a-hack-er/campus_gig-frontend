@@ -52,7 +52,6 @@ import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticSuccess
-import com.abpvt.campusgig_frontend.ui.theme.Violet500
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -62,7 +61,7 @@ fun SlideToActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isCompleted: Boolean = false,
-    gradientColors: List<Color> = listOf(GradientIndigoStart, GradientIndigoMid, Violet500),
+    gradientColors: List<Color> = listOf(GradientIndigoStart, GradientIndigoMid, GradientIndigoEnd),
     onSwipeComplete: () -> Unit
 ) {
     val density = LocalDensity.current

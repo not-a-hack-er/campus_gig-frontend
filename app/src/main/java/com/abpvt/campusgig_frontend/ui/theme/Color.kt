@@ -14,38 +14,62 @@ package com.abpvt.campusgig_frontend.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+// ─── CampusVault Cyber-Industrial Workshop tokens ────────────────────────────
+// These mirror the website. Existing aliases below point here so the feature
+// screens share one visual language without changing their behavior.
+val CvBg0       = Color(0xFF1D1A17)
+val CvBg1       = Color(0xFF24201D)
+val CvBg2       = Color(0xFF2C2824)
+val CvBg3       = Color(0xFF36312B)
+val CvMetal0    = Color(0xFF302B25)
+val CvMetal1    = Color(0xFF403932)
+val CvMetal2    = Color(0xFF5A5146)
+val CvMetalEdge = Color(0xFF7B7061)
+val CvPrimary   = Color(0xFF22C55E)
+val CvPrimarySoft = Color(0xFF4ADE80)
+val CvPrimaryDeep = Color(0xFF15803D)
+val CvMint      = Color(0xFF5DB89A)
+val CvMintSoft  = Color(0xFF7FC9AC)
+val CvMintDeep  = Color(0xFF2D8A6E)
+val CvCoral     = Color(0xFFFB7185)
+val CvCoralSoft = Color(0xFFFDA4AF)
+val CvText0     = Color(0xFFF5F0E7)
+val CvText1     = Color(0xFFD8D0C4)
+val CvText2     = Color(0xFFB0A89C)
+val CvText3     = Color(0xFF9E968A)
+
 // ─── Dark Mode Surfaces ────────────────────────────────────────────────────────
-val BackgroundBase     = Color(0xFF0A0C12)  // Deepest background — app shell
-val Surface1           = Color(0xFF0F1117)  // Main screen background
-val Surface2           = Color(0xFF141820)  // Card backgrounds
-val Surface3           = Color(0xFF1A1F2E)  // Elevated cards, modals, input fields
-val Surface4           = Color(0xFF1F2535)  // Chips, active inputs
-val BorderSubtle       = Color(0xFF2A2F42)  // Card borders, dividers
-val BorderDefault      = Color(0xFF353B52)  // Input borders, active states
+val BackgroundBase     = CvBg0
+val Surface1           = CvBg0
+val Surface2           = CvBg1
+val Surface3           = CvBg2
+val Surface4           = CvBg3
+val BorderSubtle       = CvMetal1
+val BorderDefault      = CvMetal2
 
 // ─── Light Mode Surfaces — Soft Violet / Lavender (v6.1) ─────────────────────
-val BackgroundBaseLight  = Color(0xFFEDE9FE)  // Violet-100 — clearly NOT white, rich soft lavender
-val Surface1Light        = Color(0xFFE8E2FD)  // Slightly deeper violet for headers/bars
-val Surface2Light        = Color(0xFFFFFFFF)  // Pure crisp white cards floating on violet
-val Surface3Light        = Color(0xFFDDD6FE)  // Violet-200 — chip/input fill, visible tint
-val Surface4Light        = Color(0xFFC4B5FD)  // Violet-300 — active inputs
+val BackgroundBaseLight  = Color(0xFFFAF8F5)
+val Surface1Light        = Color(0xFFF3EEE4)
+val Surface2Light        = Color(0xFFFFFFFF)
+val Surface3Light        = Color(0xFFF3EEE4)
+val Surface4Light        = Color(0xFFE6DFD1)
 
-val BorderSubtleLight    = Color(0xFFD8D0FC)  // Violet-tinted card border — pairs with lavender bg
-val BorderDefaultLight   = Color(0xFFB9A8FA)  // Deeper violet active input focus border
+val BorderSubtleLight    = Color(0xFFCFC6B6)
+val BorderDefaultLight   = Color(0xFFA89F91)
 
-// ─── Primary — Electric Indigo (Premium 2024 AI/Tech Primary) ─────────────────
-val IndigoLight100     = Color(0xFFEEF2FF)  // Chip fill background
-val IndigoLight200     = Color(0xFFC7D2FE)  // Divider / subtle tint
-val IndigoLight400     = Color(0xFF818CF8)  // Icon on white
-val IndigoLight500     = Color(0xFF6366F1)  // Lighter shade
-val IndigoLight600     = Color(0xFF4F46E5)  // LIGHT MODE PRIMARY — Electric Indigo
-val IndigoLight700     = Color(0xFF4338CA)  // Pressed state
+// ─── Primary — CampusVault phosphor green ─────────────────────────────────────
+val IndigoLight100     = Color(0xFFE8F7EC)
+val IndigoLight200     = Color(0xFFC7EFD2)
+val IndigoLight400     = Color(0xFF22C55E)
+val IndigoLight500     = Color(0xFF16A34A)
+val IndigoLight600     = Color(0xFF16A34A)
+val IndigoLight700     = Color(0xFF15803D)
 
 // Dark mode Indigo aliases (kept for backward compat)
-val Indigo400          = Color(0xFF818CF8)
-val Indigo500          = Color(0xFF6366F1)
-val Indigo600          = Color(0xFF4F46E5)
-val Indigo700          = Color(0xFF4338CA)
+val Indigo400          = CvPrimarySoft
+val Indigo500          = CvPrimary
+val Indigo600          = CvPrimary
+val Indigo700          = CvPrimaryDeep
 
 // ─── Secondary — Zomato Coral-Red (Energy, Trending, Discovery) ──────────────
 val CoralRed100        = Color(0xFFFFF0F3)  // Soft rose chip fill
@@ -67,11 +91,11 @@ val Emerald500         = Color(0xFF059669)  // FOREST EMERALD — tertiary / suc
 val Emerald600         = Color(0xFF047857)  // Pressed state
 val Emerald700         = Color(0xFF065F46)  // Darkest
 
-// ─── Violet (Communities, Creative, Special) ──────────────────────────────────
-val Violet100          = Color(0xFFF5F3FF)  // Soft violet chip fill
-val Violet400          = Color(0xFFA78BFA)
-val Violet500          = Color(0xFF8B5CF6)
-val Violet600          = Color(0xFF7C3AED)
+// ─── Legacy accent aliases — retained for compatibility, aligned to the brand ──
+val Violet100          = Color(0xFFE8F7EC)
+val Violet400          = CvPrimarySoft
+val Violet500          = CvPrimary
+val Violet600          = CvPrimaryDeep
 
 // ─── Amber (Ratings, Stars, Warnings) ─────────────────────────────────────────
 val Amber100           = Color(0xFFFFFBEB)
@@ -96,9 +120,9 @@ val GrapePurple400     = Color(0xFFA855F7)
 
 // ─── Gradient Tokens ──────────────────────────────────────────────────────────
 // Dark Mode Primary Gradient
-val GradientIndigoStart   = Color(0xFF6366F1)
-val GradientIndigoMid     = Color(0xFF8B5CF6)
-val GradientIndigoEnd     = Color(0xFFA78BFA)
+val GradientIndigoStart   = CvPrimary
+val GradientIndigoMid     = Color(0xFF1FA653)
+val GradientIndigoEnd     = CvPrimaryDeep
 
 // Gold & Teal Gradients (dark mode communities / status)
 val GradientGoldStart     = Color(0xFFF59E0B)
@@ -106,24 +130,24 @@ val GradientGoldEnd       = Color(0xFFFBBF24)
 val GradientTealStart     = Color(0xFF0D9488)
 val GradientTealEnd       = Color(0xFF06B6D4)
 
-// Light Mode Primary Gradient — Electric Indigo to Violet
-val GradientLightStart    = Color(0xFF4F46E5)   // Electric Indigo
-val GradientLightMid      = Color(0xFF7C3AED)   // Violet
-val GradientLightEnd      = Color(0xFF9333EA)   // Grape Purple
+// Light Mode Primary Gradient — phosphor green to deep green
+val GradientLightStart    = Color(0xFF22C55E)
+val GradientLightMid      = Color(0xFF16A34A)
+val GradientLightEnd      = Color(0xFF15803D)
 
-// Light Mode Featured Card Gradients — Duolingo-inspired, 8 distinct rich colors
-val GradientLightCoding    = listOf(Color(0xFF4F46E5), Color(0xFF06B6D4))  // Indigo→Cyan
-val GradientLightDesign    = listOf(Color(0xFFE23744), Color(0xFFF472B6))  // Coral→Pink
-val GradientLightWriting   = listOf(Color(0xFF059669), Color(0xFF10B981))  // Emerald→Mint
-val GradientLightTutoring  = listOf(Color(0xFFD97706), Color(0xFFFBBF24))  // Amber→Gold
-val GradientLightPhoto     = listOf(Color(0xFF9333EA), Color(0xFFEC4899))  // Purple→Pink
-val GradientLightVideo     = listOf(Color(0xFF0284C7), Color(0xFF06B6D4))  // SkyBlue→Cyan
-val GradientLightMarketing = listOf(Color(0xFFEA580C), Color(0xFFF59E0B))  // Swiggy Orange→Amber
-val GradientLightOther     = listOf(Color(0xFF7C3AED), Color(0xFF4F46E5))  // Violet→Indigo
+// Light Mode Featured Card Gradients — restrained CampusVault workshop tones
+val GradientLightCoding    = listOf(Color(0xFFE5F3E9), Color(0xFFBFE8CB))
+val GradientLightDesign    = listOf(Color(0xFFF8E8E9), Color(0xFFF0C9CD))
+val GradientLightWriting   = listOf(Color(0xFFE2F1EA), Color(0xFFC2E2D3))
+val GradientLightTutoring  = listOf(Color(0xFFF6ECDC), Color(0xFFEAD5A9))
+val GradientLightPhoto     = listOf(Color(0xFFF5E6DF), Color(0xFFEAC3B3))
+val GradientLightVideo     = listOf(Color(0xFFE3EEEE), Color(0xFFC7DDDF))
+val GradientLightMarketing = listOf(Color(0xFFF1F0DC), Color(0xFFDEDBA3))
+val GradientLightOther     = listOf(Color(0xFFEDE8E0), Color(0xFFD6CCBC))
 
 // Glow tokens
-val GlowIndigo            = Color(0x334F46E5)  // Electric Indigo ambient
-val GlowOrange            = Color(0x33E23744)  // Coral ambient
+val GlowIndigo            = Color(0x3322C55E)
+val GlowOrange            = Color(0x33FB7185)
 
 // ─── Soft Pastel Category Backgrounds ─────────────────────────────────────────
 val PastelBlue     = Color(0xFFEEF2FF)   // Coding — Indigo tint
@@ -136,25 +160,25 @@ val PastelRed      = Color(0xFFFFF7ED)   // Marketing — Swiggy Orange tint
 val PastelPurple   = Color(0xFFF5F3FF)   // Other — Violet tint
 
 // ─── Semantic Colors ──────────────────────────────────────────────────────────
-val SemanticSuccess        = Color(0xFF059669)   // Forest Emerald
-val SemanticSuccessBg      = Color(0x1F059669)
+val SemanticSuccess        = CvPrimary
+val SemanticSuccessBg      = Color(0x1F22C55E)
 val SemanticWarning        = Color(0xFFD97706)   // Amber
 val SemanticWarningBg      = Color(0x1FD97706)
-val SemanticError          = Color(0xFFDC2626)   // Red
-val SemanticErrorBg        = Color(0x1FDC2626)
-val SemanticInfo           = Color(0xFF0284C7)   // Sky Blue
-val SemanticInfoBg         = Color(0x1F0284C7)
+val SemanticError          = CvCoral
+val SemanticErrorBg        = Color(0x1FFB7185)
+val SemanticInfo           = CvMint
+val SemanticInfoBg         = Color(0x1F5DB89A)
 
 // ─── Text Colors (Dark Mode) ──────────────────────────────────────────────────
-val TextPrimary            = Color(0xFFF1F5F9)
-val TextSecondary          = Color(0xFF94A3B8)
-val TextTertiary           = Color(0xFF64748B)
-val TextInverted           = Color(0xFF1A1A2E)
+val TextPrimary            = CvText0
+val TextSecondary          = CvText1
+val TextTertiary           = CvText2
+val TextInverted           = CvBg0
 
 // ─── Text Colors (Light Mode — Research-Backed) ───────────────────────────────
-val TextPrimaryLight       = Color(0xFF1A1A2E)  // Swiggy Deep Navy Charcoal
-val TextSecondaryLight     = Color(0xFF6B7280)  // Notion Slate Gray
-val TextTertiaryLight      = Color(0xFF9CA3AF)  // Soft hint gray
+val TextPrimaryLight       = Color(0xFF1C1917)
+val TextSecondaryLight     = Color(0xFF292524)
+val TextTertiaryLight      = Color(0xFF57534E)
 
 // ─── Legacy Aliases (backward compat) ─────────────────────────────────────────
 val BackgroundDark         = Surface1

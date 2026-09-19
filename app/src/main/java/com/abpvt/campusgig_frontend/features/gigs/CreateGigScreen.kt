@@ -124,14 +124,14 @@ private data class CategoryItem(
 )
 
 private val GIG_CATEGORY_ITEMS = listOf(
-    CategoryItem("Coding",      Icons.Default.Code,     Color(0xFF6366F1), "⌨️"),
-    CategoryItem("Design",      Icons.Default.Edit,     Color(0xFFEC4899), "🎨"),
-    CategoryItem("Writing",     Icons.Default.Edit,     Color(0xFF14B8A6), "✍️"),
-    CategoryItem("Tutoring",    Icons.Default.Star,     Color(0xFFF59E0B), "📚"),
-    CategoryItem("Photography", Icons.Default.Image,    Color(0xFFEF4444), "📷"),
-    CategoryItem("Video",       Icons.Default.Videocam, Color(0xFF3B82F6), "🎬"),
-    CategoryItem("Marketing",   Icons.Default.Mic,      Color(0xFFA855F7), "📣"),
-    CategoryItem("Other",       Icons.Default.Work,     Color(0xFF64748B), "💼"),
+    CategoryItem("Coding",      Icons.Default.Code,     Color(0xFF15803D), "⌨️"),
+    CategoryItem("Design",      Icons.Default.Edit,     Color(0xFF7A3F48), "🎨"),
+    CategoryItem("Writing",     Icons.Default.Edit,     Color(0xFF2D8A6E), "✍️"),
+    CategoryItem("Tutoring",    Icons.Default.Star,     Color(0xFFA67C34), "📚"),
+    CategoryItem("Photography", Icons.Default.Image,    Color(0xFFB65A3C), "📷"),
+    CategoryItem("Video",       Icons.Default.Videocam, Color(0xFF3F6C72), "🎬"),
+    CategoryItem("Marketing",   Icons.Default.Mic,      Color(0xFF7A783A), "📣"),
+    CategoryItem("Other",       Icons.Default.Work,     Color(0xFF5A5146), "💼"),
 )
 
 private val MARKET_RATES = mapOf(

@@ -36,6 +36,10 @@
 -keep class * implements com.google.firebase.components.ComponentRegistrar { public <init>(); *; }
 -keep class com.google.firebase.**Registrar { public <init>(); *; }
 
+# ─── Clerk SDK ───────────────────────────────────────────────────────────────
+-keep class com.clerk.** { *; }
+-dontwarn com.clerk.**
+
 # ─── Kotlin Coroutines ───────────────────────────────────────────────────────
 -keep class kotlinx.coroutines.** { *; }
 -dontwarn kotlinx.coroutines.**

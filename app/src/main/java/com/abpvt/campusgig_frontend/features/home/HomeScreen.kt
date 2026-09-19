@@ -123,14 +123,16 @@ import java.util.Calendar
 // ─── Color Palette Helpers ────────────────────────────────────────────────────
 private object CategoryColors {
     // Dark-mode card gradients (deep, rich)
-    val coding      = listOf(Color(0xFF312E81), Color(0xFF4338CA))
-    val design      = listOf(Color(0xFF831843), Color(0xFFBE185D))
-    val writing     = listOf(Color(0xFF134E4A), Color(0xFF0D9488))
-    val tutoring    = listOf(Color(0xFF78350F), Color(0xFFD97706))
-    val photography = listOf(Color(0xFF7F1D1D), Color(0xFFDC2626))
-    val video       = listOf(Color(0xFF1E3A5F), Color(0xFF1D4ED8))
-    val marketing   = listOf(Color(0xFF4C1D95), Color(0xFF7C3AED))
-    val other       = listOf(Color(0xFF1E1B4B), Color(0xFF3730A3))
+    // Restrained workshop tones keep featured work recognisable without
+    // competing with CampusVault's charcoal-and-phosphor-green identity.
+    val coding      = listOf(Color(0xFF203A2A), Color(0xFF15803D))
+    val design      = listOf(Color(0xFF3A2A2C), Color(0xFF7A3F48))
+    val writing     = listOf(Color(0xFF203830), Color(0xFF2D8A6E))
+    val tutoring    = listOf(Color(0xFF3C3223), Color(0xFFA67C34))
+    val photography = listOf(Color(0xFF3E2B25), Color(0xFFB65A3C))
+    val video       = listOf(Color(0xFF263434), Color(0xFF3F6C72))
+    val marketing   = listOf(Color(0xFF303024), Color(0xFF7A783A))
+    val other       = listOf(Color(0xFF2F2B27), Color(0xFF5A5146))
 
     fun forCategory(cat: String, isDark: Boolean = true) = when (cat.lowercase()) {
         "coding"      -> if (isDark) coding      else GradientLightCoding
@@ -143,25 +145,25 @@ private object CategoryColors {
         else          -> if (isDark) other       else GradientLightOther
     }
 
-    // Icon container bg + icon color — Duolingo-inspired 8 distinct rich colors
+    // Icon containers follow the same restrained workshop palette in both themes.
     data class IconStyle(val bg: Color, val icon: Color)
     fun iconStyle(cat: String, isDark: Boolean = true) = when (cat.lowercase()) {
-        "coding"      -> if (isDark) IconStyle(Color(0x336366F1), Color(0xFF818CF8))
-                         else        IconStyle(Color(0xFFEEF2FF), Color(0xFF4F46E5))  // Electric Indigo
+        "coding"      -> if (isDark) IconStyle(Color(0x3322C55E), Color(0xFF4ADE80))
+                         else        IconStyle(Color(0xFFE5F3E9), Color(0xFF15803D))
         "design"      -> if (isDark) IconStyle(Color(0x33EC4899), Color(0xFFF472B6))
-                         else        IconStyle(Color(0xFFFFF0F3), Color(0xFFE23744))  // Zomato Coral
+                         else        IconStyle(Color(0xFFF8E8E9), Color(0xFFB45A69))
         "writing"     -> if (isDark) IconStyle(Color(0x3314B8A6), Color(0xFF2DD4BF))
-                         else        IconStyle(Color(0xFFD1FAE5), Color(0xFF059669))  // Forest Emerald
+                         else        IconStyle(Color(0xFFE2F1EA), Color(0xFF2D8A6E))
         "tutoring"    -> if (isDark) IconStyle(Color(0x33F59E0B), Color(0xFFFCD34D))
-                         else        IconStyle(Color(0xFFFFFBEB), Color(0xFFD97706))  // Rich Amber
+                         else        IconStyle(Color(0xFFF6ECDC), Color(0xFFA67C34))
         "photography" -> if (isDark) IconStyle(Color(0x33EF4444), Color(0xFFF87171))
-                         else        IconStyle(Color(0xFFFDF4FF), Color(0xFF9333EA))  // Grape Purple
+                         else        IconStyle(Color(0xFFF5E6DF), Color(0xFFB65A3C))
         "video"       -> if (isDark) IconStyle(Color(0x333B82F6), Color(0xFF60A5FA))
-                         else        IconStyle(Color(0xFFE0F2FE), Color(0xFF0284C7))  // Sky Blue
+                         else        IconStyle(Color(0xFFE3EEEE), Color(0xFF3F6C72))
         "marketing"   -> if (isDark) IconStyle(Color(0x33A855F7), Color(0xFFC084FC)  )
-                         else        IconStyle(Color(0xFFFFF7ED), Color(0xFFEA580C))  // Swiggy Orange
+                         else        IconStyle(Color(0xFFF1F0DC), Color(0xFF7A783A))
         else          -> if (isDark) IconStyle(Color(0x33647483), Color(0xFF94A3B8))
-                         else        IconStyle(Color(0xFFF5F3FF), Color(0xFF7C3AED))  // Violet
+                         else        IconStyle(Color(0xFFEDE8E0), Color(0xFF5A5146))
     }
 }
 
@@ -706,7 +708,11 @@ fun HomeScreen(
                             .clip(RoundedCornerShape(16.dp))
                             .background(
                                 Brush.linearGradient(
-                                    colors = listOf(Color(0xFF1E1B4B), Color(0xFF2E2A72), Color(0xFF4C1D95))
+                                    colors = listOf(
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                        MaterialTheme.colorScheme.primaryContainer,
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    )
                                 )
                             )
                             .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
@@ -723,7 +729,7 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(40.dp)
                                         .clip(RoundedCornerShape(10.dp))
-                                        .background(Color.White.copy(alpha = 0.12f)),
+                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.68f)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("👥", fontSize = 20.sp)
@@ -734,13 +740,13 @@ fun HomeScreen(
                                         style = MaterialTheme.typography.titleSmall.copy(
                                             fontWeight = FontWeight.Bold, fontSize = 15.sp
                                         ),
-                                        color = Color.White
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Spacer(Modifier.height(2.dp))
                                     Text(
                                         "Connect, collaborate & share gig opportunities with student peers",
                                         style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.5.sp, lineHeight = 15.sp),
-                                        color = Color.White.copy(alpha = 0.7f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
@@ -901,6 +907,11 @@ private fun QuickStatCard(
 @Composable
 private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boolean = true) {
     val gradientColors = CategoryColors.forCategory(card.category, isDark)
+    val foreground = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val secondaryForeground = if (isDark) Color.White.copy(alpha = 0.78f) else MaterialTheme.colorScheme.onSurfaceVariant
+    val chipBackground = if (isDark) Color.White.copy(alpha = 0.16f) else MaterialTheme.colorScheme.surface.copy(alpha = 0.78f)
+    val actionBackground = if (isDark) Color.White else MaterialTheme.colorScheme.primary
+    val actionForeground = if (isDark) gradientColors.first() else MaterialTheme.colorScheme.onPrimary
 
     Box(
         modifier = Modifier
@@ -921,19 +932,19 @@ private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boo
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color.White.copy(alpha = 0.15f))
+                    .background(chipBackground)
                     .padding(horizontal = 8.dp, vertical = 3.dp)
             ) {
                 Text(
                     "FEATURED",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Medium, fontSize = 10.sp),
-                    color = Color.White
+                    color = foreground
                 )
             }
             Text(
                 card.category,
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                color = Color.White.copy(alpha = 0.75f)
+                color = secondaryForeground
             )
         }
 
@@ -947,7 +958,7 @@ private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boo
             Text(
                 card.title,
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 16.sp),
-                color = Color.White,
+                color = foreground,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -955,10 +966,10 @@ private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boo
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(999.dp))
-                    .background(Color.White.copy(alpha = 0.2f))
+                    .background(chipBackground)
                     .padding(horizontal = 10.dp, vertical = 3.dp)
             ) {
-                Text(card.budget, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = Color.White)
+                Text(card.budget, style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold), color = foreground)
             }
         }
 
@@ -976,24 +987,24 @@ private fun FeaturedGigCard(card: FeaturedCard, onClick: () -> Unit, isDark: Boo
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.25f)),
+                    .background(chipBackground),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         card.poster.firstOrNull()?.uppercase() ?: "?",
                         style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, fontSize = 10.sp),
-                        color = Color.White
+                        color = foreground
                     )
                 }
-                Text("by ${card.poster.split(" ").firstOrNull() ?: card.poster}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = Color.White.copy(alpha = 0.8f))
+                Text("by ${card.poster.split(" ").firstOrNull() ?: card.poster}", style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp), color = secondaryForeground)
             }
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color.White)
+                    .background(actionBackground)
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                Text("View Gig →", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp), color = gradientColors.first())
+                Text("View Gig →", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold, fontSize = 11.sp), color = actionForeground)
             }
         }
     }
@@ -1159,8 +1170,8 @@ private fun CommunityPill(label: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(Color.White.copy(alpha = 0.08f))
-            .border(0.5.dp, Color.White.copy(alpha = 0.18f), RoundedCornerShape(10.dp))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+            .border(0.5.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
             .padding(horizontal = 10.dp, vertical = 7.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -1169,7 +1180,7 @@ private fun CommunityPill(label: String, modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.labelSmall.copy(
                 fontSize = 11.5.sp, fontWeight = FontWeight.Medium
             ),
-            color = Color.White.copy(alpha = 0.95f),
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

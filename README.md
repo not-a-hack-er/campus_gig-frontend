@@ -29,7 +29,7 @@ The app is built following **Modern Android Architecture (MVVM)**, **Unidirectio
 ## ✨ Key Features
 
 ### 🔐 1. Authentication & Security
-- **JWT-Based Authentication**: Secure login and registration with validation.
+- **Google Sign-In & Dual-Mode Auth**: One-tap native Google Sign-In integrated with dedicated debug keystore verification and backend ID token fallback.
 - **Encrypted Local Storage**: Session tokens and user credentials stored using AndroidX `EncryptedSharedPreferences`.
 - **Automatic Token Injection**: Retrofit interceptor automatically attaches Bearer tokens and handles `401 Unauthorized` token expiration scenarios.
 
@@ -132,15 +132,17 @@ Copy the template configuration file:
 cp keystore.properties.example keystore.properties
 ```
 
-Edit `keystore.properties` to specify your backend endpoints:
+Edit `keystore.properties` to specify your backend endpoints and API credentials:
 ```properties
 # Local development on Android Emulator (default host loopback):
 BASE_URL="http://10.0.2.2:5000/api/"
 SOCKET_URL="http://10.0.2.2:5000"
 
-# Or for Physical Device over Wi-Fi:
-# BASE_URL="http://<YOUR_PC_LAN_IP>:5000/api/"
-# SOCKET_URL="http://<YOUR_PC_LAN_IP>:5000"
+# Production Backend & Auth Configuration:
+# BASE_URL="https://campus-gig-backend.onrender.com/api/"
+# SOCKET_URL="https://campus-gig-backend.onrender.com"
+GOOGLE_WEB_CLIENT_ID="405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com"
+CLERK_PUBLISHABLE_KEY="pk_test_..."
 ```
 
 > **Note:** `keystore.properties` is protected by `.gitignore` and will never be committed to source control.

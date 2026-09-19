@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -193,6 +194,7 @@ private fun ProfileContent(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
+            .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
     ) {
 
@@ -306,17 +308,25 @@ private fun ProfileContent(
                 Text(
                     text = user.name.ifBlank { "Campus Builder" },
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold, fontSize = 24.sp),
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    Text(user.college.ifBlank { "College Student" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (user.branch.isNotBlank()) {
-                        Text(" · ${user.branch}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
-                    }
-                    if (user.yearOfStudy.isNotBlank()) {
-                        Text(" · ${user.yearOfStudy} Year", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
-                    }
+
+                val academicInfo = buildList {
+                    if (user.branch.isNotBlank()) add(user.branch)
+                    if (user.yearOfStudy.isNotBlank()) add("${user.yearOfStudy} Year")
+                }.joinToString(" · ")
+
+                if (academicInfo.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = academicInfo,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
                 }
 
                 if (user.bio.isNotBlank()) {
@@ -326,7 +336,8 @@ private fun ProfileContent(
                         style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = if (uiState.showFullBio) Int.MAX_VALUE else 3,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     if (!uiState.showFullBio && user.bio.length > 120) {
                         Spacer(modifier = Modifier.height(4.dp))
@@ -345,15 +356,20 @@ private fun ProfileContent(
                 Spacer(modifier = Modifier.height(12.dp))
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth(0.92f)
                         .clip(RoundedCornerShape(999.dp))
                         .background(GradientTealStart.copy(alpha = 0.12f))
                         .border(BorderStroke(1.dp, GradientTealStart.copy(alpha = 0.3f)), RoundedCornerShape(999.dp))
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "🎓 ${user.college.ifBlank { "Campus Vault Member" }}",
+                        text = "🎓 ${user.college.ifBlank { "Campus Vault Member" }}",
                         style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = GradientTealEnd
+                        color = GradientTealEnd,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 }
             }
@@ -670,7 +686,7 @@ private fun ProfileContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }

@@ -9,11 +9,13 @@
  * - Label-above input style (#1A1F2E bg, 56dp, 12dp radius)
  * - Focus glow: indigo border + rgba(99,102,241,0.15) ambient
  * - Primary gradient CTA (indigo → violet), spring press animation
- * - "Or continue with" divider + Google social button
  * - Animated loading state (spinner replaces text)
  */
 package com.abpvt.campusgig_frontend.features.auth
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -48,7 +50,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -93,8 +94,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.abpvt.campusgig_frontend.CampusGigApplication
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.abpvt.campusgig_frontend.BuildConfig
+import com.abpvt.campusgig_frontend.CampusGigApplication
 import com.abpvt.campusgig_frontend.core.utils.AuthViewModelFactory
 import com.abpvt.campusgig_frontend.core.utils.Resource
 import com.abpvt.campusgig_frontend.navigation.Routes
@@ -105,15 +109,6 @@ import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 import com.abpvt.campusgig_frontend.ui.theme.SemanticErrorBg
 import com.abpvt.campusgig_frontend.ui.logo.CampusGigLogoIcon
 import kotlinx.coroutines.delay
-import android.accounts.AccountManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -123,44 +118,58 @@ fun LoginScreen(
         )
     )
 ) {
-    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var rememberMe by remember { mutableStateOf(false) }
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        try {
-            val account = com.google.android.gms.auth.api.signin.GoogleSignIn
-                .getSignedInAccountFromIntent(result.data)
-                .getResult(com.google.android.gms.common.api.ApiException::class.java)
-            val idToken = account.idToken
-            if (idToken.isNullOrBlank()) {
-                viewModel.showError("Google did not return a sign-in token. Please try again.")
-            } else {
-                viewModel.googleLogin(idToken)
-            }
-        } catch (_: Exception) {
-            viewModel.showError("Google sign-in was cancelled or could not be completed.")
-        }
-    }
-
     val focusManager = LocalFocusManager.current
     val authState by viewModel.authState.collectAsState()
+    val context = LocalContext.current
+    // Create the Google Sign-In client once (stable across recompositions).
+    // signOut() is called before each launch to force the account chooser.
+    val googleSignInClient = remember(context) {
+        GoogleSignIn.getClient(
+            context,
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(BuildConfig.GOOGLE_WEB_CLIENT_ID)
+                .requestEmail()
+                .build()
+        )
+    }
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        // Google also returns RESULT_CANCELED for configuration failures. Parse
+        // its result first so a developer error is not reported as user cancellation.
+        try {
+            val account = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                .getResult(ApiException::class.java)
+            val idToken = account.idToken
+            if (idToken.isNullOrBlank()) {
+                viewModel.showError("Google did not return a secure sign-in token.")
+            } else {
+                viewModel.loginWithGoogle(idToken)
+            }
+        } catch (error: ApiException) {
+            android.util.Log.w("CampusAuth", "stage=google status=${error.statusCode} package=${context.packageName}")
+            viewModel.showError(when (error.statusCode) {
+                12501 -> "Google sign-in was cancelled."
+                10 -> "Google sign-in configuration error (10). This app's package/signing certificate must be registered with Google."
+                7 -> "Google sign-in needs an internet connection. Please try again."
+                else -> "Google sign-in failed (code ${error.statusCode}). Please try again."
+            })
+        }
+    }
 
     // Staggered entrance animations
     val headerVisible = remember { mutableStateOf(false) }
     val formVisible = remember { mutableStateOf(false) }
-    val socialVisible = remember { mutableStateOf(false) }
     val footerVisible = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         headerVisible.value = true
         delay(80)
         formVisible.value = true
-        delay(80)
-        socialVisible.value = true
         delay(80)
         footerVisible.value = true
     }
@@ -407,94 +416,63 @@ fun LoginScreen(
                             )
                         }
                     }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Keep this available immediately in release builds. A staged
-            // animation previously made the Google action disappear on some
-            // production devices after recomposition.
-            Column {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        HorizontalDivider(
-                            modifier = Modifier.weight(1f),
-                            color = MaterialTheme.colorScheme.outline
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.55f))
                         )
                         Text(
-                            text = "  or continue with  ",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            text = " OR CONTINUE WITH ",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 10.sp
                         )
-                        HorizontalDivider(
-                            modifier = Modifier.weight(1f),
-                            color = MaterialTheme.colorScheme.outline
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(1.dp)
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.55f))
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Google Button
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(54.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-                            .clickable {
-                                val clientId = BuildConfig.GOOGLE_WEB_CLIENT_ID
-                                if (clientId.isBlank()) {
-                                    viewModel.showError("Google sign-in is not configured yet. Please use email sign-in or contact support.")
-                                } else {
-                                    val options = com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
-                                        com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
-                                    )
-                                        .requestIdToken(clientId)
-                                        .requestEmail()
-                                        .build()
-                                    googleSignInLauncher.launch(
-                                        com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(context, options).signInIntent
-                                    )
+                            .clickable(enabled = !isLoading) {
+                                // Always sign out first so the account chooser is shown,
+                                // instead of silently reusing the last cached account.
+                                googleSignInClient.signOut().addOnCompleteListener {
+                                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
                                 }
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            // Google logo placeholder (G icon using text)
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(
-                                        brush = Brush.linearGradient(
-                                            colors = listOf(Color(0xFF4285F4), Color(0xFF34A853))
-                                        ),
-                                        shape = RoundedCornerShape(4.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "G",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "G",
+                                color = Color(0xFF4285F4),
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 18.sp
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = "Continue with Google",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                color = MaterialTheme.colorScheme.onBackground
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -533,6 +511,7 @@ fun LoginScreen(
 }
 
 // ─── Google Account Chooser Bottom Sheet ──────────────────────────────────────
+/* Google account chooser disabled until Google Sign-In is restored and verified.
 data class GoogleAccount(
     val name: String,
     val email: String,
@@ -959,6 +938,8 @@ fun GoogleAccountRow(
  * - Text: 16sp, MaterialTheme.colorScheme.onBackground
  * - Placeholder: MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
  */
+*/
+
 @Composable
 fun CampusInputField(
     label: String,

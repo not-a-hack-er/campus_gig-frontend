@@ -12,7 +12,12 @@ val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(keystorePropertiesFile.inputStream())
 }
-val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com")
+val googleWebClientId = keystoreProperties.getProperty("GOOGLE_WEB_CLIENT_ID", "1088965546035-0h3sub1kk14gd17lmi73erat65li4ehs.apps.googleusercontent.com")
+    .trim()
+    .removeSurrounding("\"")
+    .replace("\\", "\\\\")
+    .replace("\"", "\\\"")
+val clerkPublishableKey = keystoreProperties.getProperty("CLERK_PUBLISHABLE_KEY", "")
     .trim()
     .removeSurrounding("\"")
     .replace("\\", "\\\\")
@@ -30,8 +35,8 @@ android {
         applicationId = "com.abpvt.campusgig_frontend"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 7
+        versionName = "1.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -45,6 +50,9 @@ android {
         // OAuth Web client ID. Keep this in keystore.properties so the Android
         // ID token uses the same audience verified by the production backend.
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$googleWebClientId\"")
+        // Clerk's publishable key identifies the production Clerk instance. It is
+        // intentionally loaded from keystore.properties and never hard-coded in source.
+        buildConfigField("String", "CLERK_PUBLISHABLE_KEY", "\"$clerkPublishableKey\"")
     }
 
     // ── Release Signing Configuration ─────────────────────────────────────────
@@ -56,6 +64,12 @@ android {
     //   BASE_URL="https://api.campusgig.com/api/"
     //   SOCKET_URL="https://api.campusgig.com"
     signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         if (keystorePropertiesFile.exists()) {
             create("release") {
                   storeFile = rootProject.file(keystoreProperties.getProperty("storeFile", ""))
@@ -83,8 +97,7 @@ android {
         }
         debug {
             isMinifyEnabled = false
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -133,6 +146,9 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.google.play.services.auth)
+    // 1.0.17 is compatible with this app's Kotlin 2.2 compiler and API 36
+    // compileSdk. Keep it pinned until the project toolchain is upgraded.
+    implementation("com.clerk:clerk-android-api:1.0.17")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

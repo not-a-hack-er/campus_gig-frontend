@@ -81,7 +81,9 @@ class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
     fun logout() {
         // Access Application-level AuthRepository for logout
         // (ProfileViewModel only knows UserRepository, so we need the app context)
-        CampusGigApplication.instance.authRepository.logout()
+        viewModelScope.launch {
+            CampusGigApplication.instance.authRepository.logout()
+        }
     }
 
     /** Reset update state after navigation. */

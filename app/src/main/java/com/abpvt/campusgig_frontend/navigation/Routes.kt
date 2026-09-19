@@ -24,7 +24,6 @@ object Routes {
     // ── Auth ──────────────────────────────────────────────────────────────────
     const val LOGIN           = "login"
     const val REGISTER        = "register"
-    const val FORGOT_PASSWORD = "forgot_password"
 
     // ── Main Screens (shown in BottomNavBar) ──────────────────────────────────
     const val HOME           = "home"

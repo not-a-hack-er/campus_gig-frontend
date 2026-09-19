@@ -18,7 +18,6 @@ import com.abpvt.campusgig_frontend.data.model.response.AuthResponse
 import com.abpvt.campusgig_frontend.data.model.response.CompletionOtpResponse
 import com.abpvt.campusgig_frontend.data.model.response.MessageResponse
 import com.abpvt.campusgig_frontend.data.model.response.UnreadCountResponse
-import com.abpvt.campusgig_frontend.data.model.response.VerifyOtpResponse
 import com.abpvt.campusgig_frontend.data.model.response.AvatarUploadData
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -44,14 +43,9 @@ interface ApiService {
     @POST("auth/google")
     suspend fun googleLogin(@Body body: Map<String, String>): Response<okhttp3.ResponseBody>
 
-    @POST("auth/forgot-password")
-    suspend fun forgotPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
-
-    @POST("auth/verify-otp")
-    suspend fun verifyOtp(@Body body: Map<String, String>): Response<ApiResponse<VerifyOtpResponse>>
-
-    @POST("auth/reset-password")
-    suspend fun resetPassword(@Body body: Map<String, String>): Response<ApiResponse<Unit>>
+    /** Creates or links the MongoDB profile for an authenticated Clerk user. */
+    @POST("auth/sync")
+    suspend fun syncClerkUser(@retrofit2.http.Header("Authorization") authorization: String): Response<okhttp3.ResponseBody>
 
     // ─── User / Profile ──────────────────────────────────────────────────────
     @GET("users/me")

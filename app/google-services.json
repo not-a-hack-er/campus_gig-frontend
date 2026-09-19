@@ -12,20 +12,35 @@
           "package_name": "com.abpvt.campusgig_frontend"
         }
       },
-      "oauth_client": [],
-      "api_key": [{ "current_key": "AIzaSyAb5TexlhoZEJNDwYgL5TsLJ86-NO_vov0" }],
-      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:405536133969:android:21cd9fa45425b10b33f970",
-        "android_client_info": {
-          "package_name": "com.abpvt.campusgig_frontend.debug"
+      "oauth_client": [
+        {
+          "client_id": "405536133969-i4gk4v5htugav56vdj489km6tu63s2lm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.abpvt.campusgig_frontend",
+            "certificate_hash": "c25552c642aed609b0a44102977cf4709066b939"
+          }
+        },
+        {
+          "client_id": "405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com",
+          "client_type": 3
         }
-      },
-      "oauth_client": [],
-      "api_key": [{ "current_key": "AIzaSyAb5TexlhoZEJNDwYgL5TsLJ86-NO_vov0" }],
-      "services": { "appinvite_service": { "other_platform_oauth_client": [] } }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb5TexlhoZEJNDwYgL5TsLJ86-NO_vov0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "405536133969-1nbq5mloe0bk4t4jc5q4aaqdfkm9i5qr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

@@ -47,6 +47,7 @@ object Constants {
 
     // Keys used to store/retrieve values in SharedPreferences
     const val KEY_TOKEN       = "auth_token"      // JWT authentication token
+    const val KEY_AUTH_PROVIDER = "auth_provider" // "legacy" or "clerk"
     const val KEY_USER_ID     = "user_id"         // Logged-in user's MongoDB _id
     const val KEY_USER_ROLE   = "user_role"       // "student" or "employer"
     const val KEY_USER_NAME   = "user_name"       // Cached display name

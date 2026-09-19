@@ -75,14 +75,14 @@ import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.SemanticError
 
 private val bannerOptions = listOf(
-    listOf(Color(0xFF6366F1), Color(0xFF8B5CF6)),
-    listOf(Color(0xFF14B8A6), Color(0xFF06B6D4)),
-    listOf(Color(0xFFF59E0B), Color(0xFFEF4444)),
-    listOf(Color(0xFF10B981), Color(0xFF3B82F6)),
-    listOf(Color(0xFFEC4899), Color(0xFF8B5CF6)),
-    listOf(Color(0xFF6366F1), Color(0xFF14B8A6)),
-    listOf(Color(0xFFF97316), Color(0xFFEF4444)),
-    listOf(Color(0xFF8B5CF6), Color(0xFF3B82F6)),
+    listOf(Color(0xFF203A2A), Color(0xFF15803D)),
+    listOf(Color(0xFF203830), Color(0xFF2D8A6E)),
+    listOf(Color(0xFF3C3223), Color(0xFFA67C34)),
+    listOf(Color(0xFF263434), Color(0xFF3F6C72)),
+    listOf(Color(0xFF3A2A2C), Color(0xFF7A3F48)),
+    listOf(Color(0xFF2F2B27), Color(0xFF5A5146)),
+    listOf(Color(0xFF3E2B25), Color(0xFFB65A3C)),
+    listOf(Color(0xFF303024), Color(0xFF7A783A)),
 )
 
 private val communityCategories2 = listOf("💻 Coding", "🎨 Design", "🎓 Campus Life", "📚 Study Groups", "🚀 Entrepreneurship", "🎵 Music", "📷 Photography", "🤝 Networking")

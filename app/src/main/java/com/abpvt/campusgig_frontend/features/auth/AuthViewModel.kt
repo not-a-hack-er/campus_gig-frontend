@@ -45,17 +45,6 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    fun googleLogin(idToken: String) {
-        viewModelScope.launch {
-            _authState.value = Resource.Loading
-            val result = repository.googleLogin(idToken)
-            if (result is Resource.Success) {
-                SocketManager.connect(result.data.token)
-            }
-            _authState.value = result
-        }
-    }
-
     fun register(
         name: String,
         email: String,
@@ -85,10 +74,23 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         }
     }
 
-    /** Clears token from SharedPreferences, effectively logging the user out. */
+    fun loginWithGoogle(idToken: String) {
+        viewModelScope.launch {
+            _authState.value = Resource.Loading
+            val result = repository.loginWithGoogle(idToken)
+            if (result is Resource.Success) {
+                SocketManager.connect(result.data.token)
+            }
+            _authState.value = result
+        }
+    }
+
+    /** Clears the active Clerk session (when present) and local session state. */
     fun logout() {
-        SocketManager.disconnect()
-        repository.logout()
+        viewModelScope.launch {
+            SocketManager.disconnect()
+            repository.logout()
+        }
     }
 
     fun resetState() {

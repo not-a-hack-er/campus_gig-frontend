@@ -28,8 +28,6 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -86,19 +84,15 @@ fun GigCard(
     val borderCol = MaterialTheme.colorScheme.outline
     val primary   = MaterialTheme.colorScheme.primary
 
-    Card(
+    MetalCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, borderCol),
-        colors = CardDefaults.cardColors(containerColor = cardBg),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        tag = "LIVE GIG"
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
         ) {
             // ── Header: Client info + Match Badge + Bookmark ──────────────
             Row(
@@ -369,8 +363,8 @@ fun AvatarInitials(
     modifier: Modifier = Modifier
 ) {
     val avatarColors = listOf(
-        Color(0xFF4F46E5), Color(0xFF059669), Color(0xFF9333EA),
-        Color(0xFFE23744), Color(0xFF0284C7), Color(0xFFEA580C)
+        Color(0xFF15803D), Color(0xFF2D8A6E), Color(0xFFB65A3C),
+        Color(0xFF7A3F48), Color(0xFF3F6C72), Color(0xFFA67C34)
     )
     val avatarColor = avatarColors[(name.firstOrNull()?.code ?: 0) % avatarColors.size]
 

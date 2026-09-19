@@ -3,6 +3,10 @@ package com.abpvt.campusgig_frontend.core.network
 import android.content.Context
 import android.util.Log
 import com.abpvt.campusgig_frontend.core.utils.Constants
+import com.clerk.api.Clerk
+import com.clerk.api.network.serialization.ClerkResult
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import okhttp3.Interceptor
@@ -10,7 +14,8 @@ import okhttp3.Response
 
 /**
  * OkHttp interceptor that:
- *  1. Attaches the JWT Bearer token to every outgoing request.
+ *  1. Attaches the active Clerk session token (or a legacy JWT during migration)
+ *     to every outgoing request.
  *  2. Detects HTTP 401 Unauthorized responses (expired / revoked tokens) and
  *     emits a [sessionExpiredEvent] so the UI can navigate back to Login immediately.
  *
@@ -40,11 +45,29 @@ class AuthInterceptor(private val context: Context) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val prefs = context.getSharedPreferences(Constants.PREFS_NAME, Context.MODE_PRIVATE)
-        val token = prefs.getString(Constants.KEY_TOKEN, null)
+        val cachedToken = prefs.getString(Constants.KEY_TOKEN, null)
+        val token = if (prefs.getString(Constants.KEY_AUTH_PROVIDER, "legacy") == "clerk") {
+            // Clerk refreshes its short-lived session token when necessary.  The cached
+            // token remains a boot-time fallback while Clerk is initializing.
+            try {
+                runBlocking {
+                    withTimeoutOrNull(5_000) {
+                        when (val result = Clerk.auth.getToken()) {
+                            is ClerkResult.Success -> result.value
+                            is ClerkResult.Failure -> null
+                        }
+                    }
+                } ?: cachedToken
+            } catch (_: Exception) {
+                cachedToken
+            }
+        } else {
+            cachedToken
+        }
 
-        val request = if (token != null) {
+        val request = if (chain.request().header("Authorization") == null && token != null) {
             chain.request().newBuilder()
-                .addHeader("Authorization", "Bearer $token")
+                .header("Authorization", "Bearer $token")
                 .build()
         } else {
             chain.request()
@@ -56,7 +79,7 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         // If the server rejects our token on a protected endpoint (NOT an auth endpoint),
         // clear local session and signal the UI to navigate back to the Login screen.
         val path = chain.request().url.encodedPath
-        val isAuthEndpoint = path.contains("auth/login") ||
+        val isAuthEndpoint = path.contains("auth/sync") || path.contains("auth/login") ||
                              path.contains("auth/register") ||
                              path.contains("auth/forgot-password") ||
                              path.contains("auth/verify-otp") ||
@@ -71,4 +94,3 @@ class AuthInterceptor(private val context: Context) : Interceptor {
         return response
     }
 }
-

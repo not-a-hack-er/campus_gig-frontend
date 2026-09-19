@@ -19,12 +19,11 @@
  *   surfaceVariant = Surface3Light (#DDD6FE) — Violet-200 chip/input fill
  *
  * Primary action flow:
- *   dark:  primary = Indigo400 (#818CF8)
- *   light: primary = CampusBlue600 (#2563EB)
+ *   dark:  primary = CampusVault phosphor green
+ *   light: primary = CampusVault deep green
  */
 package com.abpvt.campusgig_frontend.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -33,20 +32,20 @@ import androidx.compose.ui.graphics.Color
 
 // ─── Dark Color Scheme ────────────────────────────────────────────────────────
 private val CampusVaultDarkColorScheme = darkColorScheme(
-    primary             = Indigo400,
-    onPrimary           = Color.White,
-    primaryContainer    = Indigo700,
-    onPrimaryContainer  = Violet400,
+    primary             = CvPrimary,
+    onPrimary           = CvBg0,
+    primaryContainer    = CvPrimaryDeep,
+    onPrimaryContainer  = CvPrimarySoft,
 
-    secondary           = Violet500,
-    onSecondary         = Color.White,
-    secondaryContainer  = Color(0xFF2D1B69),
-    onSecondaryContainer = Violet400,
+    secondary           = CvMint,
+    onSecondary         = CvBg0,
+    secondaryContainer  = Color(0xFF245E4C),
+    onSecondaryContainer = CvMintSoft,
 
-    tertiary            = SemanticWarning,
-    onTertiary          = Color(0xFF1A1200),
-    tertiaryContainer   = Color(0xFF3B2C00),
-    onTertiaryContainer = GradientGoldEnd,
+    tertiary            = CvCoral,
+    onTertiary          = CvBg0,
+    tertiaryContainer   = Color(0xFF5B2932),
+    onTertiaryContainer = CvCoralSoft,
 
     background          = Surface1,
     onBackground        = TextPrimary,
@@ -73,40 +72,38 @@ private val CampusVaultDarkColorScheme = darkColorScheme(
 
     inverseSurface      = TextPrimary,
     inverseOnSurface    = Surface1,
-    inversePrimary      = Indigo600,
+    inversePrimary      = CvPrimary,
 
     scrim               = ScrimColor
 )
 
 // ─── Light Color Scheme — LinkedIn Warm Beige + Duolingo Multi-Color (v6.0) ──
 private val CampusVaultLightColorScheme = lightColorScheme(
-    // ── Primary: Electric Indigo (#4F46E5) — Premium AI/Tech (Linear, Vercel style)
-    primary             = IndigoLight600,         // #4F46E5 — Electric Indigo
+    primary             = CvPrimaryDeep,
     onPrimary           = Color.White,
-    primaryContainer    = IndigoLight100,         // #EEF2FF — soft indigo chip fill
-    onPrimaryContainer  = IndigoLight700,         // #4338CA — deep indigo text
+    primaryContainer    = Color(0xFFDDF7E6),
+    onPrimaryContainer  = CvPrimaryDeep,
 
-    // ── Secondary: Zomato Coral-Red — Energy, Discovery, Trending
-    secondary           = CoralRed500,            // #E23744 — Zomato Coral Red
+    secondary           = CvMintDeep,
     onSecondary         = Color.White,
-    secondaryContainer  = CoralRed100,            // #FFF0F3 — soft rose chip fill
-    onSecondaryContainer = CoralRed600,
+    secondaryContainer  = Color(0xFFDCEFE8),
+    onSecondaryContainer = CvMintDeep,
 
     // ── Tertiary: Forest Emerald — Success, Open, Applications, Joined
-    tertiary            = Emerald500,             // #059669 — Forest Emerald
+    tertiary            = CvCoral,
     onTertiary          = Color.White,
     tertiaryContainer   = Emerald100,             // #D1FAE5 — soft green chip fill
     onTertiaryContainer = Emerald700,
 
-    // ── Surfaces: LinkedIn Warm Beige-Gray — clearly NOT white, rich & cozy
-    background          = BackgroundBaseLight,    // #F3F2EF — LinkedIn Warm Beige
-    onBackground        = TextPrimaryLight,       // #1A1A2E — Swiggy Deep Navy
+    // ── Surfaces: warm CampusVault paper/metal tones
+    background          = BackgroundBaseLight,
+    onBackground        = TextPrimaryLight,
 
-    surface             = Surface2Light,          // #FFFFFF — crisp white cards on beige
-    onSurface           = TextPrimaryLight,       // #1A1A2E
+    surface             = Surface2Light,
+    onSurface           = TextPrimaryLight,
 
-    surfaceVariant      = Surface3Light,          // #EBF0F7 — blue-tinted chip fill
-    onSurfaceVariant    = TextSecondaryLight,     // #6B7280 — Notion Slate
+    surfaceVariant      = Surface3Light,
+    onSurfaceVariant    = TextSecondaryLight,
 
     surfaceContainerHighest = Surface4Light,
     surfaceContainer    = Surface3Light,
@@ -114,9 +111,9 @@ private val CampusVaultLightColorScheme = lightColorScheme(
     surfaceContainerLow = Surface2Light,
     surfaceContainerLowest = BackgroundBaseLight,
 
-    // ── Outlines: Notion-style subtle + blue-tinted active
-    outline             = BorderSubtleLight,      // #E0E0E0 — soft card border
-    outlineVariant      = BorderDefaultLight,     // #C0C8D8 — active focus border
+    // ── Outlines: warm metal-inspired neutrals
+    outline             = BorderSubtleLight,
+    outlineVariant      = BorderDefaultLight,
 
     // ── Error
     error               = ErrorColorLight,        // #DC2626
@@ -127,7 +124,7 @@ private val CampusVaultLightColorScheme = lightColorScheme(
     // ── Inverse
     inverseSurface      = TextPrimaryLight,
     inverseOnSurface    = Surface2Light,
-    inversePrimary      = IndigoLight400,
+    inversePrimary      = CvPrimary,
 
     scrim               = Color(0x80000000)
 )
@@ -140,7 +137,7 @@ private val CampusVaultLightColorScheme = lightColorScheme(
  */
 @Composable
 fun CampusGigTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) CampusVaultDarkColorScheme else CampusVaultLightColorScheme
@@ -155,12 +152,12 @@ fun CampusGigTheme(
 // Backward-compat aliases
 @Composable
 fun CampusVaultTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) = CampusGigTheme(darkTheme = darkTheme, content = content)
 
 @Composable
 fun Campusgig_frontendTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) = CampusGigTheme(darkTheme = darkTheme, content = content)

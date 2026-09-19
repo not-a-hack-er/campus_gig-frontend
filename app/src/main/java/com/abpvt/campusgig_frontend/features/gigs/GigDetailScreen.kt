@@ -127,14 +127,14 @@ import kotlinx.coroutines.launch
 // ─── Category Hero Gradient ───────────────────────────────────────────────────
 
 private fun categoryGradient(category: String) = when (category.lowercase()) {
-    "coding"      -> listOf(Color(0xFF1E1B4B), Color(0xFF312E81), Color(0xFF4338CA))
-    "design"      -> listOf(Color(0xFF500724), Color(0xFF831843), Color(0xFFBE185D))
-    "writing"     -> listOf(Color(0xFF042F2E), Color(0xFF134E4A), Color(0xFF0D9488))
-    "tutoring"    -> listOf(Color(0xFF451A03), Color(0xFF78350F), Color(0xFFD97706))
-    "photography" -> listOf(Color(0xFF450A0A), Color(0xFF7F1D1D), Color(0xFFDC2626))
-    "video"       -> listOf(Color(0xFF0C1C3E), Color(0xFF1E3A5F), Color(0xFF1D4ED8))
-    "marketing"   -> listOf(Color(0xFF2E1065), Color(0xFF4C1D95), Color(0xFF7C3AED))
-    else          -> listOf(Color(0xFF0F0C29), Color(0xFF1E1B4B), Color(0xFF3730A3))
+    "coding"      -> listOf(Color(0xFF1D3022), Color(0xFF245E32), Color(0xFF15803D))
+    "design"      -> listOf(Color(0xFF352526), Color(0xFF5A3038), Color(0xFF7A3F48))
+    "writing"     -> listOf(Color(0xFF1D302A), Color(0xFF245B4B), Color(0xFF2D8A6E))
+    "tutoring"    -> listOf(Color(0xFF352D20), Color(0xFF684D25), Color(0xFFA67C34))
+    "photography" -> listOf(Color(0xFF382720), Color(0xFF79412C), Color(0xFFB65A3C))
+    "video"       -> listOf(Color(0xFF233233), Color(0xFF31575B), Color(0xFF3F6C72))
+    "marketing"   -> listOf(Color(0xFF343321), Color(0xFF5A592E), Color(0xFF7A783A))
+    else          -> listOf(Color(0xFF24201D), Color(0xFF403932), Color(0xFF5A5146))
 }
 
 private fun categoryIcon(category: String) = when (category.lowercase()) {

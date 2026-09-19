@@ -69,7 +69,7 @@ import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.CampusTeal40
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoStart
 import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoMid
-import com.abpvt.campusgig_frontend.ui.theme.Violet500
+import com.abpvt.campusgig_frontend.ui.theme.GradientIndigoEnd
 
 data class NavItem(
     val label: String,
@@ -120,7 +120,7 @@ fun CampusGigBottomBar(
         // Floating glass backdrop with rounded corners
         Surface(
             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.94f),
-            shape = RoundedCornerShape(32.dp),
+            shape = RoundedCornerShape(16.dp),
             border = BorderStroke(
                 width = 1.dp,
                 brush = Brush.linearGradient(
@@ -173,7 +173,7 @@ fun CampusGigBottomBar(
                                     colors = listOf(
                                         GradientIndigoStart,
                                         GradientIndigoMid,
-                                        Violet500
+                                        GradientIndigoEnd
                                     )
                                 )
                             )

@@ -36,6 +36,17 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="campusvault" />
             </intent-filter>
+
+            <!-- Clerk OAuth callback. Matches the Native API callback registered
+                 for com.abpvt.campusgig_frontend in the Clerk dashboard. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="clerk"
+                    android:host="com.abpvt.campusgig_frontend.callback" />
+            </intent-filter>
         </activity>
 
         <!-- Firebase Cloud Messaging Service -->

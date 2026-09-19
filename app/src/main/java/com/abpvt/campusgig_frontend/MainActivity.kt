@@ -19,6 +19,7 @@ import android.content.pm.PackageManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.abpvt.campusgig_frontend.core.network.AuthInterceptor
 import com.abpvt.campusgig_frontend.features.chat.SocketManager
@@ -27,6 +28,8 @@ import com.abpvt.campusgig_frontend.navigation.Routes
 import com.abpvt.campusgig_frontend.ui.theme.CampusGigTheme
 import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModel
 import com.abpvt.campusgig_frontend.ui.theme.ThemeViewModelFactory
+import com.clerk.api.Clerk
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val notificationIntent = MutableStateFlow<Intent?>(null)
@@ -37,6 +40,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         notificationIntent.value = intent
+        handleClerkCallback(intent)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
         ) {
@@ -109,5 +113,14 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         notificationIntent.value = intent
+        handleClerkCallback(intent)
+    }
+
+    private fun handleClerkCallback(intent: Intent?) {
+        val callback = intent?.data ?: return
+        if (callback.scheme != "clerk") return
+        lifecycleScope.launch {
+            Clerk.auth.handle(callback)
+        }
     }
 }

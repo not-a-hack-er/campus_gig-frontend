@@ -4,6 +4,9 @@ import android.app.Application
 import com.abpvt.campusgig_frontend.core.network.ApiService
 import com.abpvt.campusgig_frontend.core.network.RetrofitInstance
 import com.abpvt.campusgig_frontend.core.utils.Constants
+import com.abpvt.campusgig_frontend.BuildConfig
+import com.clerk.api.Clerk
+import com.clerk.api.network.serialization.ClerkResult
 import com.abpvt.campusgig_frontend.data.repository.AuthRepository
 import com.abpvt.campusgig_frontend.data.repository.ChatRepository
 import com.abpvt.campusgig_frontend.data.repository.CommunityRepository
@@ -44,14 +47,38 @@ class CampusGigApplication : Application() {
         super.onCreate()
         instance = this
 
+        // Clerk is initialized before any authentication UI is opened. The
+        // publishable key is build-time configuration; secret keys stay server-side.
+        if (BuildConfig.CLERK_PUBLISHABLE_KEY.isNotBlank()) {
+            Clerk.initialize(this, publishableKey = BuildConfig.CLERK_PUBLISHABLE_KEY)
+        }
+
         createNotificationChannel()
 
         // Connect socket & sync FCM token if already logged in
-        val token = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
-            .getString(Constants.KEY_TOKEN, null)
+        val prefs = getSharedPreferences(Constants.PREFS_NAME, MODE_PRIVATE)
+        val token = prefs.getString(Constants.KEY_TOKEN, null)
         if (token != null) {
-            SocketManager.connect(token)
-            syncFcmToken()
+            if (prefs.getString(Constants.KEY_AUTH_PROVIDER, "legacy") == "clerk") {
+                // Restore a fresh Clerk token after process death; session tokens are
+                // deliberately short-lived and the saved value is only a boot marker.
+                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                    val freshToken = try {
+                        when (val result = Clerk.auth.getToken()) {
+                            is ClerkResult.Success -> result.value
+                            is ClerkResult.Failure -> null
+                        }
+                    } catch (_: Exception) { null }
+                    if (!freshToken.isNullOrBlank()) {
+                        prefs.edit().putString(Constants.KEY_TOKEN, freshToken).apply()
+                        SocketManager.connect(freshToken)
+                        syncFcmToken()
+                    }
+                }
+            } else {
+                SocketManager.connect(token)
+                syncFcmToken()
+            }
         }
     }
 
